@@ -18,19 +18,24 @@ public class TravelDbContext : DbContext {
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
 
-    // Phần cấu hình bổ sung để fix lỗi warning tiền tệ
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Định nghĩa kiểu decimal(18,2) cho các cột tiền tệ
+        // 1. Định nghĩa kiểu decimal(18,2) cho các cột tiền tệ
         modelBuilder.Entity<Booking>().Property(b => b.TotalPrice).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<TourSchedule>().Property(t => t.AdultPrice).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<TourSchedule>().Property(t => t.ChildPrice).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<Transaction>().Property(t => t.Amount).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<Voucher>().Property(v => v.DiscountValue).HasColumnType("decimal(18,2)");
 
-        // (Tùy chọn) Ràng buộc Email là duy nhất
+        // 2. Ràng buộc Email là duy nhất
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+
+        // 3. SEED DATA CHO ROLES (Quan trọng để fix lỗi ID nhảy lên 3, 4)
+        modelBuilder.Entity<Role>().HasData(
+            new Role { Id = 1, Name = "Admin" },
+            new Role { Id = 2, Name = "User" }
+        );
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TravelTour.API.Controllers
 {
-    [Authorize] // Bắt buộc đăng nhập mới được đặt tour
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BookingsController : ControllerBase
@@ -25,43 +25,50 @@ namespace TravelTour.API.Controllers
         {
             try
             {
-                // 1. Lấy Email từ JWT Token để xác định ai đang đặt hàng
+                // 1. Lấy Email từ JWT Token
                 var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 if (string.IsNullOrEmpty(userEmail))
                 {
                     return Unauthorized("Không tìm thấy thông tin người dùng trong Token.");
                 }
 
-                // 2. Tìm User trong Database
+                // 2. Tìm User
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
                 if (user == null)
                 {
-                    return NotFound("Người dùng không tồn tại trong hệ thống.");
+                    return NotFound("Người dùng không tồn tại.");
                 }
 
-                // 3. Kiểm tra xem Lịch trình tour (TourSchedule) có tồn tại không
+                // 3. Kiểm tra TourSchedule
                 var schedule = await _context.TourSchedules.FindAsync(request.TourScheduleId);
                 if (schedule == null)
                 {
                     return BadRequest("Lịch trình tour không hợp lệ.");
                 }
 
-                // 4. Tạo bản ghi Booking mới (Khớp với ERD của bạn)
+                // 4. Kiểm tra số lượng chỗ (Dựa theo ERD: AvailableSeats)
+                if (schedule.AvailableSeats < request.TotalPassengers)
+                {
+                    return BadRequest("Số lượng chỗ còn lại không đủ.");
+                }
+
+                // 5. Tạo Booking
                 var newBooking = new Booking
                 {
                     UserId = user.Id,
                     TourScheduleId = request.TourScheduleId,
                     TotalPassengers = request.TotalPassengers,
                     TotalPrice = request.TotalPrice,
-                    Status = "Pending", // Trạng thái mặc định: Chờ xử lý
+                    Status = "Pending",
                     CreatedAt = DateTime.Now
                 };
 
-                // 5. Lưu vào Database
+                // Cập nhật số chỗ còn lại (AvailableSeats)
+                schedule.AvailableSeats -= request.TotalPassengers;
+
                 _context.Bookings.Add(newBooking);
                 await _context.SaveChangesAsync();
 
-                // Trả về kết quả thành công
                 return Ok(new { 
                     message = "Đặt tour thành công!", 
                     bookingId = newBooking.Id,
@@ -74,25 +81,25 @@ namespace TravelTour.API.Controllers
             }
         }
 
-        // GET: api/Bookings/my-bookings (Để demo danh sách đơn hàng đã mua)
+        // GET: api/Bookings/my-bookings
         [HttpGet("my-bookings")]
         public async Task<IActionResult> GetMyBookings()
         {
-            // 1. Lấy Email và kiểm tra null ngay lập tức
+            // 1. Lấy Email từ Token
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail)) return Unauthorized("Token không lệ.");
+            if (string.IsNullOrEmpty(userEmail)) return Unauthorized("Token không hợp lệ.");
 
             // 2. Tìm User
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
             
-            // Kiểm tra nếu user null thì dừng lại, không chạy tiếp xuống dòng 88
-            if (user == null) return Unauthorized("Người dùng không tồn tại.");
+            // Kiểm tra null cực kỳ quan trọng để fix CS8602
+            if (user == null) return NotFound("Người dùng không tồn tại.");
 
-            // 3. Truy vấn (Dòng 88 nằm ở đây)
+            // 3. Truy vấn danh sách Booking
             var myBookings = await _context.Bookings
                 .Include(b => b.TourSchedule)
-                    .ThenInclude(s => s != null ? s.Tour : null) // Kiểm tra null cho quan hệ
-                .Where(b => b.UserId == user.Id) // Bây giờ user.Id đã an toàn 100%
+                    .ThenInclude(s => s!.Tour) // Dùng dấu ! (null-forgiving) vì chúng ta biết Schedule phải có Tour
+                .Where(b => b.UserId == user.Id) // Bây giờ user.Id đã an toàn
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
 
@@ -100,7 +107,6 @@ namespace TravelTour.API.Controllers
         }
     }
 
-    // DTO (Data Transfer Object) để nhận dữ liệu từ React gửi lên
     public class BookingRequest
     {
         public int TourScheduleId { get; set; }

@@ -7,10 +7,10 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CẤU HÌNH CORS (PHẢI THÊM CÁI NÀY) ---
+// --- 1. CẤU HÌNH CORS ---
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowReactApp", policy => {
-        policy.WithOrigins("http://localhost:5173") // Cổng của React
+        policy.WithOrigins("http://localhost:5173") 
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -19,11 +19,11 @@ builder.Services.AddCors(options => {
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// --- Cấu hình Swagger ---
+// --- 2. CẤU HÌNH SWAGGER (Để test API trực tiếp) ---
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TravelTour API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-        Description = "Dán Token vào đây theo cú pháp: Bearer {token}",
+        Description = "Nhập theo cú pháp: Bearer [token_của_bạn]",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -39,16 +39,25 @@ builder.Services.AddSwaggerGen(c => {
     });
 });
 
+// --- 3. KẾT NỐI DATABASE ---
 builder.Services.AddDbContext<TravelDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// --- 4. CẤU HÌNH AUTHENTICATION (Đã đồng bộ với appsettings.json) ---
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "Chuoi_Bi_Mat_Sieu_Cap_Vip_123456_Dai_Hon_32_Ky_Tu");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
         options.TokenValidationParameters = new TokenValidationParameters {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Chuoi_Bi_Mat_Sieu_Cap_Vip_123456")),
-            ValidateIssuer = false,
-            ValidateAudience = false
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = jwtSettings["Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero // Loại bỏ thời gian trễ mặc định 5p của Token
         };
     });
 
@@ -56,19 +65,19 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// --- 5. MIDDLEWARE PIPELINE (Thứ tự cực kỳ quan trọng) ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// --- 2. KÍCH HOẠT CORS (THỨ TỰ RẤT QUAN TRỌNG) ---
-app.UseCors("AllowReactApp"); // Phải nằm TRƯỚC Authentication/Authorization
+app.UseCors("AllowReactApp"); 
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); 
-app.UseAuthorization();  
-
+app.UseAuthentication(); // Ai là người đang truy cập?
+app.UseAuthorization();  // Người đó có quyền làm gì (Admin/User)?
+app.UseStaticFiles();
 app.MapControllers();
 app.Run();

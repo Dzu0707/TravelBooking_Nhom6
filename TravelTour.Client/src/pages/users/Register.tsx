@@ -6,6 +6,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: ''
   });
@@ -24,6 +25,7 @@ const Register = () => {
       await axios.post("http://localhost:5091/api/Auth/register", {
         fullName: formData.fullName,
         email: formData.email,
+        phone: formData.phone,
         password: formData.password
       });
 
@@ -71,6 +73,17 @@ const Register = () => {
               className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500 transition-all outline-none"
               placeholder="example@gmail.com"
               onChange={(e) => setFormData({...formData, email: e.target.value})}
+            />
+          </div>
+          
+          <div>
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest ml-1 mb-2">Số điện thoại</label>
+            <input 
+              type="text" 
+              required
+              className="w-full px-6 py-4 bg-gray-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+              placeholder="0912345678"
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
             />
           </div>
 

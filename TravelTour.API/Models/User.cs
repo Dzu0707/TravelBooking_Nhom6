@@ -19,7 +19,7 @@ public class User {
     
     public int RoleId { get; set; }
     
-    // Thêm ? để tránh bắt buộc nhập Role khi đăng ký mới
+    public string Phone { get; set; } = string.Empty;
     public virtual Role? Role { get; set; } 
 
     public bool IsLocked { get; set; } = false;
