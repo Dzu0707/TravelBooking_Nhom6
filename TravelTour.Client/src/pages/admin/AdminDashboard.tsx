@@ -1,192 +1,172 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Trash2, Edit, Plus, RefreshCw, X } from 'lucide-react';
+import { 
+  Map, Users, ClipboardList, Settings, 
+  BarChart3, LogOut, ChevronRight, TrendingUp 
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const AdminDashboard = () => {
-  const [tours, setTours] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // States cho Modal Thêm/Sửa
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    departureLocation: '',
-    description: '',
-    categoryId: 1
+const AdminPortal = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    tours: 0,
+    bookings: 0,
+    users: 0,
+    revenue: 0
   });
 
-  const API_URL = 'http://localhost:5091/api/AdminTours';
-  const token = localStorage.getItem('token');
+  // 1. Gọi API lấy dữ liệu tổng hợp
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        // Gọi đồng thời các API (Đảm bảo các endpoint này tồn tại ở Backend của bạn)
+        const [toursRes, bookingsRes, usersRes] = await Promise.all([
+          axios.get('http://localhost:5091/api/Tours'),
+          axios.get('http://localhost:5091/api/Bookings'), // Endpoint giả định
+          axios.get('http://localhost:5091/api/Users')     // Endpoint giả định
+        ]);
 
-  const fetchTours = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(API_URL, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setTours(res.data);
-    } catch (err) {
-      console.error("Lỗi lấy dữ liệu:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+        // Tính toán doanh thu từ danh sách đơn hàng (ví dụ cộng dồn field totalAmount)
+        const totalRevenue = bookingsRes.data.reduce((sum: number, item: any) => sum + (item.totalAmount || 0), 0);
 
-  useEffect(() => { fetchTours(); }, []);
-
-  // Mở modal để thêm hoặc sửa
-  const openModal = (tour: any = null) => {
-    if (tour) {
-      setEditingId(tour.id);
-      setFormData({
-        name: tour.name,
-        code: tour.code,
-        departureLocation: tour.departureLocation,
-        description: tour.description || '',
-        categoryId: tour.categoryId || 1
-      });
-    } else {
-      setEditingId(null);
-      setFormData({ name: '', code: '', departureLocation: '', description: '', categoryId: 1 });
-    }
-    setIsModalOpen(true);
-  };
-
-  // Xử lý gửi Form (Cả POST và PUT)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (editingId) {
-        // Cập nhật (PUT)
-        await axios.put(`${API_URL}/${editingId}`, formData, {
-          headers: { Authorization: `Bearer ${token}` }
+        setStats({
+          tours: toursRes.data.length,
+          bookings: bookingsRes.data.length,
+          users: usersRes.data.length,
+          revenue: totalRevenue
         });
-      } else {
-        // Thêm mới (POST)
-        await axios.post(API_URL, formData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+      } catch (err) {
+        console.error("Lỗi khi lấy dữ liệu Dashboard:", err);
       }
-      setIsModalOpen(false);
-      fetchTours();
-      alert("Thao tác thành công!");
-    } catch (err) {
-      alert("Có lỗi xảy ra, vui lòng kiểm tra lại dữ liệu!");
-    }
-  };
+    };
 
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa tour này?")) return;
-    try {
-      await axios.delete(`${API_URL}/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchTours();
-    } catch (err) {
-      alert("Không thể xóa tour này!");
-    }
-  };
+    fetchDashboardData();
+  }, []);
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-       <RefreshCw className="animate-spin text-blue-600 mb-2" size={32} />
-       <p className="text-gray-500">Đang tải dữ liệu...</p>
-    </div>
-  );
+  const adminName = "Quản trị viên";
+
+  const menuItems = [
+    {
+      title: 'Quản lý Tours',
+      description: 'Thêm, sửa, xóa và điều chỉnh lịch trình các tour du lịch.',
+      icon: <Map className="text-blue-600" size={32} />,
+      path: '/admin/tours',
+      color: 'bg-blue-50',
+      count: `${stats.tours} Tours` // Dữ liệu thật
+    },
+    {
+      title: 'Quản lý Đơn hàng',
+      description: 'Xem danh sách đặt chỗ, xác nhận thanh toán và hủy tour.',
+      icon: <ClipboardList className="text-emerald-600" size={32} />,
+      path: '/admin/bookings',
+      color: 'bg-emerald-50',
+      count: `${stats.bookings} Đơn` // Dữ liệu thật
+    },
+    {
+      title: 'Người dùng',
+      description: 'Quản lý tài khoản khách hàng và phân quyền nhân viên.',
+      icon: <Users className="text-purple-600" size={32} />,
+      path: '/admin/users',
+      color: 'bg-purple-50',
+      count: `${stats.users} User` // Dữ liệu thật
+    },
+    {
+      title: 'Báo cáo Thống kê',
+      description: 'Xem doanh thu, biểu đồ tăng trưởng và hiệu suất tour.',
+      icon: <BarChart3 className="text-orange-600" size={32} />,
+      path: '/admin/stats',
+      color: 'bg-orange-50',
+      count: 'Live'
+    },
+    {
+      title: 'Cấu hình hệ thống',
+      description: 'Chỉnh sửa thông tin website, email và các tham số khác.',
+      icon: <Settings className="text-gray-600" size={32} />,
+      path: '/admin/settings',
+      color: 'bg-gray-100',
+      count: null
+    }
+  ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-xl mt-10 max-w-7xl mx-auto relative">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h2 className="text-2xl font-black text-gray-800">Quản trị Tour</h2>
-          <p className="text-sm text-gray-400">Danh sách các chuyến đi hiện có</p>
-        </div>
-        <button 
-          onClick={() => openModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition-all"
-        >
-          <Plus size={20}/> Thêm mới Tour
-        </button>
-      </div>
-
-      {/* TABLE */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-separate border-spacing-y-3">
-          <thead>
-            <tr className="text-gray-400 uppercase text-xs font-black">
-              <th className="pb-4 pl-6">Thông tin Tour</th>
-              <th className="pb-4">Mã Code</th>
-              <th className="pb-4">Khởi hành</th>
-              <th className="pb-4 text-center">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tours.map((t: any) => (
-              <tr key={t.id} className="bg-gray-50/50 hover:bg-white hover:shadow-md transition-all">
-                <td className="py-5 pl-6 rounded-l-2xl border-y border-l">
-                  <div className="font-bold text-gray-800">{t.name}</div>
-                  <div className="text-xs text-blue-500">{t.categoryName}</div>
-                </td>
-                <td className="py-5 font-mono text-sm border-y text-gray-500">#{t.code}</td>
-                <td className="py-5 font-medium border-y text-gray-600">{t.departureLocation}</td>
-                <td className="py-5 rounded-r-2xl border-y border-r text-center">
-                  <button onClick={() => openModal(t)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg mr-2"><Edit size={18}/></button>
-                  <button onClick={() => handleDelete(t.id)} className="p-2 text-red-500 hover:bg-red-100 rounded-lg"><Trash2 size={18}/></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* MODAL FORM */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">{editingId ? 'Cập nhật Tour' : 'Thêm Tour Mới'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X/></button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input 
-                placeholder="Tên Tour" className="w-full p-3 rounded-xl border" required
-                value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-              />
-              <div className="grid grid-cols-2 gap-4">
-                <input 
-                  placeholder="Mã Code (Vd: HN01)" className="w-full p-3 rounded-xl border" required
-                  value={formData.code} onChange={e => setFormData({...formData, code: e.target.value})}
-                />
-                <input 
-                  placeholder="Điểm khởi hành" className="w-full p-3 rounded-xl border" required
-                  value={formData.departureLocation} onChange={e => setFormData({...formData, departureLocation: e.target.value})}
-                />
-              </div>
-              <select 
-                className="w-full p-3 rounded-xl border"
-                value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: parseInt(e.target.value)})}
-              >
-                <option value={1}>Du lịch Biển</option>
-                <option value={2}>Khám phá Núi</option>
-                <option value={3}>Văn hóa - Lịch sử</option>
-                <option value={4}>Tour Quốc tế</option>
-              </select>
-              <textarea 
-                placeholder="Mô tả ngắn gọn" className="w-full p-3 rounded-xl border h-24"
-                value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
-              />
-              <button type="submit" className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">
-                {editingId ? 'Lưu thay đổi' : 'Xác nhận Thêm'}
-              </button>
-            </form>
+    <div className="min-h-screen bg-gray-50 p-6 md:p-12">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight">Hệ thống Quản trị</h1>
+            <p className="text-gray-500 mt-1">Chào mừng quay trở lại, <span className="font-semibold text-blue-600">{adminName}</span></p>
           </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white text-red-500 font-bold rounded-xl shadow-sm border border-red-100 hover:bg-red-50 transition-all w-fit"
+          >
+            <LogOut size={20} /> Đăng xuất
+          </button>
         </div>
-      )}
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-4">
+            <div className="p-4 bg-orange-50 rounded-2xl text-orange-600"><TrendingUp /></div>
+            <div>
+              <p className="text-sm text-gray-400 font-medium">Tổng doanh thu</p>
+              <p className="text-2xl font-black text-gray-800">
+                {(stats.revenue / 1000000).toFixed(1)}Mđ
+              </p>
+            </div>
+          </div>
+          {/* Bạn có thể thêm các Stats khác ở đây */}
+        </div>
+
+        {/* Navigation Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {menuItems.map((item, index) => (
+            <div 
+              key={index}
+              onClick={() => navigate(item.path)}
+              className="group bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
+            >
+              <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full ${item.color} opacity-50 group-hover:scale-150 transition-transform duration-500`} />
+              
+              <div className="relative z-10">
+                <div className={`w-16 h-16 ${item.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                  {item.icon}
+                </div>
+                
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-xl font-bold text-gray-800">{item.title}</h3>
+                  {item.count && (
+                    <span className="text-[10px] uppercase tracking-widest font-black bg-blue-600 text-white px-2 py-1 rounded-md shadow-sm">
+                      {item.count}
+                    </span>
+                  )}
+                </div>
+                
+                <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                  {item.description}
+                </p>
+
+                <div className="flex items-center text-sm font-bold text-blue-600 group-hover:gap-2 transition-all">
+                  Truy cập quản lý <ChevronRight size={16} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-gray-400 text-sm mt-16 italic">
+          Dữ liệu được cập nhật trực tiếp từ hệ thống SQL Server
+        </p>
+      </div>
     </div>
   );
 };
 
-export default AdminDashboard;
+export default AdminPortal;
