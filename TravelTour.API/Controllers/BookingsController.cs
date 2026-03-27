@@ -19,22 +19,40 @@ namespace TravelTour.API.Controllers
             _context = context;
         }
 
-        // 1. LẤY TOÀN BỘ BOOKINGS (Dành cho Admin Dashboard)
+        // 1. LẤY TOÀN BỘ BOOKINGS (Fix lỗi 500 vòng lặp cho Admin Dashboard)
         [HttpGet]
-        [Authorize(Roles = "Admin")] // Chỉ Admin mới được lấy hết
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllBookings()
         {
-            var bookings = await _context.Bookings
-                .Include(b => b.User) // Lấy thông tin khách hàng
-                .Include(b => b.TourSchedule)
-                    .ThenInclude(s => s!.Tour) // Lấy thông tin Tour
-                .OrderByDescending(b => b.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                var bookings = await _context.Bookings
+                    .Include(b => b.User)
+                    .Include(b => b.TourSchedule)
+                        .ThenInclude(s => s!.Tour)
+                    .OrderByDescending(b => b.CreatedAt)
+                    .Select(b => new {
+                        b.Id,
+                        b.TotalPrice,
+                        b.CreatedAt,
+                        b.Status,
+                        b.TotalPassengers,
+                        // Tránh trả về nguyên Object User để không bị vòng lặp JSON
+                        CustomerName = b.User != null ? b.User.FullName : "Khách ẩn danh",
+                        TourName = b.TourSchedule != null && b.TourSchedule.Tour != null 
+                                   ? b.TourSchedule.Tour.Name : "Tour không xác định"
+                    })
+                    .ToListAsync();
 
-            return Ok(bookings);
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi Server: {ex.Message}");
+            }
         }
 
-        // 2. TẠO BOOKING MỚI
+        // 2. TẠO BOOKING MỚI (Dành cho Khách hàng)
         [HttpPost]
         public async Task<IActionResult> CreateBooking([FromBody] BookingRequest request)
         {
@@ -91,6 +109,14 @@ namespace TravelTour.API.Controllers
                     .ThenInclude(s => s!.Tour)
                 .Where(b => b.UserId == user.Id)
                 .OrderByDescending(b => b.CreatedAt)
+                .Select(b => new {
+                    b.Id,
+                    b.TotalPrice,
+                    b.CreatedAt,
+                    b.Status,
+                    TourName = b.TourSchedule != null && b.TourSchedule.Tour != null 
+                               ? b.TourSchedule.Tour.Name : "N/A"
+                })
                 .ToListAsync();
 
             return Ok(myBookings);

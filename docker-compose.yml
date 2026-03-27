@@ -1,0 +1,50 @@
+services:
+  # 1. Cơ sở dữ liệu (SQL Server) - Quan trọng nhất để giữ dữ liệu
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: travel-tour-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrongPassword123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql # <--- GIỮ DỮ LIỆU TẠI ĐÂY: Xóa container không mất data
+    networks:
+      - travel-network
+
+  # 2. Backend (ASP.NET Core API)
+  api:
+    build: 
+      context: ./TravelTour.API
+      dockerfile: Dockerfile
+    container_name: travel-tour-api
+    depends_on:
+      - db
+    ports:
+      - "5091:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=TravelTourDB;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True
+    networks:
+      - travel-network
+
+  # 3. Frontend (React Vite)
+  client:
+    build: 
+      context: ./TravelTour.Client
+      dockerfile: Dockerfile
+    container_name: travel-tour-client
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    networks:
+      - travel-network
+
+# Khai báo Volume để lưu trữ bền vững
+volumes:
+  sql_data:
+
+networks:
+  travel-network:
+    driver: bridge
