@@ -1,5 +1,5 @@
 services:
-  # 1. Cơ sở dữ liệu (SQL Server) - Quan trọng nhất để giữ dữ liệu
+  # 1. Cơ sở dữ liệu (SQL Server)
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: travel-tour-db
@@ -9,16 +9,19 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - ./my_db_data/data:/var/opt/mssql/data #data
+      # Dùng named volume để Docker tự quản lý data thô (bền vững và nhẹ Git)
+      - sql_data_volume:/var/opt/mssql 
+      # Gắn folder chứa script để máy kia có file init.sql (nếu cần)
+      - ./sql_data:/usr/config 
     networks:
       - travel-network
 
   # 2. Backend (ASP.NET Core API)
   api:
     build: 
-      context: ./TravelTour.API
+      context: ./backend  # Đã sửa theo tên folder mới của Leader
       dockerfile: Dockerfile
-    container_name: travel-tour-api
+    container_name: backend-travel-tour
     depends_on:
       - db
     ports:
@@ -31,9 +34,9 @@ services:
   # 3. Frontend (React Vite)
   client:
     build: 
-      context: ./TravelTour.Client
+      context: ./frontend # Đã sửa theo tên folder mới của Leader
       dockerfile: Dockerfile
-    container_name: travel-tour-client
+    container_name: frontend-travel-tour
     ports:
       - "5173:80"
     depends_on:
@@ -43,7 +46,7 @@ services:
 
 # Khai báo Volume để lưu trữ bền vững
 volumes:
-  sql_data:
+  sql_data_volume: # Tên volume khớp với phần khai báo ở dịch vụ db
 
 networks:
   travel-network:

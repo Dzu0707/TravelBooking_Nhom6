@@ -1,3 +1,4 @@
+# Stage 1: Build
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
@@ -5,9 +6,13 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Dùng Nginx để phục vụ file tĩnh
+# Stage 2: Serve với Nginx
 FROM nginx:stable-alpine
+# Copy file build từ Stage 1
 COPY --from=build /app/dist /usr/share/nginx/html
-# File cấu hình nginx (nếu có) để xử lý React Router
+
+# --- PHẦN BỔ SUNG: Copy file cấu hình Nginx của Leader vào ---
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
