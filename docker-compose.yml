@@ -9,7 +9,7 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - sql_data:/var/opt/mssql # <--- GIỮ DỮ LIỆU TẠI ĐÂY: Xóa container không mất data
+      - ./my_db_data/data:/var/opt/mssql/data #data
     networks:
       - travel-network
 
