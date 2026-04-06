@@ -21,7 +21,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 // --- 2. CẤU HÌNH SWAGGER (Để test API trực tiếp) ---
 builder.Services.AddSwaggerGen(c => {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TravelTour API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "backend", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         Description = "Nhập theo cú pháp: Bearer [token_của_bạn]",
         Name = "Authorization",
@@ -57,7 +57,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidAudience = jwtSettings["Audience"],
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero // Loại bỏ thời gian trễ mặc định 5p của Token
+            ClockSkew = TimeSpan.Zero 
         };
     });
 
@@ -65,7 +65,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// --- 5. MIDDLEWARE PIPELINE (Thứ tự là SỐNG CÒN) ---
+// --- 5. MIDDLEWARE PIPELINE---
 
 // 1. Phải để CORS lên đầu tiên để trình duyệt không chặn Pre-flight request (OPTIONS)
 app.UseCors("AllowReactApp"); 

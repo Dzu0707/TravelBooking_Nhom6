@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast'; // Thêm dòng này để hiện thông báo
 import Navbar from './pages/components/Navbar';
 import Footer from './pages/components/Footer';
 import TourDetail from './pages/users/TourDetail';
@@ -10,19 +11,23 @@ import TourCheckout from './pages/users/TourCheckout';
 import Register from './pages/components/Register';
 import ProtectedRoute from './pages/components/ProtectedRoute';
 import AdminLayout from './pages/admin/AdminLayout';
-
-// --- IMPORT CÁC TRANG ADMIN ---
+import AdminSchedules from './pages/admin/AdminSchedules';
 import AdminTours from './pages/admin/AdminTours';
 import AdminBookings from './pages/admin/AdminBookings';
 import AdminUsers from './pages/admin/AdminUsers';
-
-// 1. Tách phần nội dung ra để có thể sử dụng useLocation() bên trong Router
+import AdminCategories from './pages/admin/AdminCategories'; 
+import AdminVouchers from './pages/admin/AdminVouchers';
+import AdminTransactions from './pages/admin/AdminTransactions';
+import AdminReviews from './pages/admin/AdminReviews';
 const AppContent = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
 
   return (
     <>
+      {/* Cấu hình thông báo toàn cục */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       {/* Chỉ hiện Navbar nếu không phải Admin */}
       {!isAdminPath && <Navbar />}
       
@@ -49,8 +54,13 @@ const AppContent = () => {
             <Route element={<AdminLayout />}> 
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/tours" element={<AdminTours />} />
+              <Route path="/admin/categories" element={<AdminCategories />} />
+              <Route path="/admin/schedules" element={<AdminSchedules />} />
               <Route path="/admin/bookings" element={<AdminBookings />} />
+              <Route path="/admin/transactions" element={<AdminTransactions />} />
+              <Route path="/admin/reviews" element={<AdminReviews />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/vouchers" element={<AdminVouchers />} />
             </Route>
           </Route>
 
@@ -64,7 +74,6 @@ const AppContent = () => {
   );
 };
 
-// 2. Component App chính chỉ bọc Router
 function App() {
   return (
     <Router>

@@ -1,127 +1,191 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { 
-  Map, Users, ClipboardList, BarChart3, 
-  TrendingUp, Settings, ChevronRight,
-  Activity,
+  Map, Users, ClipboardList, ChevronRight,
+  Activity, CreditCard, RefreshCcw,
+  ArrowUpRight, Globe, ShieldCheck
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+
 import { 
-  AreaChart, Area, XAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer,
-} from 'recharts';
+  Card, AreaChart, Title, Text, Metric, Flex, ProgressBar
+} from '@tremor/react';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ tours: 0, bookings: 0, users: 0, revenue: 0 });
   const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const mockChartData = [
-    { date: '20/03', amount: 4500000 },
-    { date: '22/03', amount: 12500000 },
-    { date: '25/03', amount: 8900000 },
-    { date: '27/03', amount: 18000000 }
-  ];
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      const [toursRes, usersRes, transactionsRes, bookingsRes] = await Promise.all([
+        axios.get('http://localhost:5091/api/Tours', config),
+        axios.get('http://localhost:5091/api/Users', config),
+        axios.get('http://localhost:5091/api/Transactions', config),
+        axios.get('http://localhost:5091/api/Bookings', config)
+      ]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
+      const rawTransactions = transactionsRes.data.transactions || [];
+      const grouped = rawTransactions.reduce((acc: any, t: any) => {
+        const date = new Date(t.createdAt).toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
+        acc[date] = (acc[date] || 0) + t.amount;
+        return acc;
+      }, {});
 
-        const [tours, users, bookings] = await Promise.all([
-          axios.get('http://localhost:5091/api/Tours').catch(() => ({ data: [] })),
-          axios.get('http://localhost:5091/api/Users', config).catch(() => ({ data: [] })),
-          axios.get('http://localhost:5091/api/Bookings', config)
-        ]);
+      const formatted = Object.keys(grouped).map(date => ({
+        "Ngày": date,
+        "Doanh thu": grouped[date]
+      })).sort((a, b) => a["Ngày"].localeCompare(b["Ngày"]));
 
-        const totalRev = bookings.data.reduce((sum: number, b: any) => sum + (Number(b.totalPrice) || 0), 0);
-        const grouped = bookings.data.reduce((acc: any, b: any) => {
-          const d = new Date(b.createdAt).toLocaleDateString('vi-VN', {day:'2-digit', month:'2-digit'});
-          acc[d] = (acc[d] || 0) + (b.totalPrice || 0);
-          return acc;
-        }, {});
-
-        const formatted = Object.keys(grouped).map(date => ({ date, amount: grouped[date] }));
-
-        setStats({ 
-          tours: tours.data.length, 
-          bookings: bookings.data.length, 
-          users: users.data.length, 
-          revenue: totalRev 
-        });
-        setChartData(formatted.length > 0 ? formatted : mockChartData);
-      } catch (err) {
-        setStats({ tours: 12, bookings: 48, users: 8, revenue: 154000000 });
-        setChartData(mockChartData);
-      }
-    };
-    fetchData();
+      setStats({ 
+        tours: toursRes.data.length, 
+        bookings: bookingsRes.data.length, 
+        users: usersRes.data.length, 
+        revenue: transactionsRes.data.totalRevenue || 0 
+      });
+      setChartData(formatted);
+    } catch (err) {
+      toast.error("Lỗi đồng bộ dữ liệu");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const menuItems = [
-    { title: 'Quản lý Tours', desc: 'Lịch trình & Giá', icon: <Map size={20}/>, path: '/admin/tours', color: 'text-blue-400', bg: 'bg-blue-400/10', count: stats.tours },
-    { title: 'Đơn hàng', desc: 'Thanh toán & Duyệt', icon: <ClipboardList size={20}/>, path: '/admin/bookings', color: 'text-emerald-400', bg: 'bg-emerald-400/10', count: stats.bookings },
-    { title: 'Người dùng', desc: 'Quyền & Tài khoản', icon: <Users size={20}/>, path: '/admin/users', color: 'text-purple-400', bg: 'bg-purple-400/10', count: stats.users },
-    { title: 'Hệ thống', desc: 'Docker & API', icon: <Settings size={20}/>, path: '/admin/settings', color: 'text-slate-400', bg: 'bg-slate-400/10', count: null }
-  ];
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  if (loading) return (
+    <div className="h-[80vh] flex flex-col items-center justify-center">
+      <RefreshCcw className="animate-spin text-slate-700" size={24} />
+    </div>
+  );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-2xl font-black tracking-tighter text-white uppercase flex items-center gap-2">
-            Control Panel <Activity size={18} className="text-blue-500"/>
-          </h1>
-          <p className="text-slate-500 text-[11px] font-bold tracking-widest uppercase">Analytics Overview</p>
+    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+      
+      {/* SECTION 1: WELCOME & PRIMARY STATS */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="md:col-span-2 flex flex-col justify-center px-2">
+          <h1 className="text-2xl font-bold text-slate-100 tracking-tight">Chào buổi chiều, Admin</h1>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Hệ thống TravelGo • Trạng thái ổn định</p>
         </div>
+        
+        <Card className="bg-slate-900 border-slate-800 rounded-2xl p-4 ring-1 ring-white/5">
+          <Flex alignItems="start">
+            <div>
+              <Text className="text-[10px] font-bold text-slate-500 uppercase">Doanh thu tháng</Text>
+              <Metric className="text-slate-100 text-xl font-bold mt-1">
+                {stats.revenue.toLocaleString()}đ
+              </Metric>
+            </div>
+            <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-bold italic">
+              +14.2%
+            </div>
+          </Flex>
+        </Card>
+
+        <Card className="bg-slate-900 border-slate-800 rounded-2xl p-4 ring-1 ring-white/5">
+          <Flex alignItems="start">
+            <div>
+              <Text className="text-[10px] font-bold text-slate-500 uppercase">Lượt đặt Tour</Text>
+              <Metric className="text-slate-100 text-xl font-bold mt-1">{stats.bookings}</Metric>
+            </div>
+            <div className="p-1.5 bg-blue-500/10 rounded-lg text-blue-500">
+               <ArrowUpRight size={14} />
+            </div>
+          </Flex>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Revenue Card nhỏ gọn */}
-        <div className="lg:col-span-4 bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6 relative overflow-hidden">
-          <div className="absolute -right-2 -bottom-2 opacity-5 text-white"><BarChart3 size={100} /></div>
-          <h2 className="text-slate-500 font-black text-[10px] uppercase tracking-widest mb-1">Doanh thu hệ thống</h2>
-          <p className="text-3xl font-black text-white tracking-tighter">
-            {stats.revenue.toLocaleString()}<span className="text-sm text-blue-500 ml-1">đ</span>
-          </p>
-          <div className="mt-4 flex items-center gap-2 text-emerald-400 text-[11px] font-black">
-            <TrendingUp size={14}/> +12.5% <span className="text-slate-500 font-medium">vs last week</span>
+      {/* SECTION 2: MAIN CONTENT */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-2 bg-slate-900 border-slate-800 rounded-2xl p-6 ring-1 ring-white/5">
+          <div className="flex justify-between items-center mb-8">
+            <Title className="text-slate-100 text-sm font-bold uppercase tracking-wider flex items-center gap-2">
+              <Activity size={16} className="text-blue-500" /> Biểu đồ tăng trưởng
+            </Title>
+            <div className="flex gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500 my-auto"></span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Doanh thu trực tuyến</span>
+            </div>
           </div>
-        </div>
+          <AreaChart
+            className="h-64 mt-4"
+            data={chartData}
+            index="Ngày"
+            categories={["Doanh thu"]}
+            colors={["blue"]}
+            showAnimation={false}
+            showLegend={false}
+            showYAxis={false}
+            showGridLines={false}
+            startEndOnly={true}
+          />
+        </Card>
 
-        {/* Chart nhỏ gọn */}
-        <div className="lg:col-span-8 bg-slate-800/40 border border-slate-700/50 rounded-3xl p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="font-black text-white uppercase text-[10px] tracking-widest">Growth Analytics</h3>
-            <span className="text-[9px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-md font-black border border-blue-500/20">W12</span>
+        <Card className="bg-slate-900 border-slate-800 rounded-2xl p-6 ring-1 ring-white/5 flex flex-col gap-6">
+          <Title className="text-slate-100 text-xs font-bold uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+            <ShieldCheck size={16} className="text-emerald-500" /> Bảo mật & Hạ tầng
+          </Title>
+          
+          <div className="space-y-6">
+            <div>
+              <Flex className="mb-2">
+                <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">SSL Certificate</Text>
+                <Text className="text-[9px] font-bold text-emerald-500 uppercase">Valid</Text>
+              </Flex>
+              <ProgressBar value={100} color="emerald" className="h-1" />
+            </div>
+            
+            <div>
+              <Flex className="mb-2">
+                <Text className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Database Load</Text>
+                <Text className="text-[9px] font-bold text-blue-500 uppercase">Normal</Text>
+              </Flex>
+              <ProgressBar value={42} color="blue" className="h-1" />
+            </div>
+
+            <div className="mt-4 p-4 bg-slate-950 border border-slate-800 rounded-xl">
+               <Text className="text-[10px] text-slate-500 font-medium italic">
+                 "Tất cả các dịch vụ đang vận hành ở mức tối ưu."
+               </Text>
+            </div>
           </div>
-          <div className="h-48 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                <Tooltip contentStyle={{backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', fontSize: '10px'}} />
-                <Area type="monotone" dataKey="amount" stroke="#3b82f6" fillOpacity={0.1} fill="#3b82f6" strokeWidth={3} />
-              </AreaChart>
-            </ResponsiveContainer>
+
+          <div className="mt-auto pt-4 border-t border-slate-800 flex justify-between items-center text-slate-600">
+             <div className="flex items-center gap-1">
+               <Globe size={12} />
+               <span className="text-[9px] font-bold">VN-CDN-01</span>
+             </div>
+             <span className="text-[9px] font-bold uppercase tracking-widest">{new Date().toLocaleDateString('vi-VN')}</span>
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* Menu Cards nhỏ gọn */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {menuItems.map((item, i) => (
-          <div key={i} onClick={() => navigate(item.path)} className="group bg-slate-800/30 border border-slate-700/50 p-4 rounded-2xl hover:border-blue-500/40 transition-all cursor-pointer">
-            <div className={`w-9 h-9 ${item.bg} ${item.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-105 transition-transform`}>
+      {/* SECTION 3: QUICK ACTIONS */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { title: 'Tours', path: '/admin/tours', icon: <Map size={16}/>, count: stats.tours, color: 'blue' },
+          { title: 'Đơn hàng', path: '/admin/bookings', icon: <ClipboardList size={16}/>, count: stats.bookings, color: 'emerald' },
+          { title: 'Người dùng', path: '/admin/users', icon: <Users size={16}/>, count: stats.users, color: 'indigo' },
+          { title: 'Thanh toán', path: '/admin/transactions', icon: <CreditCard size={16}/>, count: 'Logs', color: 'amber' }
+        ].map((item, i) => (
+          <div 
+            key={i} 
+            onClick={() => navigate(item.path)}
+            className="group p-5 bg-slate-900 border border-slate-800 rounded-2xl hover:bg-slate-800 transition-all cursor-pointer relative overflow-hidden"
+          >
+            <div className={`text-slate-500 transition-colors mb-3`}>
               {item.icon}
             </div>
-            <h4 className="font-bold text-white text-[13px]">{item.title}</h4>
-            <div className="flex justify-between items-center mt-3">
-              <span className="text-[9px] font-black bg-slate-700 text-blue-400 px-2 py-0.5 rounded-md border border-slate-600">
-                {item.count || 0} ACTIVE
-              </span>
-              <ChevronRight size={14} className="text-slate-600 group-hover:text-blue-400 transition-all" />
+            <h4 className="text-slate-200 font-bold text-xs uppercase tracking-tight">{item.title}</h4>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-[10px] text-slate-600 font-bold uppercase">{item.count} items</span>
+              <ChevronRight size={12} className="text-slate-800 group-hover:translate-x-1 transition-all" />
             </div>
           </div>
         ))}

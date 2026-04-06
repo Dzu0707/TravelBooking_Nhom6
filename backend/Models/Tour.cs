@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TravelTour.API.Models;
 
 public class Tour {
@@ -7,20 +9,20 @@ public class Tour {
     public string? Description { get; set; }
     public string DepartureLocation { get; set; } = string.Empty;
     
-    // Khóa ngoại trỏ về Category
+    // Thêm trường giá sàn nếu Leader muốn đồng bộ với React
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal MinPrice { get; set; } 
+
     public int CategoryId { get; set; }
     public virtual Category? Category { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // --- CÁC MỐI QUAN HỆ (Navigation Properties) ---
-    
-    // Một Tour có nhiều Ảnh
+    // --- Cần có 2 dòng này để fix lỗi CS1061 trong DbContext ---
     public virtual ICollection<TourImage> TourImages { get; set; } = new List<TourImage>();
-
-    // Một Tour có nhiều Lịch trình/Ngày khởi hành (Quan trọng để tính giá)
     public virtual ICollection<TourSchedule> TourSchedules { get; set; } = new List<TourSchedule>();
 
-    // Một Tour có nhiều Đánh giá
-    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+    // Field ảo để nhận file từ React (không lưu vào DB)
+    [NotMapped]
+    public IFormFile? ImageFile { get; set; }
 }
