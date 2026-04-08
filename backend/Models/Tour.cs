@@ -9,20 +9,18 @@ public class Tour {
     public string? Description { get; set; }
     public string DepartureLocation { get; set; } = string.Empty;
     
-    // Thêm trường giá sàn nếu Leader muốn đồng bộ với React
+    public string? ImageUrl { get; set; } 
+
     [Column(TypeName = "decimal(18,2)")]
-    public decimal MinPrice { get; set; } 
+    public decimal MinPrice { get; set; } = 0; // Đảm bảo luôn có giá trị mặc định
 
     public int CategoryId { get; set; }
     public virtual Category? Category { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // --- Cần có 2 dòng này để fix lỗi CS1061 trong DbContext ---
     public virtual ICollection<TourImage> TourImages { get; set; } = new List<TourImage>();
     public virtual ICollection<TourSchedule> TourSchedules { get; set; } = new List<TourSchedule>();
-
-    // Field ảo để nhận file từ React (không lưu vào DB)
-    [NotMapped]
-    public IFormFile? ImageFile { get; set; }
+    
+    // Đã xóa ImageFile ở đây vì đã có trong TourDto để xử lý riêng
 }

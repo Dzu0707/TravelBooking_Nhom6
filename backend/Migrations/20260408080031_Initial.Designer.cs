@@ -9,11 +9,11 @@ using TravelTour.API.Data;
 
 #nullable disable
 
-namespace TravelTour.API.Migrations
+namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
-    [Migration("20260404134718_FinalSyncArchitecture")]
-    partial class FinalSyncArchitecture
+    [Migration("20260408080031_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -202,6 +202,9 @@ namespace TravelTour.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("MinPrice")

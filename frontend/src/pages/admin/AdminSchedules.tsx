@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Plus, Pencil, Trash2, Clock, X, Loader2, 
-  Users, Baby, Check, CalendarDays, Hash
+  Users, Baby, Check, CalendarDays, Hash, Info, Search
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -17,6 +17,7 @@ const AdminSchedules: React.FC<AdminSchedulesProps> = ({ tourId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // State cho thanh tìm kiếm
 
   const initialForm = {
     tourId: tourId || 0,
@@ -59,6 +60,16 @@ const AdminSchedules: React.FC<AdminSchedulesProps> = ({ tourId }) => {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Logic lọc dữ liệu: Tìm theo tên Tour HOẶC Ngày khởi hành
+  const filtered = schedules.filter(s => {
+    const searchLower = searchTerm.toLowerCase();
+    const tourNameMatch = s.tourName?.toLowerCase().includes(searchLower);
+    const dateStr = format(new Date(s.departureDate), 'dd/MM/yyyy');
+    const dateMatch = dateStr.includes(searchTerm); // Tìm theo định dạng ngày dd/MM/yyyy
+    
+    return tourNameMatch || dateMatch;
+  });
+
   const handleNumberChange = (field: string, value: string) => {
     const rawValue = value.replace(/\D/g, "");
     const num = rawValue === "" ? 0 : Number(rawValue.slice(0, 10));
@@ -92,8 +103,8 @@ const AdminSchedules: React.FC<AdminSchedulesProps> = ({ tourId }) => {
 
   const confirmDelete = (id: number) => {
     toast((t) => (
-      <div className="flex flex-col gap-2 p-1">
-        <p className="text-[10px] font-black uppercase tracking-widest text-white">Xác nhận xóa lịch này?</p>
+      <div className="flex flex-col gap-3 p-1">
+        <p className="text-[11px] font-bold uppercase tracking-tight text-slate-300">Xác nhận xóa lịch này?</p>
         <div className="flex gap-2">
           <button 
             onClick={async () => {
@@ -104,103 +115,163 @@ const AdminSchedules: React.FC<AdminSchedulesProps> = ({ tourId }) => {
                 toast.success("Đã xóa lịch trình");
               } catch { toast.error("Lỗi khi xóa"); }
             }}
-            className="bg-rose-600 px-3 py-1 rounded text-[10px] font-bold text-white"
+            className="bg-rose-600 px-4 py-1.5 rounded-md text-[10px] font-bold text-white uppercase"
           >Xóa</button>
-          <button onClick={() => toast.dismiss(t.id)} className="bg-slate-700 px-3 py-1 rounded text-[10px] font-bold text-white">Hủy</button>
+          <button onClick={() => toast.dismiss(t.id)} className="bg-slate-800 px-4 py-1.5 rounded-md text-[10px] font-bold text-slate-400 uppercase">Hủy</button>
         </div>
       </div>
-    ), { position: 'top-center' });
+    ), { style: { background: '#0f172a', border: '1px solid #1e293b' } });
   };
 
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
       {/* HEADER */}
-      <div className="flex justify-between items-center bg-slate-900/80 p-3 rounded-2xl border border-slate-800 backdrop-blur-md">
+      <div className="flex justify-between items-center bg-slate-900 border border-slate-800 p-4 rounded-xl shadow-lg shadow-black/20">
         <div className="flex items-center gap-3">
-          <div className="size-8 bg-emerald-500/10 rounded-lg flex items-center justify-center">
-            <Clock size={16} className="text-emerald-500" />
+          <div className="size-10 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/20">
+            <Clock size={20} className="text-emerald-500" />
           </div>
           <div>
-            <h3 className="text-white font-black uppercase text-[11px] tracking-widest">Lịch khởi hành</h3>
-            <p className="text-[9px] text-slate-500 font-bold uppercase italic">Tổng số: {schedules.length} đợt</p>
+            <h3 className="text-slate-100 font-bold uppercase text-[12px] tracking-tight flex items-center gap-2">
+              Lịch khởi hành 
+            </h3>
+            <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
+               {schedules.length} đợt khởi hành
+            </p>
           </div>
         </div>
         <button 
           onClick={() => { setEditingId(null); setFormData({...initialForm, tourId: tourId || tours[0]?.id || 0}); setIsModalOpen(true); }} 
-          className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl font-black text-[10px] transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-emerald-900/20"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-lg font-bold text-[11px] uppercase transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-emerald-900/20"
         >
-          <Plus size={14}/> THÊM ĐỢT MỚI
+          <Plus size={16}/> THÊM ĐỢT MỚI
         </button>
       </div>
 
-      {/* DANH SÁCH BẢNG - min-h-[200px] -> min-h-50 */}
-      <div className="bg-slate-950/50 border border-slate-800 rounded-2xl overflow-hidden relative min-h-50">
-        {loading && (
-          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-10 text-blue-500">
-            <Loader2 className="animate-spin" size={32} />
-          </div>
+      {/* SEARCH SECTION - MỚI THÊM */}
+      <div className="flex items-center gap-4">
+        <div className="relative group w-full max-w-md">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-emerald-500 transition-colors" size={14} />
+          <input 
+            type="text"
+            placeholder="Tìm theo tên tour hoặc ngày (dd/mm/yyyy)..."
+            className="w-full pl-11 pr-10 py-3 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs font-bold outline-none focus:border-emerald-500/50 transition-all shadow-inner"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button 
+              onClick={() => setSearchTerm("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-rose-500 transition-colors p-1"
+            >
+              <X size={16} strokeWidth={3} />
+            </button>
+          )}
+        </div>
+        {!loading && (
+          <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest hidden md:block">
+            Kết quả: {filtered.length} / {schedules.length}
+          </span>
         )}
-        
+      </div>
+
+      {/* TABLE SECTION */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden relative ring-1 ring-white/5">
         <table className="w-full text-left">
-          <thead className="bg-slate-900/50 text-slate-500 font-black border-b border-slate-800 uppercase text-[9px] tracking-tighter">
+          <thead className="bg-slate-950/60 text-slate-500 font-bold border-b border-slate-800/50 uppercase text-[10px] tracking-wider">
             <tr>
-              {!tourId && <th className="p-4">Tour</th>}
-              <th className="p-4">Ngày khởi hành</th>
-              <th className="p-4 text-center">Chỗ trống</th>
-              <th className="p-4 text-right">Giá NL</th>
-              <th className="p-4 text-right">Giá TE</th>
-              <th className="p-4 text-center">Lệnh</th>
+              {!tourId && <th className="p-5">Tên Tour</th>}
+              <th className="p-5">Ngày khởi hành</th>
+              <th className="p-5 text-center">Chỗ trống</th>
+              <th className="p-5 text-right">Giá Người Lớn</th>
+              <th className="p-5 text-right">Giá Trẻ Em</th>
+              <th className="p-5 text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/40">
-            {schedules.length === 0 && !loading && (
-              <tr><td colSpan={6} className="p-10 text-center text-slate-600 text-[10px] font-bold uppercase italic">Chưa có lịch trình nào được tạo</td></tr>
-            )}
-            {schedules.map(s => (
-              <tr key={s.id} className="hover:bg-blue-500/2 transition-colors group">
-                {!tourId && <td className="p-4 font-black text-slate-300 max-w-40 truncate uppercase text-[11px]">{s.tourName}</td>}
-                <td className="p-4">
-                  <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
-                    <CalendarDays size={12}/>
-                    {format(new Date(s.departureDate), 'dd/MM/yyyy')}
-                  </div>
-                </td>
-                <td className="p-4 text-center">
-                  <span className="bg-blue-500/10 text-blue-400 px-2 py-1 rounded text-[10px] font-black border border-blue-500/20 shadow-inner">
-                    {s.availableSeats} / {s.quota}
-                  </span>
-                </td>
-                <td className="p-4 text-right text-orange-500 font-black text-xs tracking-tighter italic">{(s.adultPrice).toLocaleString()}₫</td>
-                <td className="p-4 text-right text-amber-500 font-black text-xs tracking-tighter italic">{(s.childPrice).toLocaleString()}₫</td>
-                <td className="p-4">
-                  <div className="flex justify-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => { setEditingId(s.id); setFormData({...s, departureDate: s.departureDate.split('T')[0], returnDate: s.returnDate.split('T')[0]}); setIsModalOpen(true); }} className="size-8 flex items-center justify-center hover:bg-slate-800 rounded-lg text-amber-500"><Pencil size={14}/></button>
-                    <button onClick={() => confirmDelete(s.id)} className="size-8 flex items-center justify-center hover:bg-slate-800 rounded-lg text-rose-500"><Trash2 size={14}/></button>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="p-20 text-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="animate-spin text-emerald-500" size={32} />
+                    <span className="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Đang truy xuất lịch trình...</span>
                   </div>
                 </td>
               </tr>
-            ))}
+            ) : filtered.length > 0 ? (
+              filtered.map(s => (
+                <tr key={s.id} className="hover:bg-slate-800/40 transition-colors group border-b border-slate-800/30">
+                  {!tourId && (
+                    <td className="p-5 font-bold text-blue-400 max-w-40 truncate uppercase text-[11px]">
+                      {s.tourName || "N/A"}
+                    </td>
+                  )}
+                  <td className="p-5">
+                    <div className="flex items-center gap-2 text-emerald-400 font-mono text-xs font-bold">
+                      <CalendarDays size={14} className="text-emerald-500/50"/>
+                      {format(new Date(s.departureDate), 'dd/MM/yyyy')}
+                    </div>
+                  </td>
+                  <td className="p-5 text-center">
+                    <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-[10px] font-bold border border-blue-500/20 shadow-inner">
+                      {s.availableSeats} / {s.quota}
+                    </span>
+                  </td>
+                  <td className="p-5 text-right text-orange-500 font-bold text-xs tracking-tighter italic">{(s.adultPrice).toLocaleString()}₫</td>
+                  <td className="p-5 text-right text-amber-500 font-bold text-xs tracking-tighter italic">{(s.childPrice).toLocaleString()}₫</td>
+                  <td className="p-5">
+                    <div className="flex justify-center gap-1">
+                      <button 
+                        onClick={() => { setEditingId(s.id); setFormData({...s, departureDate: s.departureDate.split('T')[0], returnDate: s.returnDate.split('T')[0]}); setIsModalOpen(true); }} 
+                        className="size-9 flex items-center justify-center hover:bg-amber-500/10 rounded-lg text-slate-500 hover:text-amber-500 transition-all"
+                      >
+                        <Pencil size={16}/>
+                      </button>
+                      <button 
+                        onClick={() => confirmDelete(s.id)} 
+                        className="size-9 flex items-center justify-center hover:bg-rose-500/10 rounded-lg text-slate-500 hover:text-rose-500 transition-all"
+                      >
+                        <Trash2 size={16}/>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="p-20 text-center">
+                  <div className="flex flex-col items-center">
+                    <div className="p-4 bg-slate-950 rounded-full mb-4 ring-1 ring-slate-800">
+                      <Info size={32} className="text-slate-800" />
+                    </div>
+                    <span className="text-slate-500 font-bold uppercase text-[10px] tracking-widest italic">
+                      {searchTerm ? "Không tìm thấy lịch trình phù hợp" : "Chưa có lịch trình nào được tạo"}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* MODAL - z-[60] -> z-60 */}
+      {/* MODAL SECTION - Giữ nguyên logic cũ đã tối ưu giao diện */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-4">
-          <form onSubmit={handleSubmit} className="bg-[#0f172a] border border-slate-700 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center bg-slate-950 px-5 py-4 border-b border-slate-800">
-              <h2 className="text-white font-black uppercase text-[10px] tracking-widest flex items-center gap-2">
-                <Plus size={14} className="text-emerald-500"/>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+          <form onSubmit={handleSubmit} className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center bg-slate-950 px-6 py-5 border-b border-slate-800">
+              <h2 className="text-white font-bold uppercase text-[11px] tracking-widest flex items-center gap-3">
+                <div className={`size-2 rounded-full ${editingId ? 'bg-amber-500' : 'bg-emerald-500'} animate-pulse`} />
                 {editingId ? 'Cập nhật lịch trình' : 'Khởi tạo đợt tour'}
               </h2>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-white transition-colors"><X size={18}/></button>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-rose-500 transition-colors p-1"><X size={20}/></button>
             </div>
             
-            <div className="p-6 space-y-5">
+            <div className="p-8 space-y-6">
               {!tourId && !editingId && (
-                <div className="space-y-1">
-                  <label className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Chọn Tour áp dụng</label>
-                  <select className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none"
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 tracking-wider">Chọn Tour áp dụng</label>
+                  <select className="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-white text-xs font-bold outline-none focus:border-blue-500 transition-all"
                     value={formData.tourId} onChange={e => setFormData({...formData, tourId: Number(e.target.value)})}>
                     {tours.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                   </select>
@@ -208,48 +279,51 @@ const AdminSchedules: React.FC<AdminSchedulesProps> = ({ tourId }) => {
               )}
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ngày khởi hành</label>
-                  <input type="date" className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white text-xs font-bold outline-none focus:border-emerald-500/50"
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 tracking-wider">Ngày khởi hành</label>
+                  <input type="date" className="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-white text-xs font-bold outline-none focus:border-emerald-500/50"
                     value={formData.departureDate} onChange={e => setFormData({...formData, departureDate: e.target.value})} required />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Ngày kết thúc</label>
-                  <input type="date" className="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white text-xs font-bold outline-none focus:border-emerald-500/50"
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1 tracking-wider">Ngày kết thúc</label>
+                  <input type="date" className="w-full bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-white text-xs font-bold outline-none focus:border-emerald-500/50"
                     value={formData.returnDate} onChange={e => setFormData({...formData, returnDate: e.target.value})} required />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-950/50 border border-slate-800 p-3 rounded-2xl">
-                  {/* Đã xóa 'block' vì có 'flex' (CSS Conflict) */}
-                  <label className="text-[8px] text-slate-500 font-black uppercase mb-1 flex items-center gap-1">
-                    <Users size={10} className="text-orange-500"/> Giá người lớn
+                <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl shadow-inner group focus-within:border-orange-500/50">
+                  <label className="text-[9px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2">
+                    <Users size={12} className="text-orange-500"/> Giá người lớn
                   </label>
-                  <input type="text" className="w-full bg-transparent text-orange-500 font-black outline-none text-sm italic" 
+                  <input type="text" className="w-full bg-transparent text-orange-500 font-bold outline-none text-sm italic" 
                     value={formData.adultPrice.toLocaleString()} onChange={e => handleNumberChange('adultPrice', e.target.value)} />
                 </div>
-                <div className="bg-slate-950/50 border border-slate-800 p-3 rounded-2xl">
-                  <label className="text-[8px] text-slate-500 font-black uppercase mb-1 flex items-center gap-1">
-                    <Baby size={10} className="text-amber-500"/> Giá trẻ em
+                <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl shadow-inner group focus-within:border-amber-500/50">
+                  <label className="text-[9px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2">
+                    <Baby size={12} className="text-amber-500"/> Giá trẻ em
                   </label>
-                  <input type="text" className="w-full bg-transparent text-amber-500 font-black outline-none text-sm italic" 
+                  <input type="text" className="w-full bg-transparent text-amber-500 font-bold outline-none text-sm italic" 
                     value={formData.childPrice.toLocaleString()} onChange={e => handleNumberChange('childPrice', e.target.value)} />
                 </div>
               </div>
 
-              <div className="bg-slate-950/50 border border-slate-800 p-3 rounded-2xl">
-                <label className="text-[8px] text-slate-500 font-black uppercase mb-1 flex items-center gap-1">
-                  <Hash size={10} className="text-blue-500"/> Số lượng khách tối đa
+              <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl shadow-inner group focus-within:border-blue-500/50">
+                <label className="text-[9px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-2">
+                  <Hash size={12} className="text-blue-500"/> Số lượng khách tối đa
                 </label>
-                <input type="text" className="w-full bg-transparent text-blue-400 font-black outline-none text-sm" 
+                <input type="text" className="w-full bg-transparent text-blue-400 font-bold outline-none text-sm" 
                   value={formData.quota.toLocaleString()} onChange={e => handleNumberChange('quota', e.target.value)} />
               </div>
 
-              {/* bg-gradient-to-r -> bg-linear-to-r */}
-              <button type="submit" className="w-full py-4 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-900/20 active:scale-[0.98]">
-                <Check size={16}/> LƯU CẬP NHẬT
-              </button>
+              <div className="flex gap-3 mt-4">
+                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-slate-800 text-slate-400 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all">
+                  Hủy bỏ
+                </button>
+                <button type="submit" className="flex-1 py-4 bg-emerald-600 text-white rounded-xl font-bold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-xl shadow-emerald-900/40 active:scale-95">
+                  <Check size={16}/> LƯU CẬP NHẬT
+                </button>
+              </div>
             </div>
           </form>
         </div>

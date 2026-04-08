@@ -8,7 +8,7 @@ using TravelTour.API.Data;
 
 #nullable disable
 
-namespace TravelTour.API.Migrations
+namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
     partial class TravelDbContextModelSnapshot : ModelSnapshot
@@ -199,6 +199,9 @@ namespace TravelTour.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("MinPrice")
