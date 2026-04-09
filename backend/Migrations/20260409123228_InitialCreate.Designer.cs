@@ -12,8 +12,8 @@ using TravelTour.API.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
-    [Migration("20260408080031_Initial")]
-    partial class Initial
+    [Migration("20260409123228_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

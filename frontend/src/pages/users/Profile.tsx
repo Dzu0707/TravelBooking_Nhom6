@@ -66,7 +66,7 @@ const Profile = () => {
     <div className="max-w-5xl mx-auto animate-fadeIn">
       {/* --- PHẦN BANNER & HEADER --- */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
-        <div className="h-40 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+        <div className="h-40 bg-linear-to-r from-blue-500 to-cyan-400"></div>
         
         <div className="px-8 pb-8 relative flex justify-between items-end">
           <div className="flex items-end gap-6">

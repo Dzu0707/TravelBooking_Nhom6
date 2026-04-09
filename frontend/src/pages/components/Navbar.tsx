@@ -43,7 +43,7 @@ const Navbar = () => {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 px-6 md:px-20 flex justify-between items-center ${
+      className={`fixed top-0 left-0 right-0 z-100 transition-all duration-500 px-6 md:px-20 flex justify-between items-center ${
         isTransparent 
           ? "bg-transparent py-7 border-transparent" 
           : "bg-white/95 backdrop-blur-md py-4 border-b border-gray-100 shadow-sm"
@@ -52,7 +52,7 @@ const Navbar = () => {
       {/* --- TRÁI: LOGO HÌNH ẢNH --- */}
       <Link to="/" className="flex items-center gap-3 group">
         <img 
-          src="logo.svg" // Thay link hình logo của bạn vào đây
+          src="logo-travel-tour.svg" // Thay link hình logo của bạn vào đây
           alt="TravelGo Logo" 
           className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105"
         />
