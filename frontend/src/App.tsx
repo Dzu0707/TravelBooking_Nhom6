@@ -48,8 +48,8 @@ const MainLayout = () => {
       <Navbar />
       <main className={`min-h-screen transition-all duration-500 ${
         isHomePage 
-          ? "w-full overflow-x-hidden" // Trang chủ: Banner sát đỉnh
-          : "max-w-7xl mx-auto px-6 pt-32 pb-20" // Các trang khác: Tránh bị Navbar đè
+          ? "w-full overflow-x-hidden" 
+          : "max-w-7xl mx-auto px-6 pt-32 pb-20" 
       }`}>
         <Outlet /> 
       </main>
@@ -93,27 +93,26 @@ const AppContent = () => {
       <ScrollToTop />
 
       <Routes>
-        {/* ========================================== */}
-        {/*        KHU VỰC PUBLIC & USER ROUTE         */}
-        {/* ========================================== */}
+        {/* --- KHU VỰC PUBLIC & USER ROUTE --- */}
         <Route element={<MainLayout />}>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
-          {/* Protected Routes (Chỉ User hoặc Admin đã đăng nhập mới vào được) */}
+          <Route path="/unauthorized" element={
+            <div className="text-center py-20 font-bold text-red-500">403 - Bạn không có quyền truy cập</div>
+          } />
+
+          {/* Protected Routes (Chỉ User hoặc Admin đã đăng nhập) */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
-            <Route path="/checkout" element={<TourCheckout />} />
+            <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 
-        {/* ========================================== */}
-        {/*             KHU VỰC ADMIN ROUTE            */}
-        {/* ========================================== */}
+        {/* --- KHU VỰC ADMIN ROUTE --- */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AdminLayout />}> 
             <Route index element={<AdminDashboard />} />
@@ -128,9 +127,7 @@ const AppContent = () => {
           </Route>
         </Route>
 
-        {/* ========================================== */}
-        {/*                  404 PAGE                  */}
-        {/* ========================================== */}
+        {/* 404 PAGE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
