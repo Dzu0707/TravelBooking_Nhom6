@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast'; // Thêm dòng này để hiện thông báo
+import { Toaster } from 'react-hot-toast';
 import Navbar from './pages/components/Navbar';
 import Footer from './pages/components/Footer';
 import TourDetail from './pages/users/TourDetail';
@@ -19,37 +19,40 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminVouchers from './pages/admin/AdminVouchers';
 import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminReviews from './pages/admin/AdminReviews';
+
 const AppContent = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
 
   return (
     <>
-      {/* Cấu hình thông báo toàn cục */}
       <Toaster position="top-right" reverseOrder={false} />
 
-      {/* Chỉ hiện Navbar nếu không phải Admin */}
       {!isAdminPath && <Navbar />}
       
       <main className={isAdminPath ? "min-h-screen" : "max-w-7xl mx-auto p-6 min-h-screen"}>
         <Routes>
-          {/* --- PUBLIC ROUTES --- */}
+          {/* --- 1. PUBLIC ROUTES (Ai cũng xem được) --- */}
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
+          
+          {/* ĐẢM BẢO ĐƯỜNG DẪN NÀY KHỚP VỚI Link trong TourCard */}
           <Route path="/tours/:id" element={<TourDetail />} />
+          
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
           <Route path="/unauthorized" element={
-            <div className="text-center py-20 font-bold">403 - Forbidden</div>
+            <div className="text-center py-20 font-bold text-red-500">403 - Bạn không có quyền truy cập</div>
           } />
 
-          {/* --- USER ROUTES --- */}
+          {/* --- 2. USER ROUTES (Phải đăng nhập) --- */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
-            <Route path="/checkout" element={<TourCheckout />} />
+            {/* Chỉ khi bấm "Đặt Tour" trong trang chi tiết mới sang đây */}
+            <Route path="/checkout/:id" element={<TourCheckout />} />
           </Route>
 
-          {/* --- ADMIN ROUTES --- */}
+          {/* --- 3. ADMIN ROUTES (Chỉ Admin) --- */}
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
             <Route element={<AdminLayout />}> 
               <Route path="/admin" element={<AdminDashboard />} />
@@ -64,8 +67,8 @@ const AppContent = () => {
             </Route>
           </Route>
 
-          {/* 404 */}
-          <Route path="*" element={<div className="text-center py-20 font-bold">404 - Not Found</div>} />
+          {/* 404 - Trang không tồn tại */}
+          <Route path="*" element={<div className="text-center py-20 font-bold text-gray-400">404 - Trang này không tồn tại</div>} />
         </Routes>
       </main>
 
