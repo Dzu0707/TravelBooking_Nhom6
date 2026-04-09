@@ -63,7 +63,8 @@ const Home = () => {
       <section className="relative h-screen w-full overflow-hidden">
         {banners.map((b, i) => (
           <div key={b.id} className={`absolute inset-0 transition-opacity duration-1000 ${i === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-            <img src={b.url} className={`w-full h-full object-cover transition-transform duration-[7000ms] ${i === currentIndex ? "scale-110" : "scale-100"}`} alt="Banner" />
+            {/* SỬA LỖI: duration-[7000ms] thành duration-7000 */}
+            <img src={b.url} className={`w-full h-full object-cover transition-transform duration-7000 ${i === currentIndex ? "scale-110" : "scale-100"}`} alt="Banner" />
             <div className="absolute inset-0 bg-black/30 flex flex-col justify-center items-center text-center px-4 text-white">
               <h2 className="text-5xl md:text-8xl font-black mb-6 italic">{b.title}</h2>
               <p className="text-lg md:text-2xl mb-10 max-w-2xl">{b.subtitle}</p>
@@ -113,7 +114,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 3. TẠI SAO CHỌN (Đã tinh chỉnh UI Pixel-Perfect) */}
+      {/* 3. TẠI SAO CHỌN */}
       <section className="bg-[#F8F9FA] py-24">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -132,9 +133,7 @@ const Home = () => {
   );
 };
 
-// Component Feature tinh chỉnh UI 100% giống ảnh mẫu
 const Feature = ({ icon, title, color }: { icon: any, title: string, color: string }) => {
-  // Mã màu Pastel chuẩn
   const colorClasses: Record<string, string> = {
     blue: "bg-[#F4F7FE] text-[#4379EE]", 
     green: "bg-[#F0FDF4] text-[#22C55E]", 
@@ -143,8 +142,8 @@ const Feature = ({ icon, title, color }: { icon: any, title: string, color: stri
   
   return (
     <div className="bg-white p-10 rounded-[2.5rem] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] hover:-translate-y-2 transition-all duration-300 border border-gray-50 flex flex-col items-center text-center group">
-      <div className={`w-[72px] h-[72px] rounded-3xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${colorClasses[color]}`}>
-        {/* React.cloneElement giúp can thiệp vào icon để ép độ dày viền mỏng lại */}
+      {/* SỬA LỖI: w-[72px] h-[72px] thành w-18 h-18 */}
+      <div className={`w-18 h-18 rounded-3xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${colorClasses[color]}`}>
         {React.cloneElement(icon, { strokeWidth: 1.5, size: 30 })}
       </div>
       <h4 className="text-[17px] font-black text-gray-900 mb-3 uppercase tracking-wide">{title}</h4>
