@@ -3,14 +3,14 @@ using TravelTour.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CẤU HÌNH CORS ---
+// --- 1. CẤU HÌNH CORS (Nới lỏng để test cho dễ) ---
 builder.Services.AddCors(options => {
-    options.AddPolicy("AllowReactApp", policy => {
-        policy.WithOrigins("http://localhost:5173") 
+    options.AddPolicy("AllowAll", policy => {
+        policy.AllowAnyOrigin() 
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -19,11 +19,11 @@ builder.Services.AddCors(options => {
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// --- 2. CẤU HÌNH SWAGGER (Để test API trực tiếp) ---
+// --- 2. CẤU HÌNH SWAGGER ---
 builder.Services.AddSwaggerGen(c => {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "backend", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel Tour API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-        Description = "Nhập theo cú pháp: Bearer [token_của_bạn]",
+        Description = "Nhập: Bearer [token]",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -43,9 +43,10 @@ builder.Services.AddSwaggerGen(c => {
 builder.Services.AddDbContext<TravelDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// --- 4. CẤU HÌNH AUTHENTICATION (Đã đồng bộ với appsettings.json) ---
+// --- 4. CẤU HÌNH AUTHENTICATION ---
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "Chuoi_Bi_Mat_Sieu_Cap_Vip_123456_Dai_Hon_32_Ky_Tu");
+var keyString = jwtSettings["Key"] ?? "Chuoi_Bi_Mat_Sieu_Cap_Vip_123456_Dai_Hon_32_Ky_Tu";
+var key = Encoding.UTF8.GetBytes(keyString);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
@@ -65,10 +66,10 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// --- 5. MIDDLEWARE PIPELINE---
+// --- 5. MIDDLEWARE PIPELINE (Thứ tự cực kỳ quan trọng) ---
 
-// 1. Phải để CORS lên đầu tiên để trình duyệt không chặn Pre-flight request (OPTIONS)
-app.UseCors("AllowReactApp"); 
+// CORS phải đứng TRƯỚC HttpsRedirection và StaticFiles
+app.UseCors("AllowAll"); 
 
 if (app.Environment.IsDevelopment())
 {
@@ -76,12 +77,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// 2. Cho phép truy cập file tĩnh (ảnh trong wwwroot/uploads)
 app.UseStaticFiles(); 
+// Nếu chạy local không có SSL ổn định, có thể tạm comment dòng dưới nếu bị lỗi chuyển hướng
+// app.UseHttpsRedirection(); 
 
-app.UseHttpsRedirection();
-
-// 3. Authentication PHẢI đứng trước Authorization
 app.UseAuthentication(); 
 app.UseAuthorization();  
 
