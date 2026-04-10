@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Map, ClipboardList, 
   Users, LogOut, Zap, Layers, Calendar, ChevronRight, Bell, Search,
-  CreditCard, Ticket, Star, Menu
+  CreditCard, Ticket, Star, Menu, ExternalLink, Home // Thêm ExternalLink và Home
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -47,7 +47,18 @@ const AdminLayout = () => {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
-          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 mb-2">Hệ thống</p>
+          {/* NÚT QUAY VỀ TRANG CHỦ */}
+          <Link 
+            to="/" 
+            className="flex items-center gap-3 px-3 py-2.5 rounded-md mb-4 bg-emerald-500/5 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/10 transition-all group"
+          >
+            <Home size={18} />
+            <span className="text-[13px] font-bold">Xem trang chủ</span>
+            <ExternalLink size={12} className="ml-auto opacity-50 group-hover:opacity-100" />
+          </Link>
+
+          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 mb-2">Hệ thống quản trị</p>
+          
           {menuItems.map((item) => {
             const isActive = item.path === '/admin' 
               ? location.pathname === '/admin' 
@@ -96,8 +107,6 @@ const AdminLayout = () => {
 
       {/* MAIN CONTENT */}
       <main className="flex-1 flex flex-col min-w-0 bg-slate-950">
-        
-        {/* Header - Flat, No Blur */}
         <header className="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900 z-30">
           <div className="flex items-center gap-3">
             <button className="lg:hidden p-1 text-slate-500">
@@ -115,6 +124,14 @@ const AdminLayout = () => {
               <Search size={12} className="text-slate-600" />
               <input type="text" placeholder="Tìm kiếm nhanh..." className="bg-transparent border-none outline-none text-[11px] text-slate-300 w-40 placeholder:text-slate-700" />
             </div>
+            {/* Nút trang chủ nhanh trên Header dành cho Mobile/Tablet */}
+            <button 
+              onClick={() => navigate('/')} 
+              className="p-2 text-slate-500 hover:text-emerald-400 sm:hidden"
+              title="Về trang chủ"
+            >
+              <Home size={18} />
+            </button>
             <button className="p-2 text-slate-500 hover:text-slate-200 relative">
               <Bell size={16} />
               <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-600 rounded-full" />
@@ -122,20 +139,18 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        {/* Content Area - Loại bỏ animation slide để máy yếu load nhanh hơn */}
         <div className="flex-1 overflow-y-auto p-5 lg:p-6 bg-slate-950">
           <div className="max-w-7xl mx-auto">
              <Outlet />
           </div>
         </div>
-
       </main>
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        * { transition-duration: 150ms !important; } /* Giảm thời gian transition để cảm giác nhanh hơn */
+        * { transition-duration: 150ms !important; }
       `}</style>
     </div>
   );

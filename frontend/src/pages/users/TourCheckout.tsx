@@ -18,8 +18,6 @@ const Checkout = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  
-  // Dòng 21: setNote đã được khai báo và giờ sẽ được sử dụng bên dưới
   const [note, setNote] = useState('');
 
   const API_BASE_URL = "http://localhost:5091";
@@ -121,7 +119,6 @@ const Checkout = () => {
                   <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="example@gmail.com" className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold outline-none" />
                 </div>
 
-                {/* SỬA LỖI TẠI ĐÂY: setNote đã được sử dụng */}
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-slate-400 ml-4 tracking-widest">Ghi chú chuyến đi</label>
                   <textarea 
@@ -140,7 +137,7 @@ const Checkout = () => {
                    </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-slate-50 p-6 rounded-[2rem] flex items-center justify-between border border-white">
+                    <div className="bg-slate-50 p-6 rounded-4xl flex items-center justify-between border border-white">
                        <span className="text-[10px] font-black uppercase text-slate-500">Người lớn</span>
                        <div className="flex items-center gap-5">
                           <button type="button" onClick={() => setAdultCount(Math.max(1, adultCount - 1))} className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center font-black hover:bg-indigo-600 hover:text-white transition-all">-</button>
@@ -149,7 +146,7 @@ const Checkout = () => {
                        </div>
                     </div>
 
-                    <div className="bg-slate-50 p-6 rounded-[2rem] flex items-center justify-between border border-white">
+                    <div className="bg-slate-50 p-6 rounded-4xl flex items-center justify-between border border-white">
                        <span className="text-[10px] font-black uppercase text-slate-500">Trẻ em</span>
                        <div className="flex items-center gap-5">
                           <button type="button" onClick={() => setChildCount(Math.max(0, childCount - 1))} className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center font-black hover:bg-amber-500 hover:text-white transition-all">-</button>
@@ -165,14 +162,14 @@ const Checkout = () => {
 
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-indigo-900 rounded-[3.5rem] p-10 text-white shadow-2xl relative overflow-hidden">
-               <div className="absolute top-[-20px] right-[-20px] opacity-10"><Ticket size={180} /></div>
+               <div className="absolute -top-5 -right-5 opacity-10"><Ticket size={180} /></div>
                <h3 className="text-xl font-black mb-10 uppercase italic tracking-tighter relative z-10">Tóm tắt chuyến đi</h3>
-               <div className="flex gap-5 mb-10 relative z-10 bg-white/5 p-4 rounded-[2rem] border border-white/10">
-                  <img src={getImgUrl(tour?.thumbnail || tour?.imageUrl)} className="w-20 h-20 rounded-[1.5rem] object-cover border-2 border-white/20" alt="" />
+               <div className="flex gap-5 mb-10 relative z-10 bg-white/5 p-4 rounded-4xl border border-white/10">
+                  <img src={getImgUrl(tour?.thumbnail || tour?.imageUrl)} className="w-20 h-20 rounded-3xl object-cover border-2 border-white/20" alt="" />
                   <div className="flex flex-col justify-center">
                     <h4 className="font-black text-sm uppercase italic line-clamp-1 leading-tight mb-2">{tour?.name}</h4>
                     <p className="text-[9px] uppercase font-bold text-indigo-300 flex items-center gap-2">
-                       <Calendar size={12}/> Khởi hành: {selectedSchedule ? new Date(selectedSchedule.startDate).toLocaleDateString('vi-VN') : '---'}
+                       <Calendar size={12}/> Khởi hành: {selectedSchedule ? new Date(selectedSchedule.departureDate).toLocaleDateString('vi-VN') : '---'}
                     </p>
                     <p className="text-[9px] uppercase font-bold text-indigo-300 flex items-center gap-2">
                        <MapPin size={12}/> {tour?.departureLocation}

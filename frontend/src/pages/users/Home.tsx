@@ -101,10 +101,10 @@ const Home = () => {
   return (
     <div className="w-full animate-fadeIn bg-white">
       {/* 1. HERO BANNER - FULL SCREEN WIDTH & HEIGHT */}
-      <section className="relative h-[100vh] w-full overflow-hidden">
+      <section className="relative h-screen w-full overflow-hidden">
         {banners.map((b, i) => (
           <div key={b.id} className={`absolute inset-0 transition-opacity duration-1000 ${i === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-            <img src={b.url} className={`w-full h-full object-cover transition-transform duration-[7000ms] ${i === currentIndex ? "scale-110" : "scale-100"}`} alt="Banner" />
+            <img src={b.url} className={`w-full h-full object-cover transition-transform duration-7000ms ${i === currentIndex ? "scale-110" : "scale-100"}`} alt="Banner" />
             <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center px-4 text-white">
               {/* SỬA LỖI: Giảm kích thước chữ tiêu đề từ text-9xl xuống text-6xl */}
               <h2 className="text-4xl md:text-6xl font-black mb-4 italic tracking-tighter uppercase leading-none drop-shadow-lg">
@@ -210,7 +210,7 @@ const Home = () => {
           <p className="text-gray-400 font-bold uppercase tracking-[0.4em] mt-3 text-xs">Chất lượng tạo nên thương hiệu</p>
         </div>
         
-        <div className="max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="max-w-350 mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
           <Feature icon={<Map />} title="Đa dạng tour" color="blue" />
           <Feature icon={<ShieldCheck />} title="An toàn tuyệt đối" color="green" />
           <Feature icon={<CreditCard />} title="Giá tốt nhất" color="orange" />
