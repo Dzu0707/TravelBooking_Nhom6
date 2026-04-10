@@ -1,76 +1,68 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using TravelTour.API.Data; // Đảm bảo namespace này khớp với thư mục Data của bạn
-using TravelTour.API.Models; // Đảm bảo namespace này khớp với thư mục Models của bạn
-using System.IO;
+using TravelTour.API.Data;
+using TravelTour.API.Models;
 
-namespace TravelTour.API.Controllers
-{
-    [Authorize(Roles = "Admin")]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ImagesController : ControllerBase
-    {
-        private readonly IWebHostEnvironment _env;
-        private readonly TravelDbContext _context;
+namespace TravelTour.API.Controllers;
 
-        public ImagesController(IWebHostEnvironment env, TravelDbContext context)
-        {
-            _env = env;
-            _context = context;
+[Authorize(Roles = "Admin")]
+[Route("api/[controller]")]
+[ApiController]
+public class ImagesController : ControllerBase {
+    private readonly IWebHostEnvironment _env;
+    private readonly TravelDbContext _context;
+
+    public ImagesController(IWebHostEnvironment env, TravelDbContext context) {
+        _env = env;
+        _context = context;
+    }
+
+    // Dùng khi Admin muốn thêm lẻ 1 ảnh vào album của Tour đã có sẵn
+    [HttpPost("upload/{tourId}")]
+    public async Task<IActionResult> Upload(int tourId, IFormFile file) {
+        if (file == null || file.Length == 0) return BadRequest("File trống");
+
+        var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var folder = Path.Combine(wwwPath, "uploads", "tours");
+        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+        var fullPath = Path.Combine(folder, fileName);
+
+        using (var stream = new FileStream(fullPath, FileMode.Create)) {
+            await file.CopyToAsync(stream);
         }
 
-        [HttpPost("upload/{tourId}")]
-        public async Task<IActionResult> Upload(int tourId, IFormFile file)
-        {
-            if (file == null || file.Length == 0) 
-                return BadRequest("File không hợp lệ hoặc trống.");
+        var tourImage = new TourImage {
+            TourId = tourId,
+            ImageUrl = $"/uploads/tours/{fileName}",
+            IsPrimary = false
+        };
 
-            // 1. Tạo thư mục wwwroot/uploads nếu chưa có
-            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
-            if (!Directory.Exists(uploadsFolder)) 
-                Directory.CreateDirectory(uploadsFolder);
+        _context.TourImages.Add(tourImage);
+        await _context.SaveChangesAsync();
 
-            // 2. Tạo tên file duy nhất để tránh trùng lặp
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(uploadsFolder, fileName);
+        return Ok(new { id = tourImage.Id, url = tourImage.ImageUrl });
+    }
 
-            // 3. Lưu file vật lý vào server
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+    // Dùng khi Admin bấm nút [X] xóa 1 ảnh trong album
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id) {
+        var image = await _context.TourImages.FindAsync(id);
+        if (image == null) return NotFound();
 
-            // 4. Lưu đường dẫn vào Database (bảng TourImages)
-            var tourImage = new TourImage
-            {
-                TourId = tourId,
-                ImageUrl = $"/uploads/{fileName}",
-                IsPrimary = false
-            };
-
-            _context.TourImages.Add(tourImage);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { url = tourImage.ImageUrl, message = "Tải ảnh lên thành công!" });
+        // Xóa file vật lý
+        var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var fullPath = Path.Combine(wwwPath, image.ImageUrl.TrimStart('/'));
+        
+        if (System.IO.File.Exists(fullPath)) {
+            System.IO.File.Delete(fullPath);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteImage(int id)
-        {
-            var image = await _context.TourImages.FindAsync(id);
-            if (image == null) return NotFound();
+        _context.TourImages.Remove(image);
+        await _context.SaveChangesAsync();
 
-            // Xóa file vật lý
-            var filePath = Path.Combine(_env.WebRootPath, image.ImageUrl.TrimStart('/'));
-            if (System.IO.File.Exists(filePath)) 
-                System.IO.File.Exists(filePath);
-
-            _context.TourImages.Remove(image);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Đã xóa ảnh." });
-        }
+        return Ok(new { message = "Xóa ảnh thành công" });
     }
 }

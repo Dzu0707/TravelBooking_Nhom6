@@ -17,192 +17,181 @@ public class ToursController : ControllerBase {
         _env = env;
     }
 
-    // ==========================================
-    // 1. LẤY DANH SÁCH TOUR (Cho trang chủ/Danh sách)
-    // ==========================================
+    // --- SỬA LỖI 405: Bổ sung phương thức lấy toàn bộ danh sách ---
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll() {
-        try {
-            // Lấy dữ liệu thô từ DB về RAM để xử lý, tránh lỗi dịch SQL phức tạp
-            var toursData = await _context.Tours
-                .Include(t => t.Category)
-                .Include(t => t.TourSchedules)
-                .ToListAsync();
-
-            // Mapping dữ liệu sang định dạng JSON gọn nhẹ
-            var result = toursData.Select(t => new {
-                t.Id,
-                t.Name,
-                t.Code,
-                t.DepartureLocation,
-                t.CategoryId,
-                CategoryName = t.Category?.Name ?? "Chưa phân loại",
-                Thumbnail = !string.IsNullOrEmpty(t.ImageUrl) 
-                            ? t.ImageUrl 
-                            : "/uploads/tours/default.jpg",
-                
-                // Lấy giá người lớn của lịch trình gần nhất (dùng làm giá hiển thị)
-                AdultPrice = t.TourSchedules
-                                .OrderBy(s => s.DepartureDate)
-                                .FirstOrDefault()?.AdultPrice ?? 0,
-                
-                ChildPrice = t.TourSchedules
-                                .OrderBy(s => s.DepartureDate)
-                                .FirstOrDefault()?.ChildPrice ?? 0
-            }).ToList();
-
-            return Ok(result);
-        } catch (Exception ex) {
-            return BadRequest(new { message = "Lỗi hệ thống: " + ex.Message });
-        }
+        var tours = await _context.Tours
+            .Include(t => t.TourImages)
+            .OrderByDescending(t => t.Id)
+            .ToListAsync();
+        return Ok(tours);
     }
 
-    // ==========================================
-    // 2. LẤY CHI TIẾT 1 TOUR (Cho trang TourDetail)
-    // ==========================================
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(int id) {
         var tour = await _context.Tours
-            .Include(t => t.Category)
-            .Include(t => t.TourImages)    // Lấy gallery ảnh phụ
-            .Include(t => t.TourSchedules) // Lấy các ngày khởi hành và giá
-            .Include(t => t.Reviews)       // Lấy danh sách đánh giá
-                .ThenInclude(r => r.User)  // Lấy thông tin người đánh giá
+            .Include(t => t.TourImages)
+            .Include(t => t.TourSchedules)
             .FirstOrDefaultAsync(t => t.Id == id);
-
-        if (tour == null) return NotFound(new { message = "Không tìm thấy tour này!" });
-
+        if (tour == null) return NotFound();
         return Ok(tour);
     }
 
-    // ==========================================
-    // 3. TẠO MỚI TOUR (Admin)
-    // ==========================================
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromForm] TourDto tourDto) {
+    public async Task<IActionResult> Create([FromForm] TourDto dto) {
+        using var transaction = await _context.Database.BeginTransactionAsync();
         try {
             var tour = new Tour {
-                Name = tourDto.Name,
-                Code = tourDto.Code,
-                DepartureLocation = tourDto.DepartureLocation,
-                CategoryId = tourDto.CategoryId,
-                Description = tourDto.Description ?? "",
-                CreatedAt = DateTime.Now
+                Name = dto.Name,
+                Code = dto.Code,
+                DepartureLocation = dto.DepartureLocation,
+                CategoryId = dto.CategoryId,
+                Description = dto.Description ?? "",
+                CreatedAt = DateTime.Now,
+                // Đảm bảo ImageUrl không bị null nếu không có file
+                ImageUrl = "/uploads/tours/default.jpg" 
             };
 
-            if (tourDto.ImageFile != null) {
-                tour.ImageUrl = await UploadProcess(tourDto.ImageFile);
-            }
+            if (dto.ImageFile != null) tour.ImageUrl = await UploadProcess(dto.ImageFile);
             
             _context.Tours.Add(tour);
             await _context.SaveChangesAsync();
 
-            // Tạo ngay 1 lịch trình mặc định để tour có giá hiển thị
-            var schedule = new TourSchedule {
-                TourId = tour.Id,
-                AdultPrice = tourDto.AdultPrice,
-                ChildPrice = tourDto.ChildPrice,
-                DepartureDate = DateTime.Now.AddDays(7),
+            // Xử lý Album ảnh phụ
+            if (dto.AlbumFiles != null && dto.AlbumFiles.Any()) {
+                foreach (var file in dto.AlbumFiles) {
+                    var path = await UploadProcess(file);
+                    _context.TourImages.Add(new TourImage { TourId = tour.Id, ImageUrl = path });
+                }
+            }
+
+            // Tạo mặc định 1 lịch trình để tránh lỗi hiển thị ở Frontend
+            _context.TourSchedules.Add(new TourSchedule {
+                TourId = tour.Id, 
+                AdultPrice = dto.AdultPrice, 
+                ChildPrice = dto.ChildPrice,
+                DepartureDate = DateTime.Now.AddDays(7), 
                 ReturnDate = DateTime.Now.AddDays(10),
-                Quota = 20,
-                AvailableSeats = 20,
+                Quota = 20, 
+                AvailableSeats = 20, 
                 Status = "Available"
-            };
-            _context.TourSchedules.Add(schedule);
-            
+            });
+
             await _context.SaveChangesAsync();
-            return Ok(new { message = "Thêm tour thành công!", id = tour.Id });
+            await transaction.CommitAsync();
+
+            // Trả về dữ liệu đầy đủ để Frontend cập nhật State ngay lập tức
+            var result = await _context.Tours
+                .Include(t => t.TourImages)
+                .FirstOrDefaultAsync(t => t.Id == tour.Id);
+
+            return Ok(result);
         } catch (Exception ex) {
-            return BadRequest(new { message = "Lỗi khi tạo: " + ex.Message });
+            await transaction.RollbackAsync();
+            return BadRequest(new { message = ex.Message });
         }
     }
 
-    // ==========================================
-    // 4. CẬP NHẬT TOUR (Admin)
-    // ==========================================
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, [FromForm] TourDto tourDto) {
-        try {
-            var tour = await _context.Tours.FirstOrDefaultAsync(t => t.Id == id);
-            if (tour == null) return NotFound(new { message = "Không tìm thấy tour!" });
+    public async Task<IActionResult> Update(int id, [FromForm] TourDto dto) {
+        var tour = await _context.Tours
+            .Include(t => t.TourImages)
+            .FirstOrDefaultAsync(t => t.Id == id);
+            
+        if (tour == null) return NotFound();
 
-            tour.Name = tourDto.Name;
-            tour.Code = tourDto.Code;
-            tour.DepartureLocation = tourDto.DepartureLocation;
-            tour.CategoryId = tourDto.CategoryId;
-            tour.Description = tourDto.Description ?? "";
+        tour.Name = dto.Name;
+        tour.Code = dto.Code;
+        tour.DepartureLocation = dto.DepartureLocation;
+        tour.CategoryId = dto.CategoryId;
+        tour.Description = dto.Description ?? "";
 
-            if (tourDto.ImageFile != null) {
-                DeleteOldImage(tour.ImageUrl); // Xóa ảnh cũ trên server
-                tour.ImageUrl = await UploadProcess(tourDto.ImageFile);
-            }
-
-            // Cập nhật giá vào lịch trình đầu tiên để đồng bộ
-            var schedule = await _context.TourSchedules.FirstOrDefaultAsync(s => s.TourId == id);
-            if (schedule != null) {
-                schedule.AdultPrice = tourDto.AdultPrice;
-                schedule.ChildPrice = tourDto.ChildPrice;
-            }
-
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "Cập nhật thành công!" });
-        } catch (Exception ex) {
-            return BadRequest(new { message = "Lỗi khi cập nhật: " + ex.Message });
+        // Cập nhật ảnh đại diện nếu có file mới
+        if (dto.ImageFile != null) {
+            DeletePhysicalFile(tour.ImageUrl); // Xóa ảnh cũ trên disk
+            tour.ImageUrl = await UploadProcess(dto.ImageFile);
         }
+
+        // Cập nhật thêm ảnh vào Album
+        if (dto.AlbumFiles != null && dto.AlbumFiles.Any()) {
+            foreach (var file in dto.AlbumFiles) {
+                var path = await UploadProcess(file);
+                _context.TourImages.Add(new TourImage { TourId = id, ImageUrl = path });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        // Load lại đầy đủ quan hệ để Frontend đồng bộ album
+        var updatedTour = await _context.Tours
+            .Include(t => t.TourImages)
+            .FirstOrDefaultAsync(t => t.Id == id);
+
+        return Ok(updatedTour); 
     }
 
-    // ==========================================
-    // 5. XÓA TOUR (Admin)
-    // ==========================================
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id) {
-        var tour = await _context.Tours.FindAsync(id);
+        var tour = await _context.Tours
+            .Include(t => t.TourImages)
+            .FirstOrDefaultAsync(t => t.Id == id);
+            
         if (tour == null) return NotFound();
 
-        DeleteOldImage(tour.ImageUrl);
+        // Xóa các file vật lý của album và ảnh chính
+        DeletePhysicalFile(tour.ImageUrl);
+        if (tour.TourImages != null) {
+            foreach (var img in tour.TourImages) DeletePhysicalFile(img.ImageUrl);
+        }
+
         _context.Tours.Remove(tour);
         await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Đã xóa tour!" });
+        return NoContent();
     }
 
-    // --- Hàm xử lý File ---
-
     private async Task<string> UploadProcess(IFormFile file) {
-        string rootPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-        string folder = Path.Combine(rootPath, "uploads", "tours");
-        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-        string fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        string filePath = Path.Combine(folder, fileName);
-
-        using (var stream = new FileStream(filePath, FileMode.Create)) {
-            await file.CopyToAsync(stream);
-        }
+        var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var path = Path.Combine(wwwPath, "uploads", "tours");
+        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+        
+        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        var fullPath = Path.Combine(path, fileName);
+        
+        using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
+        
         return $"/uploads/tours/{fileName}";
     }
 
-    private void DeleteOldImage(string? imageUrl) {
-        if (string.IsNullOrEmpty(imageUrl) || imageUrl.Contains("default.jpg")) return;
-        string rootPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-        string fullPath = Path.Combine(rootPath, imageUrl.TrimStart('/'));
-        if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+    private void DeletePhysicalFile(string? path) {
+        if (string.IsNullOrEmpty(path) || path.Contains("default.jpg") || !path.StartsWith("/")) return;
+        
+        var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var fullPath = Path.Combine(wwwPath, path.TrimStart('/'));
+        
+        if (System.IO.File.Exists(fullPath)) {
+            try {
+                System.IO.File.Delete(fullPath);
+            } catch {
+                // Log lỗi nếu cần, tránh crash app khi file đang bị lock
+            }
+        }
     }
 }
 
-// DTO để khớp với Form-data từ Frontend
 public class TourDto {
-    public string Name { get; set; } = string.Empty;
-    public string Code { get; set; } = string.Empty;
-    public string DepartureLocation { get; set; } = string.Empty;
+    public string Name { get; set; } = "";
+    public string Code { get; set; } = "";
+    public string DepartureLocation { get; set; } = "";
     public int CategoryId { get; set; }
     public string? Description { get; set; }
-    public decimal AdultPrice { get; set; } 
+    public decimal AdultPrice { get; set; }
     public decimal ChildPrice { get; set; }
-    public IFormFile? ImageFile { get; set; } 
+    public IFormFile? ImageFile { get; set; }
+    public List<IFormFile>? AlbumFiles { get; set; }
 }
