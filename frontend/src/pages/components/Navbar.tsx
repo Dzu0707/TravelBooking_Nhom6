@@ -123,7 +123,7 @@ const Navbar = () => {
                   : "bg-gray-50 border-gray-200 text-gray-700 hover:border-blue-200"
                 }`}
               >
-                <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-cyan-400 text-white rounded-full flex items-center justify-center font-black text-xs shadow-inner">
+                <div className="w-8 h-8 bg-linear-to-tr from-blue-600 to-cyan-400 text-white rounded-full flex items-center justify-center font-black text-xs shadow-inner">
                   {fullName.charAt(0).toUpperCase()}
                 </div>
                 <span className="text-sm font-bold hidden sm:inline">
