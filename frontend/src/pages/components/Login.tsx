@@ -16,17 +16,33 @@ const Login = () => {
 
     try {
       const res = await axios.post('http://localhost:5091/api/Auth/login', { email, password });
-      const { token, role, fullName } = res.data;
       
+      // Giả sử API trả về object chứa đầy đủ thông tin user
+      // Ví dụ: { token, role, fullName, email, phone, address }
+      const { token, role, fullName, email: userEmail, phone, address } = res.data;
+      
+      // 1. Dọn dẹp kho cũ trước khi ghi mới (đảm bảo không còn rác của tài khoản trước)
+      localStorage.clear();
+
+      // 2. Ghi đè thông tin MỚI của người vừa đăng nhập
       localStorage.setItem('token', token);
       localStorage.setItem('role', role?.toString() || '2');
       localStorage.setItem('fullName', fullName || 'Thành viên');
       
+      // Lưu thêm các trường này để trang Profile cập nhật ngay lập tức
+      localStorage.setItem('email', userEmail || email); // Ưu tiên email từ server
+      localStorage.setItem('phone', phone || 'Chưa cập nhật');
+      localStorage.setItem('address', address || 'Chưa cập nhật');
+      
       alert(`Chào mừng ${fullName}!`);
+      
+      // 3. Chuyển hướng và làm mới trang để đồng bộ toàn bộ Navbar/Profile
       navigate('/'); 
       window.location.reload(); 
+      
     } catch (error: any) {
-      alert("Lỗi: " + (error.response?.data || "Sai tài khoản hoặc mật khẩu"));
+      const errorMsg = error.response?.data?.message || error.response?.data || "Sai tài khoản hoặc mật khẩu";
+      alert("Lỗi: " + errorMsg);
     } finally {
       setLoading(false);
     }
@@ -102,26 +118,23 @@ const Login = () => {
           </div>
         </div>
 
-        {/* --- PHẦN BÊN PHẢI: DÙNG ẢNH TĨNH logo-login.jpg --- */}
+        {/* --- PHẦN BÊN PHẢI --- */}
         <div className="flex-1 bg-blue-50 text-center hidden lg:flex items-center justify-center relative">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-bl-full z-10"></div>
             
-            {/* Sử dụng thẻ div với background-image để dễ tùy chỉnh object-fit */}
             <div 
-                className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform hover:scale-110 duration-3000"
+                className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform hover:scale-110 duration-[3000ms]"
                 style={{ backgroundImage: `url(${loginBanner})` }} 
             >
-                {/* Lớp phủ Gradient để nội dung (nếu có) dễ đọc hơn và ảnh trông sâu hơn */}
-                <div className="absolute inset-0 bg-linear-to-t from-blue-900/40 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 via-transparent to-transparent"></div>
             </div>
 
-            {/* Nội dung đè lên ảnh (Tùy chọn) */}
             <div className="relative z-10 mt-auto mb-12 px-10">
                 <h3 className="text-white font-black text-2xl tracking-tight drop-shadow-lg">
-                   TravelTour Identity
+                    TravelTour Identity
                 </h3>
                 <p className="text-white/80 text-xs font-bold mt-2 uppercase tracking-[0.3em] drop-shadow-md">
-                   Hệ thống quản lý hành trình
+                    Hệ thống quản lý hành trình
                 </p>
             </div>
         </div>

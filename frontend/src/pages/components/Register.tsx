@@ -20,19 +20,33 @@ const Register = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 1. Kiểm tra mật khẩu khớp nhau
     if (formData.password !== formData.confirmPassword) {
       return alert("Mật khẩu xác nhận không khớp!");
     }
 
     setLoading(true);
     try {
+      // 2. Gọi API đăng ký
       await axios.post("http://localhost:5091/api/Auth/register", {
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         password: formData.password
       });
-      alert("Chúc mừng bạn đã gia nhập TravelGo! Hãy bắt đầu hành trình ngay.");
+
+      // 3. LOGIC QUAN TRỌNG: Lưu sẵn thông tin vào localStorage để Profile sử dụng
+      // Việc này giúp trang Profile có dữ liệu ngay lập tức mà không cần gọi API lần nữa
+      localStorage.setItem('fullName', formData.fullName);
+      localStorage.setItem('email', formData.email);
+      localStorage.setItem('phone', formData.phone);
+      localStorage.setItem('address', 'Chưa cập nhật địa chỉ'); // Mặc định ban đầu
+      localStorage.setItem('role', '0'); // Mặc định khách hàng
+
+      alert("Chúc mừng bạn đã gia nhập TravelGo! Hãy đăng nhập để bắt đầu hành trình.");
+      
+      // 4. Chuyển hướng sang trang đăng nhập
       navigate('/login');
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || "Lỗi kết nối Server";
@@ -49,7 +63,6 @@ const Register = () => {
         {/* --- 🟢 BÊN TRÁI: FORM ĐĂNG KÝ 🟢 --- */}
         <div className="w-full lg:w-1/2 p-8 sm:p-16 flex flex-col justify-center">
           <div className="max-w-md mx-auto w-full">
-            {/* Header chuyên cho Travel */}
             <div className="mb-10 text-center lg:text-left">
               <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl shadow-lg shadow-blue-200 mb-6 rotate-3">
                 <Compass className="text-white" size={32} />
@@ -66,6 +79,7 @@ const Register = () => {
                   className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-blue-100 transition-all text-sm font-bold outline-none"
                   type="text"
                   placeholder="Tên đại lý / Họ tên"
+                  value={formData.fullName}
                   onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                 />
               </div>
@@ -78,6 +92,7 @@ const Register = () => {
                     className="w-full pl-12 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-blue-100 transition-all text-sm font-bold outline-none"
                     type="email"
                     placeholder="Email liên hệ"
+                    value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
                 </div>
@@ -88,6 +103,7 @@ const Register = () => {
                     className="w-full pl-12 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-blue-100 transition-all text-sm font-bold outline-none"
                     type="tel"
                     placeholder="Hotline"
+                    value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                   />
                 </div>
@@ -101,6 +117,7 @@ const Register = () => {
                     className="w-full pl-12 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-blue-100 transition-all text-sm font-bold outline-none"
                     type="password"
                     placeholder="Mật khẩu"
+                    value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
                   />
                 </div>
@@ -111,6 +128,7 @@ const Register = () => {
                     className="w-full pl-12 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-blue-100 transition-all text-sm font-bold outline-none"
                     type="password"
                     placeholder="Xác nhận lại"
+                    value={formData.confirmPassword}
                     onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                   />
                 </div>
@@ -139,9 +157,8 @@ const Register = () => {
           </div>
         </div>
 
-        {/* --- 🔵 BÊN PHẢI: BANNER THUẦN CODE CHUẨN TOUR 🔵 --- */}
-        <div className="hidden lg:flex flex-1 bg-linear-to-br from-blue-600 via-indigo-700 to-slate-900 relative items-center justify-center">
-            {/* Map Grid Pattern */}
+        {/* --- 🔵 BÊN PHẢI: BANNER 🔵 --- */}
+        <div className="hidden lg:flex flex-1 bg-gradient-to-br from-blue-600 via-indigo-700 to-slate-900 relative items-center justify-center">
             <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
             
             <div className="relative z-10 text-center px-12">
@@ -152,7 +169,7 @@ const Register = () => {
               </div>
 
               <h2 className="text-4xl font-black text-white mb-6 leading-tight tracking-tight">
-                Mở rộng <br/> <span className="text-transparent bg-clip-text bg-linear-to-r from-yellow-300 to-orange-200 italic">Mạng lưới Du lịch</span>
+                Mở rộng <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-200 italic">Mạng lưới Du lịch</span>
               </h2>
               
               <div className="grid grid-cols-1 gap-3 max-w-xs mx-auto text-left">
@@ -172,7 +189,7 @@ const Register = () => {
             </div>
 
             <div className="absolute bottom-10 text-white/20 text-[10px] font-black uppercase tracking-[0.5em]">
-               TravelGo Architecture by Leader
+               TravelGo Architecture
             </div>
         </div>
       </div>

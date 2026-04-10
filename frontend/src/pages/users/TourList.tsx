@@ -29,9 +29,8 @@ const TourList = () => {
 
   useEffect(() => { fetchTours(); }, []);
 
-  // Hàm xử lý URL ảnh chuẩn
   const getImgUrl = (url: string) => {
-    if (!url) return "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=500"; // Ảnh placeholder chất lượng cao
+    if (!url) return "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=500";
     return url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
   };
 
@@ -50,7 +49,7 @@ const TourList = () => {
       toast.success("Đã gửi đánh giá thành công!", { id: loadId });
       setComment(''); 
       setActiveReviewId(null);
-      fetchTours(); // Load lại để cập nhật số lượng review mới nhất
+      fetchTours();
     } catch (e) { 
       toast.error("Lỗi khi gửi đánh giá!", { id: loadId }); 
     }
@@ -84,7 +83,6 @@ const TourList = () => {
       {/* GRID TOUR */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-7xl mx-auto">
         {tours.map((tour) => {
-          // Chuẩn hóa dữ liệu từ Backend
           const tourImages = tour.tourImages || tour.TourImages || [];
           const mainImg = tour.imageUrl || tour.ImageUrl || tour.thumbnail || tour.Thumbnail || (tourImages[0]?.imageUrl);
           const reviewCount = (tour.reviews?.length || 0) + (tour.Reviews?.length || 0);
@@ -94,7 +92,7 @@ const TourList = () => {
               
               {/* IMAGE GALLERY SECTION */}
               <div className="relative h-64 p-3 grid grid-cols-3 gap-3">
-                <div className="col-span-2 overflow-hidden rounded-[2rem] relative cursor-pointer" onClick={() => navigate(`/tours/${tour.id}`)}>
+                <div className="col-span-2 overflow-hidden rounded-4xl relative cursor-pointer" onClick={() => navigate(`/tours/${tour.id}`)}>
                   <img src={getImgUrl(mainImg)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={tour.name} />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center shadow-lg">
                     <Star size={12} className="text-amber-400 mr-1" fill="currentColor"/>
@@ -118,7 +116,7 @@ const TourList = () => {
               </div>
 
               {/* CONTENT SECTION */}
-              <div className="p-7 flex flex-col flex-grow">
+              <div className="p-7 flex flex-col grow">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex gap-2">
                         <span className="flex items-center text-indigo-700 font-black text-[9px] uppercase bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-100">
@@ -142,7 +140,7 @@ const TourList = () => {
                 </h3>
 
                 <div className="border-l-2 border-indigo-100 pl-4 mb-6">
-                  <p className="text-slate-500 text-[12px] italic leading-relaxed line-clamp-2 h-[36px]">
+                  <p className="text-slate-500 text-[12px] italic leading-relaxed line-clamp-2 h-9">
                     {tour.description || "Hành trình khám phá vẻ đẹp bất tận cùng hệ thống dịch vụ nghỉ dưỡng cao cấp chuẩn TravelGo..."}
                   </p>
                 </div>
@@ -215,7 +213,7 @@ const TourList = () => {
                       value={comment} 
                       onChange={(e) => setComment(e.target.value)} 
                       placeholder="Tour này như thế nào? Hãy cho chúng tôi biết cảm nhận của bạn..." 
-                      className="w-full flex-grow bg-slate-50 border border-slate-100 rounded-3xl p-6 text-sm italic outline-none focus:border-indigo-300 focus:bg-white transition-all mb-6 resize-none shadow-inner" 
+                      className="w-full grow bg-slate-50 border border-slate-100 rounded-3xl p-6 text-sm italic outline-none focus:border-indigo-300 focus:bg-white transition-all mb-6 resize-none shadow-inner" 
                     />
                     
                     <button 
