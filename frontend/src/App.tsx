@@ -1,8 +1,8 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useEffect } from 'react';
 
-// --- COMPONENTS ---
+// --- COMPONENTS & PAGES ---
 import Navbar from './pages/components/Navbar';
 import Footer from './pages/components/Footer';
 import Login from './pages/components/Login';
@@ -38,7 +38,7 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Layout dành riêng cho User/Khách (Bao gồm Navbar và Footer)
+// Layout dành riêng cho User/Khách (Linh hoạt tràn viền hoặc có container)
 const MainLayout = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
@@ -46,10 +46,10 @@ const MainLayout = () => {
   return (
     <>
       <Navbar />
-      <main className={`min-h-screen transition-all duration-500 ${
+      <main className={`min-h-screen transition-all duration-500 pt-32 pb-20 ${
         isHomePage 
           ? "w-full overflow-x-hidden" 
-          : "max-w-7xl mx-auto px-6 pt-32 pb-20" 
+          : "max-w-7xl mx-auto px-6" 
       }`}>
         <Outlet /> 
       </main>
@@ -93,7 +93,7 @@ const AppContent = () => {
       <ScrollToTop />
 
       <Routes>
-        {/* --- KHU VỰC PUBLIC & USER ROUTE --- */}
+        {/* --- 1. USER ROUTES (Sử dụng MainLayout) --- */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
@@ -102,17 +102,19 @@ const AppContent = () => {
           <Route path="/register" element={<Register />} />
           
           <Route path="/unauthorized" element={
-            <div className="text-center py-20 font-bold text-red-500">403 - Bạn không có quyền truy cập</div>
+            <div className="text-center py-20 font-bold text-red-500 uppercase tracking-widest">
+              403 - Bạn không có quyền truy cập trang này
+            </div>
           } />
 
-          {/* Protected Routes (Chỉ User hoặc Admin đã đăng nhập) */}
+          {/* Protected Routes (User đã đăng nhập mới được vào) */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 
-        {/* --- KHU VỰC ADMIN ROUTE --- */}
+        {/* --- 2. ADMIN ROUTES (Sử dụng AdminLayout) --- */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AdminLayout />}> 
             <Route index element={<AdminDashboard />} />
@@ -127,7 +129,7 @@ const AppContent = () => {
           </Route>
         </Route>
 
-        {/* 404 PAGE */}
+        {/* --- 3. 404 NOT FOUND --- */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
