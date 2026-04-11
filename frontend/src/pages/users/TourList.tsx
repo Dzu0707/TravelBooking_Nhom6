@@ -92,6 +92,7 @@ const TourList = () => {
               
               {/* IMAGE GALLERY SECTION */}
               <div className="relative h-64 p-3 grid grid-cols-3 gap-3">
+                {/* Đã sửa: rounded-[2rem] -> rounded-4xl */}
                 <div className="col-span-2 overflow-hidden rounded-4xl relative cursor-pointer" onClick={() => navigate(`/tours/${tour.id}`)}>
                   <img src={getImgUrl(mainImg)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={tour.name} />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full flex items-center shadow-lg">
@@ -116,6 +117,7 @@ const TourList = () => {
               </div>
 
               {/* CONTENT SECTION */}
+              {/* Đã sửa: flex-grow -> grow */}
               <div className="p-7 flex flex-col grow">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex gap-2">
@@ -140,6 +142,7 @@ const TourList = () => {
                 </h3>
 
                 <div className="border-l-2 border-indigo-100 pl-4 mb-6">
+                  {/* Đã sửa: h-[36px] -> h-9 */}
                   <p className="text-slate-500 text-[12px] italic leading-relaxed line-clamp-2 h-9">
                     {tour.description || "Hành trình khám phá vẻ đẹp bất tận cùng hệ thống dịch vụ nghỉ dưỡng cao cấp chuẩn TravelGo..."}
                   </p>
@@ -209,10 +212,11 @@ const TourList = () => {
                       </span>
                     </div>
 
+                    {/* Đã sửa: flex-grow -> grow */}
                     <textarea 
                       value={comment} 
                       onChange={(e) => setComment(e.target.value)} 
-                      placeholder="Tour này như thế nào? Hãy cho chúng tôi biết cảm nhận của bạn..." 
+                      placeholder="Tour this như thế nào?..." 
                       className="w-full grow bg-slate-50 border border-slate-100 rounded-3xl p-6 text-sm italic outline-none focus:border-indigo-300 focus:bg-white transition-all mb-6 resize-none shadow-inner" 
                     />
                     

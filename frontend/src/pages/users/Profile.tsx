@@ -104,7 +104,7 @@ const Profile = () => {
     <div className="max-w-5xl mx-auto py-10 px-4 animate-fadeIn">
       {/* --- PHẦN BANNER & AVATAR --- */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8 transition-all hover:shadow-md">
-        <div className="h-44 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-400"></div>
+        <div className="h-44 bg-linear-to-r from-blue-600 via-blue-500 to-cyan-400"></div>
         
         <div className="px-8 pb-8 relative flex flex-col md:flex-row justify-between items-center md:items-end gap-6">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
@@ -187,7 +187,7 @@ const Profile = () => {
 
       {/* --- MODAL CHỈNH SỬA --- */}
       {isEditing && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-500 max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="p-8 border-b border-gray-50 flex justify-between items-center sticky top-0 bg-white z-10">
               <div>
@@ -273,7 +273,7 @@ const Profile = () => {
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 uppercase text-xs tracking-widest"
+                  className="flex-2 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 uppercase text-xs tracking-widest"
                 >
                   Lưu thay đổi
                 </button>
