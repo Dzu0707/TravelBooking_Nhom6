@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 import { 
   Ticket, Search, X, Trash2, Copy, 
   Pencil, Plus, ShieldCheck
@@ -12,224 +13,265 @@ import {
   Grid, Metric, ProgressBar
 } from '@tremor/react';
 
-interface Voucher {
-  id: string;
-  code: string;
-  description: string;
-  discountType: 'percentage' | 'fixed';
-  discountValue: number;
-  minOrderValue: number;
-  expiryDate: string;
-  usageLimit: number;
-  usedCount: number;
-  status: 'active' | 'expired' | 'disabled';
-}
-
 const AdminVouchers = () => {
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [vouchers, setVouchers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
+  const [editingVoucher, setEditingVoucher] = useState<any | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<Voucher>();
+  const { register, handleSubmit, reset } = useForm<any>();
+  const API_BASE_URL = "http://localhost:5091/api/Vouchers"; 
 
-  useEffect(() => {
-    const mockData: Voucher[] = [
-      { id: '1', code: 'XUAN2026', description: 'Giảm giá khai xuân', discountType: 'percentage', discountValue: 15, minOrderValue: 5000000, expiryDate: '2026-05-01', usageLimit: 100, usedCount: 45, status: 'active' },
-      { id: '2', code: 'REALESTATE1M', description: 'Ưu đãi đặt cọc', discountType: 'fixed', discountValue: 1000000, minOrderValue: 20000000, expiryDate: '2026-06-15', usageLimit: 50, usedCount: 50, status: 'expired' },
-    ];
-    setVouchers(mockData);
-  }, []);
-
-  const onSubmit = async (data: Voucher) => {
-    const loadId = toast.loading(editingVoucher ? "Đang cập nhật..." : "Đang tạo...");
+  // --- LẤY DANH SÁCH VOUCHER ---
+  const fetchVouchers = async () => {
     try {
-      if (editingVoucher) {
-        setVouchers(prev => prev.map(v => v.id === editingVoucher.id ? { ...v, ...data } : v));
-        toast.success("Cập nhật thành công", { id: loadId });
-      } else {
-        const newVoucher: Voucher = { ...data, id: Date.now().toString(), usedCount: 0, status: 'active' };
-        setVouchers(prev => [newVoucher, ...prev]);
-        toast.success("Đã thêm mã mới", { id: loadId });
-      }
-      handleCloseModal();
-    } catch (error) {
-      toast.error("Thao tác thất bại", { id: loadId });
+      const token = localStorage.getItem('token');
+      const response = await axios.get(API_BASE_URL, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setVouchers(Array.isArray(response.data) ? response.data : []);
+    } catch (error: any) {
+      console.error("Lỗi lấy dữ liệu:", error);
+      toast.error("Không thể kết nối đến máy chủ API");
     }
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingVoucher(null);
-    reset({ code: '', description: '', discountType: 'percentage', discountValue: 0, minOrderValue: 0, expiryDate: '', usageLimit: 100 });
+  useEffect(() => { fetchVouchers(); }, []);
+
+  // Helper để lấy giá trị không phân biệt hoa thường từ API
+  const getValue = (obj: any, key: string) => {
+    if (!obj) return '';
+    const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+    return obj[key] !== undefined ? obj[key] : (obj[capitalizedKey] || '');
   };
 
-  const filteredVouchers = vouchers.filter(v => 
-    v.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // --- HÀM XỬ LÝ SUBMIT (TẠO MỚI & CẬP NHẬT) ---
+  const onSubmit = async (data: any) => {
+    const loadId = toast.loading("Đang xử lý...");
+    const token = localStorage.getItem('token');
+    
+    // Payload khớp chính xác với Class Voucher ở Backend (PascalCase)
+    const payload: any = {
+      Code: data.code.toUpperCase(),
+      DiscountType: data.discountType,
+      DiscountValue: Number(data.discountValue),
+      Quantity: Number(data.quantity),
+      ExpiryDate: new Date(data.expiryDate).toISOString() // Chuyển về ISO chuẩn cho .NET
+    };
+
+    try {
+      if (editingVoucher) {
+        const id = getValue(editingVoucher, 'id');
+        payload.Id = id; // Gửi kèm Id trong body cho hàm Update
+
+        await axios.put(`${API_BASE_URL}/${id}`, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("Cập nhật thành công!", { id: loadId });
+      } else {
+        await axios.post(API_BASE_URL, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("Đã lưu mã mới vào hệ thống!", { id: loadId });
+      }
+      
+      fetchVouchers();
+      setIsModalOpen(false);
+      setEditingVoucher(null);
+      reset();
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || "Lỗi: Dữ liệu không hợp lệ!";
+      toast.error(errorMsg, { id: loadId });
+    }
+  };
+
+  // --- HÀM XÓA ---
+  const handleDeleteVoucher = async (v: any) => {
+    const id = getValue(v, 'id');
+    if (!window.confirm("Xóa vĩnh viễn mã này khỏi Database?")) return;
+
+    const loadId = toast.loading("Đang xóa...");
+    const token = localStorage.getItem('token');
+
+    try {
+      await axios.delete(`${API_BASE_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success("Đã xóa mã thành công", { id: loadId });
+      fetchVouchers(); 
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || "Không thể xóa mã này!";
+      toast.error(errorMsg, { id: loadId });
+    }
+  };
+
+  const handleOpenEdit = (v: any) => {
+    setEditingVoucher(v);
+    reset({
+      code: getValue(v, 'code'),
+      discountType: getValue(v, 'discountType'),
+      discountValue: getValue(v, 'discountValue'),
+      quantity: getValue(v, 'quantity'),
+      expiryDate: getValue(v, 'expiryDate')?.split('T')[0] // Format YYYY-MM-DD cho input date
+    });
+    setIsModalOpen(true);
+  };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 px-4 pt-6 animate-in fade-in duration-500">
-      
-      {/* TOOLBAR & STATS */}
+    <div className="space-y-6 max-w-full px-6 py-6 font-sans min-h-screen bg-[#020617]">
+      {/* HEADER & STATISTICS */}
       <Grid numItemsMd={2} numItemsLg={3} className="gap-4">
-        <Card className="bg-slate-900 border-slate-800 p-4 rounded-xl lg:col-span-2">
+        <Card className="bg-[#0f172a] border-slate-800 p-6 rounded-2xl lg:col-span-2">
           <Flex justifyContent="between">
             <div>
-              <Title className="text-slate-100 font-bold uppercase tracking-tight flex items-center gap-2 text-lg leading-none">
-                Hệ thống Voucher <ShieldCheck size={18} className="text-blue-500" />
+              <Title className="text-white font-black uppercase flex items-center gap-2 tracking-tighter">
+                Hệ thống Voucher <ShieldCheck size={20} className="text-indigo-500" />
               </Title>
-              <Text className="text-[11px] text-slate-500 font-medium italic mt-1">Quản lý mã giảm giá và khuyến mãi</Text>
+              <Text className="text-[11px] text-slate-500 italic mt-1">Quản trị viên: Cập nhật và điều chỉnh mã giảm giá</Text>
             </div>
             <button 
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold text-[11px] uppercase transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20 active:scale-95"
+              onClick={() => { setEditingVoucher(null); reset({}); setIsModalOpen(true); }} 
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-xl font-bold text-[11px] uppercase transition-all shadow-lg flex items-center gap-2"
             >
-              <Plus size={14}/> Tạo mới
+              <Plus size={16}/> Tạo mới
             </button>
           </Flex>
-          <div className="mt-4 relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={15} />
+          <div className="mt-6 relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
             <input 
-              type="text"
-              placeholder="Tìm kiếm mã hoặc nội dung..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 pl-9 pr-4 text-[11px] text-slate-200 focus:border-blue-500/50 outline-none transition-all shadow-inner"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              type="text" 
+              placeholder="Tìm nhanh mã giảm giá..." 
+              className="w-full bg-[#1e293b] border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-sm text-slate-200 focus:border-indigo-500 outline-none transition-all" 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
             />
           </div>
         </Card>
 
-        <Card className="bg-slate-900 border-slate-800 p-4 rounded-xl flex flex-col justify-center">
-          <Text className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Hiệu suất sử dụng</Text>
-          <Metric className="text-white font-black text-xl mt-1">1,284 lượt</Metric>
-          <ProgressBar value={75} color="blue" className="mt-3 h-1.5" />
-          <Text className="text-[9px] text-slate-600 mt-2 font-bold uppercase tracking-tighter">Đã dùng 75% hạn mức</Text>
+        <Card className="bg-[#0f172a] border-slate-800 p-6 rounded-2xl flex flex-col justify-center">
+          <Text className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Tổng số mã</Text>
+          <Metric className="text-white font-black text-3xl mt-2">{vouchers.length} <span className="text-sm font-normal text-slate-500">Mã</span></Metric>
+          <ProgressBar value={100} color="indigo" className="mt-4 h-1.5" />
         </Card>
       </Grid>
 
-      {/* TABLE */}
-      <Card className="bg-slate-900 border-slate-800 rounded-xl p-0 overflow-hidden shadow-2xl">
+      {/* DATA TABLE */}
+      <Card className="bg-[#0f172a] border-slate-800 rounded-2xl p-0 overflow-hidden shadow-2xl mt-6">
         <Table>
-          <TableHead className="bg-slate-950/60">
+          <TableHead className="bg-slate-900/50">
             <TableRow>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500 p-5">Mã / Chương trình</TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500">Ưu đãi</TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500">Sử dụng</TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500 text-center">Trạng thái</TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500 text-right">Thao tác</TableHeaderCell>
+              <TableHeaderCell className="text-[11px] font-black uppercase text-slate-500 px-6 py-4">Mã định danh</TableHeaderCell>
+              <TableHeaderCell className="text-[11px] font-black uppercase text-slate-500">Trạng thái</TableHeaderCell>
+              <TableHeaderCell className="text-[11px] font-black uppercase text-slate-500">Ưu đãi</TableHeaderCell>
+              <TableHeaderCell className="text-[11px] font-black uppercase text-slate-500">Số lượng</TableHeaderCell>
+              <TableHeaderCell className="text-[11px] font-black uppercase text-slate-500 text-right">Thao tác</TableHeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredVouchers.map((v) => (
-              <TableRow key={v.id} className="hover:bg-slate-800/40 transition-colors border-b border-slate-800/50 group">
-                <TableCell className="p-4">
-                  <Flex justifyContent="start" className="gap-3">
-                    <div className="size-9 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700 text-blue-500 shrink-0 group-hover:border-blue-500/30 transition-all shadow-sm">
-                      <Ticket size={18} />
-                    </div>
-                    <div>
-                      <Flex justifyContent="start" className="gap-2 mb-0.5">
-                        <Text className="font-bold text-slate-100 uppercase text-[11px] leading-tight">{v.code}</Text>
-                        <button onClick={() => {navigator.clipboard.writeText(v.code); toast.success("Đã copy mã");}} className="text-slate-600 hover:text-blue-500 transition-colors"><Copy size={10}/></button>
+            {vouchers.filter(v => getValue(v, 'code')?.toLowerCase().includes(searchTerm.toLowerCase())).map((v, index) => {
+              const code = getValue(v, 'code');
+              const type = getValue(v, 'discountType');
+              const val = getValue(v, 'discountValue');
+              const qty = getValue(v, 'quantity');
+              const expiry = getValue(v, 'expiryDate');
+              const id = getValue(v, 'id');
+
+              const isExpired = new Date(expiry) < new Date();
+              const isOutOfStock = qty <= 0;
+
+              return (
+                <TableRow key={id || index} className={`hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 group ${isExpired || isOutOfStock ? 'opacity-60' : ''}`}>
+                  <TableCell className="px-6 py-4">
+                    <Flex justifyContent="start" className="gap-3">
+                      <div className={`size-10 rounded-xl flex items-center justify-center border shadow-inner ${isExpired || isOutOfStock ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' : 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'}`}>
+                        <Ticket size={20} />
+                      </div>
+                      <Flex justifyContent="start" className="gap-2">
+                         <Text className="font-black text-slate-100 uppercase text-sm tracking-tight">{code}</Text>
+                         <button onClick={() => { navigator.clipboard.writeText(code); toast.success("Đã Copy!"); }} className="text-slate-600 hover:text-indigo-400">
+                            <Copy size={12} />
+                         </button>
                       </Flex>
-                      <Text className="text-[10px] text-slate-500 truncate max-w-36">{v.description}</Text>
-                    </div>
-                  </Flex>
-                </TableCell>
-                <TableCell>
-                  <Text className="font-bold text-emerald-400 text-[12px] italic">
-                    {v.discountType === 'percentage' ? `${v.discountValue}%` : `${v.discountValue.toLocaleString()}₫`}
-                  </Text>
-                  <Text className="text-[9px] text-slate-600 uppercase font-medium">Đơn ≥ {v.minOrderValue.toLocaleString()}₫</Text>
-                </TableCell>
-                <TableCell>
-                  <div className="w-24">
-                    <Flex className="mb-1">
-                      <Text className="text-[9px] font-bold text-slate-400">{v.usedCount}/{v.usageLimit}</Text>
-                      <Text className="text-[9px] font-bold text-slate-600">{Math.round((v.usedCount/v.usageLimit)*100)}%</Text>
                     </Flex>
-                    <ProgressBar value={(v.usedCount/v.usageLimit)*100} color={v.usedCount >= v.usageLimit ? "rose" : "blue"} className="h-1" />
-                  </div>
-                </TableCell>
-                <TableCell className="text-center">
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
-                    v.status === 'active' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
-                  }`}>
-                    <span className={`size-1 rounded-full mr-1.5 ${v.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                    {v.status === 'active' ? 'Hoạt động' : 'Hết hạn'}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right p-4">
-                  <Flex justifyContent="end" className="gap-1">
-                    <button onClick={() => { setEditingVoucher(v); reset(v); setIsModalOpen(true); }} className="p-2 text-slate-500 hover:bg-slate-700 hover:text-white rounded-lg transition-all"><Pencil size={16}/></button>
-                    <button onClick={() => { if(window.confirm("Xóa mã này khỏi hệ thống?")) setVouchers(prev => prev.filter(item => item.id !== v.id)); }} className="p-2 text-rose-500/70 hover:bg-rose-500/10 hover:text-rose-500 rounded-lg transition-all"><Trash2 size={16}/></button>
-                  </Flex>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+
+                  <TableCell>
+                    {isExpired ? (
+                      <span className="bg-rose-500/10 text-rose-500 text-[9px] px-2 py-1 rounded font-black uppercase border border-rose-500/20">Hết hạn</span>
+                    ) : isOutOfStock ? (
+                      <span className="bg-orange-500/10 text-orange-500 text-[9px] px-2 py-1 rounded font-black uppercase border border-orange-500/20">Hết lượt</span>
+                    ) : (
+                      <span className="bg-emerald-500/10 text-emerald-500 text-[9px] px-2 py-1 rounded font-black uppercase border border-emerald-500/20">Hoạt động</span>
+                    )}
+                  </TableCell>
+
+                  <TableCell>
+                    <Text className="font-black text-emerald-400 text-sm italic">
+                      {type?.toLowerCase().includes('percent') ? `${val}%` : `${val?.toLocaleString()}₫`}
+                    </Text>
+                  </TableCell>
+                  <TableCell>
+                      <Text className={`font-bold text-xs ${isOutOfStock ? 'text-rose-400' : 'text-slate-300'}`}>{qty} lượt</Text>
+                  </TableCell>
+                  <TableCell className="text-right px-6">
+                    <Flex justifyContent="end" className="gap-2">
+                      <button onClick={() => handleOpenEdit(v)} className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all"><Pencil size={18}/></button>
+                      <button 
+                        onClick={() => handleDeleteVoucher(v)} 
+                        className="p-2 text-rose-500/70 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"
+                      >
+                        <Trash2 size={18}/>
+                      </button>
+                    </Flex>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
-        {filteredVouchers.length === 0 && (
-          <div className="p-16 text-center text-slate-500 font-bold uppercase text-[10px] tracking-widest opacity-40">
-            Không tìm thấy mã giảm giá
-          </div>
-        )}
       </Card>
 
-      {/* MODAL */}
+      {/* MODAL FORM */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <Card className="bg-slate-900 border-slate-800 w-full max-w-lg p-0 rounded-xl overflow-hidden shadow-3xl animate-in zoom-in-95 duration-200">
-            <Flex className="bg-slate-950 px-6 py-4 border-b border-slate-800" justifyContent="between">
-              <Text className="text-white font-bold uppercase text-[11px] tracking-widest leading-none">
-                {editingVoucher ? "Hiệu chỉnh tham số" : "Thiết lập Voucher mới"}
-              </Text>
-              <button onClick={handleCloseModal} className="text-slate-500 hover:text-rose-500 transition-colors"><X size={18}/></button>
-            </Flex>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <Card className="bg-[#0f172a] border-slate-800 w-full max-w-lg p-0 rounded-[2rem] overflow-hidden shadow-3xl">
+            <div className="bg-slate-900/50 px-8 py-6 border-b border-slate-800 flex justify-between items-center">
+              <Text className="text-white font-black uppercase text-xs tracking-widest">{editingVoucher ? "Hiệu chỉnh" : "Tạo mới"} Voucher</Text>
+              <button onClick={() => { setIsModalOpen(false); setEditingVoucher(null); }} className="text-slate-500 hover:text-rose-500 transition-colors p-2"><X size={24}/></button>
+            </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-5">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Mã định danh</label>
-                  <input {...register('code')} className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 px-3 text-[11px] font-mono text-blue-500 font-bold uppercase outline-none focus:border-blue-500/50 transition-all" required />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Mã Voucher *</label>
+                  <input {...register('code')} className="w-full bg-[#1e293b] border border-slate-800 rounded-xl py-3 px-4 text-sm font-black text-indigo-400 uppercase outline-none focus:border-indigo-500" required />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Ngày hết hạn</label>
-                  <input {...register('expiryDate')} type="date" className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 px-3 text-[11px] text-white outline-none focus:border-blue-500/50 transition-all" required />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Hết hạn *</label>
+                  <input {...register('expiryDate')} type="date" className="w-full bg-[#1e293b] border border-slate-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-indigo-500" required />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-500 uppercase ml-1">Mô tả chương trình</label>
-                <input {...register('description')} className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2.5 px-3 text-[11px] text-slate-200 outline-none focus:border-blue-500/50 transition-all" placeholder="Nhập tên hiển thị..." required />
-              </div>
-
-              <div className="bg-slate-950/50 p-5 rounded-lg border border-slate-800 grid grid-cols-2 gap-x-6 gap-y-4 shadow-inner">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Loại ưu đãi</label>
-                  <select {...register('discountType')} className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2 px-2 text-[11px] text-white outline-none focus:border-blue-500/50">
-                    <option value="percentage">Phần trăm (%)</option>
-                    <option value="fixed">Số tiền (₫)</option>
+              <div className="bg-slate-900/30 p-6 rounded-2xl border border-slate-800 grid grid-cols-2 gap-x-6 gap-y-5 shadow-inner">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Loại giảm</label>
+                  <select {...register('discountType')} className="w-full bg-[#0f172a] border border-slate-800 rounded-xl py-3 px-3 text-sm text-white outline-none">
+                    <option value="Percentage">Phần trăm (%)</option>
+                    <option value="FixedAmount">Tiền mặt (₫)</option>
                   </select>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Giá trị giảm</label>
-                  <input {...register('discountValue')} type="number" className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2 px-3 text-[11px] text-orange-500 font-bold outline-none" required />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Giá trị</label>
+                  <input {...register('discountValue')} type="number" className="w-full bg-[#0f172a] border border-slate-800 rounded-xl py-3 px-4 text-sm text-orange-500 font-black outline-none" required />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Đơn tối thiểu</label>
-                  <input {...register('minOrderValue')} type="number" className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2 px-3 text-[11px] text-white outline-none" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Giới hạn mã</label>
-                  <input {...register('usageLimit')} type="number" className="w-full bg-slate-900 border border-slate-800 rounded-lg py-2 px-3 text-[11px] text-white outline-none" />
+                <div className="space-y-2 col-span-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Số lượng tối đa</label>
+                  <input {...register('quantity')} type="number" className="w-full bg-[#0f172a] border border-slate-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-indigo-500" required />
                 </div>
               </div>
 
-              <button type="submit" className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all shadow-lg shadow-blue-900/30 active:scale-[0.98]">
-                {editingVoucher ? "Xác nhận cập nhật" : "Phát hành Voucher"}
+              <button type="submit" className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-xl mt-4">
+                {editingVoucher ? "Cập nhật thay đổi" : "Lưu vào hệ thống"}
               </button>
             </form>
           </Card>

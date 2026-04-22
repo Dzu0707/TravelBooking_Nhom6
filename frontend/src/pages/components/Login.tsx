@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { LogIn, Mail, Lock, Loader2} from 'lucide-react';
+import { LogIn, Mail, Lock, Loader2 } from 'lucide-react';
 import loginBanner from '../../assets/images/logo-login.jpg'; 
 
 const Login = () => {
@@ -17,26 +17,34 @@ const Login = () => {
     try {
       const res = await axios.post('http://localhost:5091/api/Auth/login', { email, password });
       
-      // Giả sử API trả về object chứa đầy đủ thông tin user
-      // Ví dụ: { token, role, fullName, email, phone, address }
-      const { token, role, fullName, email: userEmail, phone, address } = res.data;
+      // Lấy thêm trường 'id' từ API trả về (Backend của bạn có trả về 'id: user.Id')
+      const { token, id, role, fullName, email: userEmail, phone, address } = res.data;
       
-      // 1. Dọn dẹp kho cũ trước khi ghi mới (đảm bảo không còn rác của tài khoản trước)
+      // 1. Dọn dẹp kho cũ trước khi ghi mới
       localStorage.clear();
 
-      // 2. Ghi đè thông tin MỚI của người vừa đăng nhập
+      // 2. Ghi đè thông tin MỚI
       localStorage.setItem('token', token);
-      localStorage.setItem('role', role?.toString() || '2');
-      localStorage.setItem('fullName', fullName || 'Thành viên');
       
-      // Lưu thêm các trường này để trang Profile cập nhật ngay lập tức
-      localStorage.setItem('email', userEmail || email); // Ưu tiên email từ server
+      // --- PHẦN QUAN TRỌNG NHẤT: Lưu object 'user' để file TourDetail có thể so sánh ID ---
+      const userData = {
+        id: id, 
+        role: role,
+        fullName: fullName,
+        email: userEmail || email
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      // Giữ lại các trường lẻ để đảm bảo các component cũ không bị lỗi
+      localStorage.setItem('role', role?.toString() || 'User');
+      localStorage.setItem('fullName', fullName || 'Thành viên');
+      localStorage.setItem('email', userEmail || email);
       localStorage.setItem('phone', phone || 'Chưa cập nhật');
       localStorage.setItem('address', address || 'Chưa cập nhật');
       
       alert(`Chào mừng ${fullName}!`);
       
-      // 3. Chuyển hướng và làm mới trang để đồng bộ toàn bộ Navbar/Profile
+      // 3. Chuyển hướng và làm mới trang
       navigate('/'); 
       window.location.reload(); 
       
