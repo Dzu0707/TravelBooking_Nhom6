@@ -16,6 +16,8 @@ import TourDetail from './pages/users/TourDetail';
 import TourCheckout from './pages/users/TourCheckout';
 // @ts-ignore
 import Profile from './pages/users/Profile';
+import News from './pages/components/News'; 
+import NewsDetail from './pages/users/NewsDetail'; 
 
 // --- ADMIN PAGES ---
 import AdminLayout from './pages/admin/AdminLayout';
@@ -28,6 +30,7 @@ import AdminSchedules from './pages/admin/AdminSchedules';
 import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminVouchers from './pages/admin/AdminVouchers';
+import AdminNews from './pages/admin/AdminNews';
 
 // Component tự động cuộn trang lên đầu khi chuyển route
 const ScrollToTop = () => {
@@ -41,13 +44,14 @@ const ScrollToTop = () => {
 // Layout dành riêng cho User/Khách (Bao gồm Navbar và Footer)
 const MainLayout = () => {
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  // Sửa logic Check Home Page: Bao gồm cả trang Chủ và trang Tin tức để layout tràn viền đẹp hơn
+  const isFullWidthPage = location.pathname === '/' || location.pathname === '/news';
 
   return (
     <>
       <Navbar />
       <main className={`min-h-screen transition-all duration-500 ${
-        isHomePage 
+        isFullWidthPage 
           ? "w-full overflow-x-hidden" 
           : "max-w-7xl mx-auto px-6 pt-32 pb-20" 
       }`}>
@@ -101,6 +105,9 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
+
           <Route path="/unauthorized" element={
             <div className="text-center py-20 font-bold text-red-500">403 - Bạn không có quyền truy cập</div>
           } />
@@ -124,6 +131,7 @@ const AppContent = () => {
             <Route path="transactions" element={<AdminTransactions />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="vouchers" element={<AdminVouchers />} />
+            <Route path="news" element={<AdminNews />} />
           </Route>
         </Route>
 

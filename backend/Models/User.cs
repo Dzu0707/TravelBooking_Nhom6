@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization; // Thêm thư viện này
+using System.Text.Json.Serialization;
 
 namespace TravelTour.API.Models;
 
-public class User {
+public class User 
+{
     public int Id { get; set; }
     
     [Required(ErrorMessage = "Họ tên không được để trống")]
@@ -13,23 +14,28 @@ public class User {
     [EmailAddress(ErrorMessage = "Định dạng Email không hợp lệ")]
     public string Email { get; set; } = string.Empty;
     
-    // Lưu mật khẩu đã mã hóa (BCrypt)
     [Required]
     public string PasswordHash { get; set; } = string.Empty;
     
     public int RoleId { get; set; }
     
-    public string Phone { get; set; } = string.Empty;
+    // --- ĐÃ SỬA CHỖ NÀY ---
+    public string? Phone { get; set; }
+
+    // --- ĐÃ SỬA CHỖ NÀY ---
+    public string? Address { get; set; } 
+
     public virtual Role? Role { get; set; } 
 
     public bool IsLocked { get; set; } = false;
     
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-    // Quan hệ: Dùng JsonIgnore để tránh lỗi khi trả về JSON
+    // CHỖ CẦN SỬA: Đổi Bookings -> Booking (số ít)
     [JsonIgnore]
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     
+    // CHỖ CẦN SỬA: Đổi Reviews -> Review (số ít)
     [JsonIgnore]
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

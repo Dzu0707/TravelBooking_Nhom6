@@ -12,7 +12,7 @@ using TravelTour.API.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
-    [Migration("20260409123228_InitialCreate")]
+    [Migration("20260422021746_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -115,6 +115,62 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Du lịch biển",
+                            Name = "Biển Đảo"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Du lịch núi",
+                            Name = "Núi Rừng"
+                        });
+                });
+
+            modelBuilder.Entity("TravelTour.API.Models.News", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("News");
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.Review", b =>
@@ -219,6 +275,19 @@ namespace backend.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Tours");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            Code = "HL01",
+                            CreatedAt = new DateTime(2026, 4, 22, 9, 17, 45, 618, DateTimeKind.Local).AddTicks(3816),
+                            DepartureLocation = "",
+                            ImageUrl = "/uploads/tours/default.jpg",
+                            MinPrice = 1000m,
+                            Name = "Tour Hạ Long"
+                        });
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.TourImage", b =>
@@ -330,6 +399,9 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -349,7 +421,6 @@ namespace backend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("RoleId")
@@ -363,6 +434,18 @@ namespace backend.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 4, 22, 9, 17, 45, 618, DateTimeKind.Local).AddTicks(3751),
+                            Email = "admin@test.com",
+                            FullName = "Admin System",
+                            IsLocked = false,
+                            PasswordHash = "hashed_pw",
+                            RoleId = 1
+                        });
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.Voucher", b =>
@@ -432,7 +515,7 @@ namespace backend.Migrations
             modelBuilder.Entity("TravelTour.API.Models.Review", b =>
                 {
                     b.HasOne("TravelTour.API.Models.Tour", "Tour")
-                        .WithMany()
+                        .WithMany("Reviews")
                         .HasForeignKey("TourId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -522,6 +605,8 @@ namespace backend.Migrations
 
             modelBuilder.Entity("TravelTour.API.Models.Tour", b =>
                 {
+                    b.Navigation("Reviews");
+
                     b.Navigation("TourImages");
 
                     b.Navigation("TourSchedules");

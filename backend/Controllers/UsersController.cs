@@ -14,7 +14,7 @@ public class UsersController : ControllerBase
     private readonly TravelDbContext _context;
     public UsersController(TravelDbContext context) => _context = context;
 
-    // LẤY DANH SÁCH TẤT CẢ USER (Chỉ Admin)
+    // 1. LẤY DANH SÁCH TẤT CẢ USER (Chỉ Admin)
     [HttpGet] 
     [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> GetAll() 
@@ -26,6 +26,7 @@ public class UsersController : ControllerBase
                 u.FullName,
                 u.Email,
                 u.Phone,
+                u.Address, // Thêm hiển thị địa chỉ cho Admin
                 u.IsLocked,
                 u.CreatedAt,
                 RoleName = u.Role != null ? u.Role.Name : "N/A"
@@ -34,7 +35,7 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
     
-    // LẤY THÔNG TIN CÁ NHÂN (User đang đăng nhập)
+    // 2. LẤY THÔNG TIN CÁ NHÂN (User đang đăng nhập xem hồ sơ của mình)
     [HttpGet("profile")]
     [Authorize]
     public async Task<IActionResult> GetProfile() 
@@ -54,11 +55,12 @@ public class UsersController : ControllerBase
             user.FullName, 
             user.Email, 
             user.Phone,
+            user.Address, // Trả về địa chỉ để Frontend hiển thị
             Role = user.Role?.Name 
         });
     }
 
-    // KHÓA / MỞ KHÓA TÀI KHOẢN (Chỉ Admin)
+    // 3. KHÓA / MỞ KHÓA TÀI KHOẢN (Chỉ Admin)
     [HttpPut("{id}/toggle-lock")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ToggleLock(int id)
@@ -69,32 +71,31 @@ public class UsersController : ControllerBase
         user.IsLocked = !user.IsLocked; 
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = user.IsLocked ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản" });
+        return Ok(new { message = user.IsLocked ? "Đã khóa tài khoản thành công" : "Đã mở khóa tài khoản thành công" });
     }
 
-    // ====================================================================
-    // API CẬP NHẬT THÔNG TIN CÁ NHÂN
-    // ====================================================================
+    // 4. API CẬP NHẬT THÔNG TIN CÁ NHÂN
     [HttpPut("update-profile")]
-    [Authorize] // Bắt buộc phải có token đăng nhập
+    [Authorize] 
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
-        // 1. Lấy Email của người dùng hiện tại từ Token
+        // Lấy Email từ Token
         var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
         if (string.IsNullOrEmpty(userEmail)) 
-            return Unauthorized(new { message = "Không xác định được danh tính!" });
+            return Unauthorized(new { message = "Phiên đăng nhập không hợp lệ!" });
 
-        // 2. Tìm user trong Database
+        // Tìm user trong Database
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
         if (user == null) 
             return NotFound(new { message = "Người dùng không tồn tại!" });
 
-        // 3. Cập nhật thông tin cơ bản
+        // Cập nhật các trường thông tin cơ bản
         user.FullName = request.FullName;
         user.Phone = request.Phone;
+        user.Address = request.Address; // ĐỒNG BỘ ĐỊA CHỈ TẠI ĐÂY
 
-        // 4. Kiểm tra và cập nhật Email nếu có thay đổi
-        if (!string.IsNullOrEmpty(request.Email) && request.Email != user.Email)
+        // Kiểm tra và cập nhật Email nếu có thay đổi
+        if (!string.IsNullOrWhiteSpace(request.Email) && request.Email != user.Email)
         {
             var emailExists = await _context.Users.AnyAsync(u => u.Email == request.Email);
             if (emailExists) 
@@ -103,25 +104,32 @@ public class UsersController : ControllerBase
             user.Email = request.Email;
         }
 
-        // 5. Kiểm tra và cập nhật Mật khẩu (Sử dụng PasswordHash và BCrypt)
-        if (!string.IsNullOrEmpty(request.NewPassword))
+        // Cập nhật Mật khẩu (Chỉ khi người dùng có nhập mật khẩu mới)
+        if (!string.IsNullOrWhiteSpace(request.NewPassword))
         {
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword); 
         }
 
-        // 6. Lưu xuống Database
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Cập nhật hồ sơ thành công!" });
+        // Lưu xuống Database
+        try 
+        {
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Cập nhật hồ sơ thành công!" });
+        }
+        catch (DbUpdateException ex)
+        {
+            // Trường hợp lỗi Database (ví dụ: độ dài chuỗi quá giới hạn)
+            return StatusCode(500, new { message = "Lỗi lưu dữ liệu xuống máy chủ!", error = ex.Message });
+        }
     }
 }
 
-// Class DTO nhận dữ liệu từ React gửi lên
+// Lớp nhận dữ liệu DTO
 public class UpdateProfileRequest
 {
     public string FullName { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty; 
-    public string NewPassword { get; set; } = string.Empty;
+    public string? NewPassword { get; set; } // Dùng string? để cho phép null
 }

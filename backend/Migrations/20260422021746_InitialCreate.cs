@@ -28,6 +28,26 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "News",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Summary = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPublished = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_News", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -93,7 +113,8 @@ namespace backend.Migrations
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsLocked = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -267,6 +288,15 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Categories",
+                columns: new[] { "Id", "Description", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Du lịch biển", "Biển Đảo" },
+                    { 2, "Du lịch núi", "Núi Rừng" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -274,6 +304,16 @@ namespace backend.Migrations
                     { 1, "Admin" },
                     { 2, "User" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Tours",
+                columns: new[] { "Id", "CategoryId", "Code", "CreatedAt", "DepartureLocation", "Description", "ImageUrl", "MinPrice", "Name" },
+                values: new object[] { 1, 1, "HL01", new DateTime(2026, 4, 22, 9, 17, 45, 618, DateTimeKind.Local).AddTicks(3816), "", null, "/uploads/tours/default.jpg", 1000m, "Tour Hạ Long" });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Address", "CreatedAt", "Email", "FullName", "IsLocked", "PasswordHash", "Phone", "RoleId" },
+                values: new object[] { 1, null, new DateTime(2026, 4, 22, 9, 17, 45, 618, DateTimeKind.Local).AddTicks(3751), "admin@test.com", "Admin System", false, "hashed_pw", null, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookingAttendees_BookingId",
@@ -342,6 +382,9 @@ namespace backend.Migrations
         {
             migrationBuilder.DropTable(
                 name: "BookingAttendees");
+
+            migrationBuilder.DropTable(
+                name: "News");
 
             migrationBuilder.DropTable(
                 name: "Reviews");

@@ -91,7 +91,8 @@ const AdminCategories = () => {
               Quản lý Danh mục <FolderTree size={18} className="text-blue-500" />
             </Title>
             <Text className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 flex items-center gap-2">
-              <div className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              {/* ĐÃ SỬA: Đổi div thành span thêm inline-block */}
+              <span className="size-1.5 inline-block bg-emerald-500 rounded-full animate-pulse" />
               Cập nhật: {format(new Date(), 'dd/MM/yyyy HH:mm', { locale: vi })}
             </Text>
           </div>
@@ -222,7 +223,8 @@ const AdminCategories = () => {
           <Card className="bg-slate-900 border-slate-800 w-full max-w-lg p-0 flex flex-col rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 animate-in zoom-in-95 duration-200">
             <Flex className="bg-slate-950 px-6 py-5 border-b border-slate-800" justifyContent="between">
                 <Title className="text-white font-bold uppercase text-[11px] tracking-widest flex items-center gap-3">
-                  <div className={`size-2 rounded-full ${editingId ? 'bg-amber-500' : 'bg-blue-500'} animate-pulse shadow-[0_0_8px] ${editingId ? 'shadow-amber-500' : 'shadow-blue-500'}`} />
+                  {/* ĐÃ SỬA: Đổi div thành span thêm inline-block */}
+                  <span className={`size-2 inline-block rounded-full ${editingId ? 'bg-amber-500' : 'bg-blue-500'} animate-pulse shadow-[0_0_8px] ${editingId ? 'shadow-amber-500' : 'shadow-blue-500'}`} />
                   {editingId ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}
                 </Title>
                 <button onClick={() => setIsModalOpen(false)} className="text-slate-500 hover:text-rose-500 transition-colors p-1"><X size={20}/></button>
