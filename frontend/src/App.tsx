@@ -2,33 +2,32 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-// --- COMPONENTS ---
+// Components & Pages
 import Navbar from './pages/components/Navbar';
 import Footer from './pages/components/Footer';
-import Login from './pages/components/Login';
-import Register from './pages/components/Register';
-import ProtectedRoute from './pages/components/ProtectedRoute';
-
-// --- USER PAGES ---
+import TourDetail from './pages/users/TourDetail';
 import Home from './pages/users/Home';
 import TourList from './pages/users/TourList';
-import TourDetail from './pages/users/TourDetail';
-import TourCheckout from './pages/users/TourCheckout';
-// @ts-ignore
-import Profile from './pages/users/Profile';
-
-// --- ADMIN PAGES ---
-import AdminLayout from './pages/admin/AdminLayout';
+import MyBookings from './pages/users/MyBookings';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import Login from './pages/components/Login';
+import TourCheckout from './pages/users/TourCheckout';
+import Register from './pages/components/Register';
+import ProtectedRoute from './pages/components/ProtectedRoute';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminSchedules from './pages/admin/AdminSchedules';
 import AdminTours from './pages/admin/AdminTours';
 import AdminBookings from './pages/admin/AdminBookings';
-import AdminCategories from './pages/admin/AdminCategories';
-import AdminReviews from './pages/admin/AdminReviews';
-import AdminSchedules from './pages/admin/AdminSchedules';
-import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminCategories from './pages/admin/AdminCategories'; 
 import AdminVouchers from './pages/admin/AdminVouchers';
+import AdminTransactions from './pages/admin/AdminTransactions';
+import AdminReviews from './pages/admin/AdminReviews';
 
+// Import trang thanh toán từ nhánh phuthinhdz
+import PaymentGateway from './pages/users/PaymentGateway'; 
+
+// Tự động cuộn lên đầu trang khi chuyển trang
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -36,20 +35,22 @@ const ScrollToTop = () => {
   }, [pathname]);
   return null;
 };
+
 // Layout dành riêng cho User/Khách
 const MainLayout = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full">
       <Navbar />
-      {/* CHỈNH SỬA: 
-            Trang chủ để w-full đơn thuần.
-            Các trang khác dùng pt-24 hoặc pt-32 để tạo khoảng cách an toàn dưới Nav.
-        */}
+      {/* Logic: 
+          - Trang chủ: w-full để Banner tràn viền, Padding-top do Home.tsx tự xử lý (hoặc dùng pt-20).
+          - Các trang khác: Giới hạn độ rộng max-w-7xl để nội dung không bị quá loãng trên màn hình lớn.
+      */}
       <main className={`flex-grow ${isHomePage
         ? "w-full overflow-x-hidden"
-        : "max-w-7xl mx-auto px-6 pt-24 pb-20 w-full"
+        : "max-w-7xl mx-auto px-6 pt-32 pb-20 w-full"
         }`}>
         <Outlet />
       </main>
@@ -58,15 +59,16 @@ const MainLayout = () => {
   );
 };
 
+// Trang báo lỗi 404
 const NotFound = () => (
-  <div className="flex flex-col items-center justify-center py-40 text-center animate-fadeIn min-h-screen">
-    <h1 className="text-[12rem] font-black text-gray-100 leading-none">404</h1>
+  <div className="flex flex-col items-center justify-center py-40 text-center animate-fadeIn min-h-screen bg-white">
+    <h1 className="text-[12rem] font-black text-gray-50 leading-none">404</h1>
     <div className="relative -mt-12">
       <p className="text-3xl font-bold text-gray-800 uppercase italic">Ối! Trang này không tồn tại</p>
       <p className="text-gray-500 mt-3 max-w-md">Hãy để TravelGo dẫn bạn về nhà nhé!</p>
       <button
         onClick={() => window.location.href = '/'}
-        className="mt-10 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest transition-all hover:scale-105"
+        className="mt-10 bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 shadow-xl shadow-indigo-100"
       >
         Quay về trang chủ
       </button>
@@ -84,15 +86,17 @@ const AppContent = () => {
           duration: 3000,
           style: {
             borderRadius: '16px',
-            background: '#333',
+            background: '#1e293b',
             color: '#fff',
+            fontSize: '14px',
+            fontWeight: '600'
           },
         }}
       />
       <ScrollToTop />
 
       <Routes>
-        {/* --- PUBLIC ROUTE --- */}
+        {/* --- 1. PUBLIC & USER ROUTES --- */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
@@ -100,16 +104,21 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/unauthorized" element={
-            <div className="text-center py-40 font-bold text-red-500 text-2xl uppercase">403 - Quyền truy cập bị từ chối</div>
+            <div className="flex items-center justify-center min-h-[60vh] text-center p-20">
+                <h2 className="text-4xl font-black text-rose-500 uppercase italic">403 Access Denied</h2>
+            </div>
           } />
+          
+          <Route path="/my-bookings" element={<MyBookings />} />
 
+          {/* Protected Routes cho User/Admin */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/payment-gateway" element={<PaymentGateway />} />
           </Route>
         </Route>
 
-        {/* --- ADMIN ROUTE --- */}
+        {/* --- 2. ADMIN ROUTES --- */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
