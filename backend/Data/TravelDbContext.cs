@@ -3,7 +3,8 @@ using TravelTour.API.Models;
 
 namespace TravelTour.API.Data;
 
-public class TravelDbContext : DbContext {
+public class TravelDbContext : DbContext 
+{
     public TravelDbContext(DbContextOptions<TravelDbContext> options) : base(options) {}
 
     public DbSet<Role> Roles { get; set; }
@@ -22,34 +23,35 @@ public class TravelDbContext : DbContext {
     {
         base.OnModelCreating(modelBuilder);
 
-        // Cấu hình tiền tệ
-        modelBuilder.Entity<Booking>().Property(b => b.TotalPrice).HasColumnType("decimal(18,2)");
-        modelBuilder.Entity<TourSchedule>().Property(t => t.AdultPrice).HasColumnType("decimal(18,2)");
-        modelBuilder.Entity<TourSchedule>().Property(t => t.ChildPrice).HasColumnType("decimal(18,2)");
-        modelBuilder.Entity<Transaction>().Property(t => t.Amount).HasColumnType("decimal(18,2)");
-        modelBuilder.Entity<Voucher>().Property(v => v.DiscountValue).HasColumnType("decimal(18,2)");
+        // --- 1. Tự động cấu hình Decimal cho tất cả các bảng ---
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var properties = entityType.ClrType.GetProperties()
+                .Where(p => p.PropertyType == typeof(decimal) || p.PropertyType == typeof(decimal?));
 
-        // Ràng buộc Email duy nhất
+            foreach (var property in properties)
+            {
+                modelBuilder.Entity(entityType.Name).Property(property.Name).HasColumnType("decimal(18,2)");
+            }
+        }
+
+        // --- 2. Ràng buộc Index ---
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
 
-        // Khi xóa Tour -> Tự động xóa sạch TourImages liên quan
+        // --- 3. Cấu hình Quan hệ & Cascade Delete ---
         modelBuilder.Entity<TourImage>()
             .HasOne(ti => ti.Tour)
             .WithMany(t => t.TourImages)
             .HasForeignKey(ti => ti.TourId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Khi xóa Tour -> Tự động xóa sạch TourSchedules liên quan
         modelBuilder.Entity<TourSchedule>()
             .HasOne(ts => ts.Tour)
             .WithMany(t => t.TourSchedules)
             .HasForeignKey(ts => ts.TourId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // 4. Seed Data
-        modelBuilder.Entity<Role>().HasData(
-            new Role { Id = 1, Name = "Admin" },
-            new Role { Id = 2, Name = "User" }
-        );
+        // --- 4. Gọi Seed Data từ file DbInitializer ---
+        DbInitializer.Seed(modelBuilder);
     }
 }

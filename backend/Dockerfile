@@ -1,12 +1,12 @@
-# Stage 1: Build chuyên nghiệp
+# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Tối ưu: Restore trước để tận dụng Docker Cache (giúp build máy sau nhanh hơn)
+# Tối ưu cache cho NuGet
 COPY *.csproj ./
 RUN dotnet restore
 
-# Sau đó mới copy toàn bộ code và build
+# Copy code và publish
 COPY . ./
 RUN dotnet publish -c Release -o out
 
@@ -15,9 +15,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
 
-# Cài đặt biến môi trường chạy trên cổng 8080 (Leader chọn 8080 là rất chuẩn)
+# Cấu hình cổng và bảo mật
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
+USER $APP_UID
 
-# QUAN TRỌNG: Sửa tên từ TravelTour.API.dll thành backend.dll
+# Chỉnh sửa: Thay "backend.dll" bằng tên project của bạn nếu khác
 ENTRYPOINT ["dotnet", "backend.dll"]

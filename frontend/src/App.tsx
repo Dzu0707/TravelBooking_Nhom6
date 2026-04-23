@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useEffect } from 'react';
 
 // --- COMPONENTS ---
 import Navbar from './pages/components/Navbar';
@@ -29,7 +29,6 @@ import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminVouchers from './pages/admin/AdminVouchers';
 
-// Component tự động cuộn trang lên đầu khi chuyển route
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -37,37 +36,37 @@ const ScrollToTop = () => {
   }, [pathname]);
   return null;
 };
-
-// Layout dành riêng cho User/Khách (Bao gồm Navbar và Footer)
+// Layout dành riêng cho User/Khách
 const MainLayout = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
-
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <main className={`min-h-screen transition-all duration-500 ${
-        isHomePage 
-          ? "w-full overflow-x-hidden" 
-          : "max-w-7xl mx-auto px-6 pt-32 pb-20" 
-      }`}>
-        <Outlet /> 
+      {/* CHỈNH SỬA: 
+            Trang chủ để w-full đơn thuần.
+            Các trang khác dùng pt-24 hoặc pt-32 để tạo khoảng cách an toàn dưới Nav.
+        */}
+      <main className={`flex-grow ${isHomePage
+        ? "w-full overflow-x-hidden"
+        : "max-w-7xl mx-auto px-6 pt-24 pb-20 w-full"
+        }`}>
+        <Outlet />
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
-// Component trang 404
 const NotFound = () => (
   <div className="flex flex-col items-center justify-center py-40 text-center animate-fadeIn min-h-screen">
     <h1 className="text-[12rem] font-black text-gray-100 leading-none">404</h1>
     <div className="relative -mt-12">
       <p className="text-3xl font-bold text-gray-800 uppercase italic">Ối! Trang này không tồn tại</p>
-      <p className="text-gray-500 mt-3 max-w-md">Có vẻ như bạn đã đi lạc rồi. Hãy để TravelGo dẫn bạn về nhà nhé!</p>
-      <button 
+      <p className="text-gray-500 mt-3 max-w-md">Hãy để TravelGo dẫn bạn về nhà nhé!</p>
+      <button
         onClick={() => window.location.href = '/'}
-        className="mt-10 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest shadow-xl shadow-blue-200 transition-all hover:scale-105 active:scale-95"
+        className="mt-10 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold uppercase tracking-widest transition-all hover:scale-105"
       >
         Quay về trang chủ
       </button>
@@ -78,9 +77,9 @@ const NotFound = () => (
 const AppContent = () => {
   return (
     <>
-      <Toaster 
-        position="top-right" 
-        reverseOrder={false} 
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
         toastOptions={{
           duration: 3000,
           style: {
@@ -93,28 +92,26 @@ const AppContent = () => {
       <ScrollToTop />
 
       <Routes>
-        {/* --- KHU VỰC PUBLIC & USER ROUTE --- */}
+        {/* --- PUBLIC ROUTE --- */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
           <Route path="/unauthorized" element={
-            <div className="text-center py-20 font-bold text-red-500">403 - Bạn không có quyền truy cập</div>
+            <div className="text-center py-40 font-bold text-red-500 text-2xl uppercase">403 - Quyền truy cập bị từ chối</div>
           } />
 
-          {/* Protected Routes (Chỉ User hoặc Admin đã đăng nhập) */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 
-        {/* --- KHU VỰC ADMIN ROUTE --- */}
+        {/* --- ADMIN ROUTE --- */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']} />}>
-          <Route element={<AdminLayout />}> 
+          <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="tours" element={<AdminTours />} />
             <Route path="bookings" element={<AdminBookings />} />
@@ -127,7 +124,6 @@ const AppContent = () => {
           </Route>
         </Route>
 
-        {/* 404 PAGE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

@@ -1,90 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { 
-  MapPin, 
-  Calendar, 
-  Star, 
-  ArrowRight, 
-  Map, 
-  ShieldCheck, 
+import axios from 'axios';
+import {
+  MapPin,
+  Star,
+  ArrowRight,
+  Map,
+  ShieldCheck,
   CreditCard,
-  Users
+  Loader2,
+  Search,
+  Calendar
 } from 'lucide-react';
 
-// 1. Định nghĩa kiểu dữ liệu cho Tour
 interface Tour {
   id: number;
-  title: string;
+  name: string;
+  code: string;
+  imageUrl: string;
+  departureLocation: string;
   description?: string;
-  images: string[];
-  price: string;
-  duration: string;
-  location: string;
-  rating: number;
-  status: string;
-  departure: string;
+  categoryId: number;
+  rating?: number;
+  minPrice?: number;
 }
 
 const Home = () => {
   const navigate = useNavigate();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchKey, setSearchKey] = useState("");
+  
   const isLoggedIn = !!localStorage.getItem('token');
+  const API_BASE = "http://localhost:5091";
 
-  const banners = [
-    { id: 1, url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80", title: "KHÁM PHÁ THẾ GIỚI", subtitle: "Trải nghiệm những chuyến đi đẳng cấp nhất." },
-    { id: 2, url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1920&q=80", title: "HÀNH TRÌNH MƠ ƯỚC", subtitle: "Dịch vụ tận tâm, kỷ niệm khó quên." }
-  ];
+  const banner = {
+    url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2070",
+    title: "Khám Phá Hành Trình Tiếp Theo",
+    subtitle: "Hơn 500+ tour du lịch giá tốt đang chờ đón bạn"
+  };
 
-  const featuredTours: Tour[] = [
-    { 
-      id: 1, 
-      title: "CẦN THƠ SÔNG NƯỚC", 
-      description: "Chợ nổi Cái Răng",
-      images: [
-        "https://images.unsplash.com/photo-1524230572899-a752b3835840?w=400",
-        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=400"
-      ], 
-      price: "2.500.000", 
-      duration: "3N2Đ", 
-      location: "TP.HCM", 
-      rating: 4.9,
-      status: "CÒN CHỖ",
-      departure: "Hàng ngày"
-    },
-    { 
-      id: 2, 
-      title: "VŨNG TÀU CUỐI TUẦN", 
-      description: "Biển xanh thành phố",
-      images: [
-        "https://images.unsplash.com/photo-1589148491244-9388147d10fc?w=400",
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400"
-      ], 
-      price: "1.200.000", 
-      duration: "2N1Đ", 
-      location: "TP.HCM", 
-      rating: 4.8,
-      status: "CÒN CHỖ",
-      departure: "Thứ 7 hàng tuần"
-    },
-    { 
-      id: 3, 
-      title: "NINH BÌNH TRÀNG AN", 
-      description: "Tuyệt tác thiên nhiên",
-      images: [
-        "https://images.unsplash.com/photo-1590333746438-d81fd037a112?w=400",
-        "https://images.unsplash.com/photo-1528127269322-539801943592?w=400"
-      ], 
-      price: "3.200.000", 
-      duration: "4N3Đ", 
-      location: "Hà Nội", 
-      rating: 5.0,
-      status: "CÒN CHỖ",
-      departure: "Hàng ngày"
-    }
-  ];
+  useEffect(() => {
+    const fetchFeaturedTours = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/tours`);
+        setTours(response.data.slice(0, 6));
+      } catch (error) {
+        toast.error("Không thể tải danh sách tour");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeaturedTours();
+  }, []);
 
-  const handleViewDetail = (tourId: number) => {
+  const handleTourClick = (tourId: number) => {
     if (!isLoggedIn) {
       toast.error("Vui lòng đăng nhập để xem chi tiết tour!");
       navigate('/login');
@@ -93,151 +64,185 @@ const Home = () => {
     }
   };
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentIndex(prev => (prev === banners.length - 1 ? 0 : prev + 1)), 5000);
-    return () => clearInterval(timer);
-  }, [banners.length]);
-
-  return (
-    <div className="w-full animate-fadeIn bg-white">
-      {/* 1. HERO BANNER - FULL SCREEN WIDTH & HEIGHT */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {banners.map((b, i) => (
-          <div key={b.id} className={`absolute inset-0 transition-opacity duration-1000 ${i === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-            <img src={b.url} className={`w-full h-full object-cover transition-transform duration-7000ms ${i === currentIndex ? "scale-110" : "scale-100"}`} alt="Banner" />
-            <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center px-4 text-white">
-              {/* SỬA LỖI: Giảm kích thước chữ tiêu đề từ text-9xl xuống text-6xl */}
-              <h2 className="text-4xl md:text-6xl font-black mb-4 italic tracking-tighter uppercase leading-none drop-shadow-lg">
-                {b.title}
-              </h2>
-              {/* SỬA LỖI: Giảm kích thước chữ phụ đề từ text-3xl xuống text-xl */}
-              <p className="text-lg md:text-xl mb-10 max-w-3xl font-medium drop-shadow-md opacity-90 leading-relaxed">
-                {b.subtitle}
-              </p>
-              <Link to="/tours" className="bg-blue-600 px-10 py-4 rounded-full font-black uppercase tracking-[0.2em] hover:bg-white hover:text-blue-600 transition-all shadow-lg flex items-center gap-3 text-base group">
-                Khám phá ngay 
-                <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {/* 2. TOUR NỔI BẬT - TRÀN VIỀN CÓ PADDING */}
-      <section className="py-24 px-6 md:px-16 lg:px-24 bg-slate-50">
-        <div className="w-full flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div className="flex-1">
-            <h3 className="text-4xl md:text-5xl font-black text-gray-900 uppercase italic leading-[0.8] tracking-tighter">
-              KHÁM PHÁ <br />
-              <span className="text-blue-600 font-normal opacity-80">HÀNH TRÌNH</span>
-            </h3>
-            <div className="h-1.5 w-24 bg-blue-600 mt-6 rounded-full"></div>
-          </div>
-          <p className="text-gray-400 font-black text-xs uppercase tracking-[0.3em] border-l-4 border-blue-600 pl-6 py-2">
-            Top 10 chuyến đi <br /> đặc sắc nhất
-          </p>
-        </div>
-
-        {/* Grid Container - Chiếm tối đa không gian */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {featuredTours.map((tour) => (
-            <div 
-              key={tour.id} 
-              onClick={() => handleViewDetail(tour.id)} 
-              className="bg-white rounded-[2.5rem] p-7 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer group border border-gray-100 flex flex-col justify-between"
-            >
-              <div className="flex justify-between gap-5 mb-7">
-                <div className="flex-1">
-                  <div className="flex items-center gap-1 bg-amber-50 text-amber-600 w-fit px-2.5 py-1 rounded-full mb-3 shadow-sm border border-amber-100">
-                    <Star size={12} className="fill-amber-600" />
-                    <span className="text-[11px] font-black">{tour.rating}</span>
-                  </div>
-                  <h4 className="text-xl font-black text-gray-900 uppercase leading-tight mb-2.5 group-hover:text-blue-600 transition-colors">
-                    {tour.title}
-                  </h4>
-                  <p className="text-xs text-gray-400 font-medium italic leading-relaxed line-clamp-2">
-                    {tour.description}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2.5">
-                  <img src={tour.images[0]} className="w-20 h-20 object-cover rounded-2xl shadow-md border-2 border-white group-hover:rotate-3 transition-transform" alt="thumb" />
-                  <img src={tour.images[1]} className="w-20 h-20 object-cover rounded-2xl shadow-md border-2 border-white group-hover:-rotate-3 transition-transform" alt="thumb" />
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5 mb-8">
-                <span className="bg-blue-50 text-blue-600 text-[10px] font-black px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 uppercase tracking-widest border border-blue-100">
-                  <MapPin size={11} /> {tour.location}
-                </span>
-                <span className="bg-orange-50 text-orange-600 text-[10px] font-black px-3.5 py-1.5 rounded-xl uppercase tracking-widest border border-orange-100 italic">
-                  🔥 Best Seller
-                </span>
-              </div>
-
-              <div className="pt-7 border-t border-dashed border-gray-100 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="bg-slate-100 p-2.5 rounded-xl text-slate-400 shadow-inner">
-                    <Calendar size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Khởi hành</p>
-                    <p className="text-[11px] font-black text-gray-700">{tour.departure}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 text-right">
-                  <div className="bg-green-50 p-2.5 rounded-xl text-green-500 shadow-inner">
-                    <Users size={16} />
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Trạng thái</p>
-                    <p className="text-[11px] font-black text-green-600 uppercase tracking-tighter">{tour.status}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 3. TẠI SAO CHỌN - FULL WIDTH */}
-      <section className="bg-white py-24 px-6">
-        <div className="w-full text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter italic">
-            Tại sao chọn Travel<span className="text-blue-600 font-normal">Go</span>?
-          </h2>
-          <p className="text-gray-400 font-bold uppercase tracking-[0.4em] mt-3 text-xs">Chất lượng tạo nên thương hiệu</p>
-        </div>
-        
-        <div className="max-w-350 mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-          <Feature icon={<Map />} title="Đa dạng tour" color="blue" />
-          <Feature icon={<ShieldCheck />} title="An toàn tuyệt đối" color="green" />
-          <Feature icon={<CreditCard />} title="Giá tốt nhất" color="orange" />
-        </div>
-      </section>
-    </div>
-  );
-};
-
-const Feature = ({ icon, title, color }: { icon: any, title: string, color: string }) => {
-  const colorClasses: Record<string, string> = {
-    blue: "bg-blue-50 text-blue-600 shadow-[0_10px_30px_rgba(37,99,235,0.1)]", 
-    green: "bg-green-50 text-green-600 shadow-[0_10px_30px_rgba(34,197,94,0.1)]", 
-    orange: "bg-orange-50 text-orange-600 shadow-[0_10px_30px_rgba(249,115,22,0.1)]"   
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchKey.trim()) {
+      toast.error("Vui lòng nhập từ khóa tìm kiếm");
+      return;
+    }
+    navigate(`/tours?search=${encodeURIComponent(searchKey.trim())}`);
   };
-  
+
+  const getFullImageUrl = (path: string) => {
+    if (!path) return "https://via.placeholder.com/400x300?text=No+Image";
+    if (path.startsWith('http')) return path;
+    return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+
   return (
-    <div className="flex flex-col items-center group text-center p-10 rounded-[3rem] hover:bg-slate-50 transition-all duration-300">
-      <div className={`w-24 h-24 rounded-[2.5rem] flex items-center justify-center mb-8 transition-all duration-300 group-hover:rotate-12 group-hover:scale-105 ${colorClasses[color]}`}>
-        {React.cloneElement(icon, { strokeWidth: 1.2, size: 40 })}
-      </div>
-      <h4 className="text-xl font-black text-gray-900 mb-4 uppercase tracking-wider">{title}</h4>
-      <p className="text-gray-400 text-sm leading-relaxed max-w-xs font-medium px-2">
-        Cam kết mang lại những trải nghiệm dịch vụ đẳng cấp nhất cho hành trình của bạn.
-      </p>
+    /* QUAN TRỌNG: pt-[80px] phải khớp với chiều cao Navbar trong App.tsx 
+       Nếu Navbar của bạn cao 64px, hãy đổi thành pt-[64px].
+    */
+    <div className="bg-white pt-[80px]">
+      
+      {/* 1. HERO SECTION */}
+      <section className="relative h-[75vh] w-full flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={banner.url} 
+            className="w-full h-full object-cover" 
+            alt="Du lịch cùng TravelGo"
+          />
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
+
+        <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center">
+          <div className="text-center text-white mb-10 animate-fadeInUp">
+            <h1 className="text-4xl md:text-6xl font-black mb-4 drop-shadow-2xl uppercase tracking-tight">
+              {banner.title}
+            </h1>
+            <p className="text-lg md:text-xl opacity-90 font-medium">
+              {banner.subtitle}
+            </p>
+          </div>
+
+          {/* KHỐI TÌM KIẾM */}
+          <form 
+            onSubmit={handleSearch}
+            className="w-full bg-white p-2 md:p-3 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 border border-gray-100 transform transition-all hover:scale-[1.01]"
+          >
+            <div className="flex-[1.5] flex items-center gap-3 px-6 w-full">
+              <Search className="text-blue-600" size={24} />
+              <input 
+                type="text" 
+                placeholder="Bạn muốn đi đâu?" 
+                className="w-full py-3 outline-none text-gray-700 font-medium bg-transparent"
+                value={searchKey}
+                onChange={(e) => setSearchKey(e.target.value)}
+              />
+            </div>
+            <div className="hidden md:block w-px h-10 bg-gray-200 mx-2"></div>
+            <div className="flex-1 hidden md:flex items-center gap-3 px-6">
+              <Calendar className="text-blue-600" size={24} />
+              <span className="text-gray-400 font-medium italic">Khởi hành: Hàng ngày</span>
+            </div>
+            <button 
+              type="submit"
+              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-xl md:rounded-full font-bold transition-all shadow-lg active:scale-95"
+            >
+              Tìm kiếm
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* 2. FEATURED TOURS SECTION */}
+      <section className="py-24 px-6 md:px-20 bg-gray-50">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
+          <div>
+            <h3 className="text-4xl font-black text-gray-900 tracking-tight">Tour nổi bật</h3>
+            <p className="text-gray-500 mt-2 text-lg font-medium">Những hành trình được yêu thích nhất tại TravelGo</p>
+          </div>
+          <Link to="/tours" className="text-blue-600 font-bold hover:text-blue-800 transition-colors py-2 flex items-center gap-2">
+            Xem tất cả tour <ArrowRight size={18} />
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <div className="flex flex-col justify-center items-center py-20 gap-4">
+            <Loader2 className="animate-spin text-blue-600" size={48} />
+            <p className="text-gray-400 font-medium tracking-wide">Đang tải dữ liệu tour...</p>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {tours.map(tour => (
+              <div
+                key={tour.id}
+                onClick={() => handleTourClick(tour.id)}
+                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer border border-gray-100 flex flex-col h-full"
+              >
+                <div className="relative h-64 overflow-hidden">
+                  <img
+                    src={getFullImageUrl(tour.imageUrl)}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    alt={tour.name}
+                  />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-blue-600 text-white px-4 py-1 rounded-lg text-[10px] font-black uppercase shadow-lg">
+                      {tour.code}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-7 flex flex-col flex-1">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-sm text-gray-500 flex items-center gap-1.5 font-semibold">
+                      <MapPin size={16} className="text-blue-500" /> {tour.departureLocation}
+                    </span>
+                    <span className="flex items-center gap-1 text-yellow-500 text-sm font-black bg-yellow-50 px-2 py-1 rounded-lg">
+                      <Star size={14} fill="currentColor" /> {tour.rating || "5.0"}
+                    </span>
+                  </div>
+
+                  <h4 className="font-bold text-gray-900 text-xl line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors">
+                    {tour.name}
+                  </h4>
+
+                  <p className="text-gray-500 text-sm line-clamp-2 mb-6 italic flex-1">
+                    {tour.description || "Hành trình khám phá vẻ đẹp bất tận cùng TravelGo..."}
+                  </p>
+
+                  <div className="flex justify-between items-center pt-5 border-t border-gray-100 mt-auto">
+                    <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 tracking-wider">Giá chỉ từ</p>
+                        <span className="text-blue-600 font-black text-2xl">
+                          {tour.minPrice?.toLocaleString()}đ
+                        </span>
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-full text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                        <ArrowRight size={20} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 3. WHY CHOOSE US */}
+      <section className="py-24 px-6 md:px-20 bg-white">
+        <div className="grid md:grid-cols-3 gap-12">
+          <Feature 
+            icon={<Map />} 
+            title="Đa dạng lựa chọn" 
+            desc="Hơn 1000 tour du lịch trong và ngoài nước, cập nhật liên tục hàng tuần." 
+          />
+          <Feature 
+            icon={<ShieldCheck />} 
+            title="An toàn tuyệt đối" 
+            desc="Mọi chuyến đi đều có bảo hiểm du lịch và đội ngũ hỗ trợ chuyên nghiệp 24/7." 
+          />
+          <Feature 
+            icon={<CreditCard />} 
+            title="Giá luôn tốt nhất" 
+            desc="Cam kết giá cạnh tranh nhất thị trường, thanh toán linh hoạt và an toàn." 
+          />
+        </div>
+      </section>
     </div>
   );
 };
+
+// Component con cho phần tính năng
+const Feature = ({ icon, title, desc }: { icon: any; title: string; desc: string }) => (
+  <div className="flex flex-col items-center text-center p-8 rounded-3xl hover:bg-gray-50 transition-all duration-300 group">
+    <div className="w-16 h-16 mb-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
+      {React.cloneElement(icon, { size: 32 })}
+    </div>
+    <h4 className="font-black text-gray-900 text-xl mb-3">{title}</h4>
+    <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{desc}</p>
+  </div>
+);
 
 export default Home;

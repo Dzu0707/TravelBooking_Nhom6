@@ -14,12 +14,11 @@ import {
   TableBody, TableCell, Text, Title, Badge, Flex 
 } from '@tremor/react';
 
-// Cấu trúc Interface khớp với Migration của bạn
 interface Tour {
   id: number;
   name: string;
   code: string;
-  imageUrl: string; // Sửa từ thumbnail -> imageUrl
+  imageUrl: string; 
   departureLocation: string;
   categoryId: number;
   description?: string;
@@ -27,6 +26,7 @@ interface Tour {
 }
 
 const AdminTours = () => {
+  const API_BASE = "http://localhost:5091";
   const { tours, fetchTours, deleteTour, categories, fetchCategories } = useTourStore();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,23 +46,22 @@ const AdminTours = () => {
 
   const { register, handleSubmit, reset } = useForm<Tour>();
 
-  const API_BASE = "http://localhost:5091";
-
   useEffect(() => { 
     fetchTours(); 
     if (fetchCategories) fetchCategories(); 
   }, [fetchTours, fetchCategories]);
 
-  // Đồng bộ hóa form khi chọn tour để sửa
+  // Helper để lấy URL ảnh đầy đủ từ backend
+  const getFullImageUrl = (path: string | undefined) => {
+    if (!path) return "";
+    if (path.startsWith('http')) return path;
+    return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+
   useEffect(() => {
     if (editingTour) {
       reset(editingTour);
-      // Sử dụng imageUrl từ database
-      const thumbUrl = editingTour.imageUrl?.startsWith('http') 
-        ? editingTour.imageUrl 
-        : `${API_BASE}${editingTour.imageUrl}`;
-      setPreviewUrl(thumbUrl);
-      
+      setPreviewUrl(getFullImageUrl(editingTour.imageUrl));
       setAlbumFiles([]);
       setNewAlbumPreviews([]);
       setSelectedFile(null);
@@ -130,7 +129,7 @@ const AdminTours = () => {
       formData.append('Description', data.description || '');
       
       if (!editingTour) {
-        formData.append('MinPrice', '0'); // Khớp với MinPrice trong Migration
+        formData.append('MinPrice', '0'); 
       }
 
       if (selectedFile) formData.append('ImageFile', selectedFile);
@@ -155,8 +154,6 @@ const AdminTours = () => {
       toast.success(editingTour ? "Cập nhật thành công!" : "Tạo tour thành công!", { id: loadId });
       
       await fetchTours(); 
-
-      // Cập nhật tour hiện tại để giao diện đồng bộ
       setEditingTour(updatedData);
       setAlbumFiles([]);
       setNewAlbumPreviews([]);
@@ -241,7 +238,7 @@ const AdminTours = () => {
                 <TableCell className="p-4">
                   <Flex justifyContent="start" className="gap-4">
                     <img 
-                      src={tour.imageUrl?.startsWith('http') ? tour.imageUrl : `${API_BASE}${tour.imageUrl}`} 
+                      src={getFullImageUrl(tour.imageUrl)} 
                       className="size-14 rounded-lg object-cover border border-slate-700" 
                       alt={tour.name} 
                     />
@@ -307,7 +304,7 @@ const AdminTours = () => {
                           
                           {editingTour?.tourImages?.map((img) => (
                             <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden group border border-slate-700">
-                              <img src={img.imageUrl.startsWith('http') ? img.imageUrl : `${API_BASE}${img.imageUrl}`} className="w-full h-full object-cover" alt="album-item" />
+                              <img src={getFullImageUrl(img.imageUrl)} className="w-full h-full object-cover" alt="album-item" />
                               <button type="button" onClick={() => handleDeleteOldImage(img.id)} className="absolute top-1 right-1 bg-rose-600 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
                               <div className="absolute bottom-0 left-0 right-0 bg-slate-950/80 py-1 text-[8px] text-center text-slate-500 font-bold uppercase">Đã lưu</div>
                             </div>

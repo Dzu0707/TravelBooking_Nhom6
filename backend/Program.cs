@@ -4,32 +4,33 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. CẤU HÌNH CORS (Nới lỏng để test cho dễ) ---
+// 1. CORS
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
-        policy.AllowAnyOrigin() 
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyHeader();
     });
 });
 
+// 2. Controllers + JSON
 builder.Services.AddControllers()
     .AddJsonOptions(options => {
-        // Giúp xử lý vòng lặp tham chiếu khi lấy dữ liệu quan hệ (N-N, 1-N)
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
+
 builder.Services.AddEndpointsApiExplorer();
 
-// --- 2. CẤU HÌNH SWAGGER ---
+// 3. Swagger
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel Tour API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-        Description = "Nhập: Bearer [token]",
+        Description = "Bearer [token]",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -45,14 +46,13 @@ builder.Services.AddSwaggerGen(c => {
     });
 });
 
-// --- 3. KẾT NỐI DATABASE ---
+// 4. Kết nối Database
 builder.Services.AddDbContext<TravelDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// --- 4. CẤU HÌNH AUTHENTICATION ---
+// 5. Authentication & JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var keyString = jwtSettings["Key"] ?? "Chuoi_Bi_Mat_Sieu_Cap_Vip_123456_Dai_Hon_32_Ky_Tu";
-var key = Encoding.UTF8.GetBytes(keyString);
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? "fallback_key_123456789_at_least_32_chars");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
@@ -64,7 +64,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidAudience = jwtSettings["Audience"],
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero 
+            ClockSkew = TimeSpan.Zero
         };
     });
 
@@ -72,10 +72,26 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// --- 5. MIDDLEWARE PIPELINE (Thứ tự cực kỳ quan trọng) ---
+// --- 6. CẤU HÌNH STATIC FILES CHO /uploads/tours/ ---
+// Đường dẫn vật lý đến thư mục "Uploads" (viết hoa chữ cái đầu cho đúng chuẩn Windows/Linux folder)
+var physicalPath = Path.Combine(app.Environment.ContentRootPath, "Uploads");
 
-// CORS phải đứng TRƯỚC HttpsRedirection và StaticFiles
-app.UseCors("AllowAll"); 
+if (!Directory.Exists(physicalPath))
+{
+    Directory.CreateDirectory(physicalPath);
+}
+
+app.UseStaticFiles(); // Cho wwwroot (mặc định)
+
+// Cấu hình để hiểu đường dẫn URL "/uploads" (viết thường) trỏ vào folder "Uploads"
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(physicalPath),
+    RequestPath = "/uploads" 
+});
+
+// 7. Middleware Pipeline
+app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
 {
@@ -83,12 +99,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseStaticFiles(); 
-// Nếu chạy local không có SSL ổn định, có thể tạm comment dòng dưới nếu bị lỗi chuyển hướng
-// app.UseHttpsRedirection(); 
-
-app.UseAuthentication(); 
-app.UseAuthorization();  
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 
