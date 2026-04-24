@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   MapPin,
   Star,
-  ArrowRight,
-  Map,
-  ShieldCheck,
-  CreditCard,
   Loader2,
   Search,
-  Calendar
+  ShieldCheck,
+  Headphones,
+  CreditCard,
+  ThumbsUp,
+  ArrowRight,
+  Compass, // Đã thêm Compass vào import
+  type LucideProps
 } from 'lucide-react';
 
 interface Tour {
@@ -20,8 +21,6 @@ interface Tour {
   code: string;
   imageUrl: string;
   departureLocation: string;
-  description?: string;
-  categoryId: number;
   rating?: number;
   minPrice?: number;
 }
@@ -30,48 +29,30 @@ const Home = () => {
   const navigate = useNavigate();
   const [tours, setTours] = useState<Tour[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchKey, setSearchKey] = useState("");
   
-  const isLoggedIn = !!localStorage.getItem('token');
+  // State cho bộ lọc
+  const [searchKey, setSearchKey] = useState("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
+  
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const banners = [
+    {
+      url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2070",
+      tag: "XU HƯỚNG 2026",
+      title: "Khám Phá Hành Trình \n Tiếp Theo Của Bạn",
+      subtitle: "Trải nghiệm những vùng đất mới với mức giá ưu đãi nhất thị trường."
+    },
+    {
+      url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=2070",
+      tag: "ƯU ĐÃI ĐẶC BIỆT",
+      title: "Tận Hưởng Kỳ Nghỉ \n Trong Mơ Tại Bali",
+      subtitle: "Combo nghỉ dưỡng 5 sao cùng hướng dẫn viên bản địa chuyên nghiệp."
+    }
+  ];
+
   const API_BASE = "http://localhost:5091";
-
-  const banner = {
-    url: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=2070",
-    title: "Khám Phá Hành Trình Tiếp Theo",
-    subtitle: "Hơn 500+ tour du lịch giá tốt đang chờ đón bạn"
-  };
-
-  useEffect(() => {
-    const fetchFeaturedTours = async () => {
-      try {
-        const response = await axios.get(`${API_BASE}/api/tours`);
-        setTours(response.data.slice(0, 6));
-      } catch (error) {
-        toast.error("Không thể tải danh sách tour");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchFeaturedTours();
-  }, []);
-
-  const handleTourClick = (tourId: number) => {
-    if (!isLoggedIn) {
-      toast.error("Vui lòng đăng nhập để xem chi tiết tour!");
-      navigate('/login');
-    } else {
-      navigate(`/tours/${tourId}`);
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchKey.trim()) {
-      toast.error("Vui lòng nhập từ khóa tìm kiếm");
-      return;
-    }
-    navigate(`/tours?search=${encodeURIComponent(searchKey.trim())}`);
-  };
 
   const getFullImageUrl = (path: string) => {
     if (!path) return "https://via.placeholder.com/400x300?text=No+Image";
@@ -79,128 +60,218 @@ const Home = () => {
     return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    
+    if (searchKey.trim()) params.append("search", searchKey.trim());
+    if (maxPrice) params.append("maxPrice", maxPrice);
+    if (category) params.append("category", category);
+
+    navigate(`/tours?${params.toString()}`);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
+  useEffect(() => {
+    const fetchFeaturedTours = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/tours`);
+        setTours(response.data.slice(0, 4));
+      } catch (error) {
+        console.error("Lỗi tải tour:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeaturedTours();
+  }, []);
+
   return (
-    /* QUAN TRỌNG: pt-[80px] phải khớp với chiều cao Navbar trong App.tsx 
-       Nếu Navbar của bạn cao 64px, hãy đổi thành pt-[64px].
-    */
-    <div className="bg-white pt-[80px]">
+    <div className="bg-[#f8fafc]">
       
       {/* 1. HERO SECTION */}
-      <section className="relative h-[75vh] w-full flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src={banner.url} 
-            className="w-full h-full object-cover" 
-            alt="Du lịch cùng TravelGo"
-          />
-          <div className="absolute inset-0 bg-black/40"></div>
+      <section className="relative h-[90vh] w-full flex flex-col items-center justify-center overflow-hidden bg-slate-900">
+        {banners.map((bn, index) => (
+          <div 
+            key={index}
+            className={`absolute inset-0 transition-all duration-[1500ms] ease-out ${
+              index === currentBanner ? "opacity-100 scale-100" : "opacity-0 scale-110"
+            }`}
+          >
+            <img src={bn.url} className="w-full h-full object-cover" alt="Banner" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/20"></div>
+          </div>
+        ))}
+
+        <div className="relative z-10 w-full max-w-6xl px-6 text-center text-white pb-20">
+          <div className="inline-block bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-[0.2em] mb-6 uppercase">
+            {banners[currentBanner].tag}
+          </div>
+          <h1 className="text-5xl md:text-7xl font-extrabold leading-tight mb-6 drop-shadow-2xl whitespace-pre-line">
+            {banners[currentBanner].title}
+          </h1>
+          <p className="text-lg md:text-xl text-gray-100 font-medium max-w-2xl mx-auto opacity-90">
+            {banners[currentBanner].subtitle}
+          </p>
         </div>
 
-        <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center">
-          <div className="text-center text-white mb-10 animate-fadeInUp">
-            <h1 className="text-4xl md:text-6xl font-black mb-4 drop-shadow-2xl uppercase tracking-tight">
-              {banner.title}
-            </h1>
-            <p className="text-lg md:text-xl opacity-90 font-medium">
-              {banner.subtitle}
-            </p>
-          </div>
+        <div className="absolute bottom-5 z-20 flex justify-center gap-3">
+          {banners.map((_, i) => (
+            <button key={i} onClick={() => setCurrentBanner(i)} className={`h-1 transition-all duration-500 rounded-full ${i === currentBanner ? "w-10 bg-white" : "w-4 bg-white/40"}`} />
+          ))}
+        </div>
+      </section>
 
-          {/* KHỐI TÌM KIẾM */}
+      {/* 2. THANH TÌM KIẾM & LỌC TOUR (Nâng cấp lọc thật) */}
+      <section className="relative">
+        <div className="max-w-6xl mx-auto">
           <form 
             onSubmit={handleSearch}
-            className="w-full bg-white p-2 md:p-3 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 border border-gray-100 transform transition-all hover:scale-[1.01]"
+            className="bg-white p-3 rounded-2xl lg:rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col lg:flex-row items-center gap-2 border border-gray-100"
           >
-            <div className="flex-[1.5] flex items-center gap-3 px-6 w-full">
-              <Search className="text-blue-600" size={24} />
-              <input 
-                type="text" 
-                placeholder="Bạn muốn đi đâu?" 
-                className="w-full py-3 outline-none text-gray-700 font-medium bg-transparent"
-                value={searchKey}
-                onChange={(e) => setSearchKey(e.target.value)}
-              />
+            {/* Lọc theo Địa điểm */}
+            <div className="flex-[1.5] flex items-center gap-4 px-6 py-2 w-full lg:border-r border-gray-100">
+              <MapPin className="text-blue-500 shrink-0" size={24} />
+              <div className="flex-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Điểm đến</p>
+                <input 
+                  type="text" 
+                  placeholder="Bạn muốn đi đâu?" 
+                  className="w-full bg-transparent outline-none text-gray-800 text-base font-semibold placeholder:text-gray-300" 
+                  value={searchKey} 
+                  onChange={(e) => setSearchKey(e.target.value)} 
+                />
+              </div>
             </div>
-            <div className="hidden md:block w-px h-10 bg-gray-200 mx-2"></div>
-            <div className="flex-1 hidden md:flex items-center gap-3 px-6">
-              <Calendar className="text-blue-600" size={24} />
-              <span className="text-gray-400 font-medium italic">Khởi hành: Hàng ngày</span>
+
+            {/* Lọc theo Giá tiền */}
+            <div className="flex-1 flex items-center gap-4 px-6 py-2 w-full lg:border-r border-gray-100">
+              <CreditCard className="text-blue-500 shrink-0" size={24} />
+              <div className="flex-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Ngân sách tối đa</p>
+                <select 
+                  className="w-full bg-transparent outline-none text-gray-800 text-base font-semibold cursor-pointer"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                >
+                  <option value="">Tất cả mức giá</option>
+                  <option value="2000000">Dưới 2 Triệu</option>
+                  <option value="5000000">Dưới 5 Triệu</option>
+                  <option value="10000000">Dưới 10 Triệu</option>
+                  <option value="20000000">Dưới 20 Triệu</option>
+                </select>
+              </div>
             </div>
-            <button 
-              type="submit"
-              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-xl md:rounded-full font-bold transition-all shadow-lg active:scale-95"
-            >
-              Tìm kiếm
+
+            {/* Lọc theo Loại hình */}
+            <div className="flex-1 flex items-center gap-4 px-6 py-2 w-full lg:border-r border-gray-100">
+              <Compass className="text-blue-500 shrink-0" size={24} />
+              <div className="flex-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Loại hình</p>
+                <select 
+                  className="w-full bg-transparent outline-none text-gray-800 text-base font-semibold cursor-pointer"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="">Tất cả thể loại</option>
+                  <option value="1">Du lịch biển</option>
+                  <option value="2">Khám phá núi</option>
+                  <option value="3">Nghỉ dưỡng</option>
+                  <option value="4">Văn hóa lịch sử</option>
+                </select>
+              </div>
+            </div>
+            
+            <button type="submit" className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-xl lg:rounded-full font-bold transition-all flex items-center justify-center gap-3 shadow-lg shadow-blue-200 active:scale-95 shrink-0">
+              <Search size={20} />
+              <span className="text-lg">Tìm kiếm</span>
             </button>
           </form>
         </div>
       </section>
 
-      {/* 2. FEATURED TOURS SECTION */}
-      <section className="py-24 px-6 md:px-20 bg-gray-50">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
-          <div>
-            <h3 className="text-4xl font-black text-gray-900 tracking-tight">Tour nổi bật</h3>
-            <p className="text-gray-500 mt-2 text-lg font-medium">Những hành trình được yêu thích nhất tại TravelGo</p>
+      {/* 3. TOUR LIST - HIỂN THỊ 3 TOUR KHUNG HÌNH GẦN VUÔNG */}
+      <section className="py-24 px-6 md:px-20 max-w-[1440px] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
+          <div className="max-w-xl">
+            <div className="flex items-center gap-2 text-blue-600 font-bold text-xs tracking-[0.2em] uppercase mb-3">
+               <span className="w-10 h-[2px] bg-blue-600"></span> 
+               Hành trình mới nhất
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-none">
+              Tour <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-500">Mới Nhất</span>
+            </h2>
           </div>
-          <Link to="/tours" className="text-blue-600 font-bold hover:text-blue-800 transition-colors py-2 flex items-center gap-2">
-            Xem tất cả tour <ArrowRight size={18} />
-          </Link>
+          <button 
+            onClick={() => navigate('/tours')} 
+            className="group flex items-center gap-3 bg-white border-2 border-gray-100 hover:border-blue-600 px-8 py-4 rounded-2xl font-bold text-sm text-gray-600 hover:text-blue-600 transition-all duration-300 shadow-sm hover:shadow-xl"
+          >
+            Xem tất cả <ArrowRight size={18} />
+          </button>
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col justify-center items-center py-20 gap-4">
+          <div className="flex justify-center py-32">
             <Loader2 className="animate-spin text-blue-600" size={48} />
-            <p className="text-gray-400 font-medium tracking-wide">Đang tải dữ liệu tour...</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {tours.map(tour => (
-              <div
-                key={tour.id}
-                onClick={() => handleTourClick(tour.id)}
-                className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer border border-gray-100 flex flex-col h-full"
+          /* Grid 3 cột cho 3 tour */
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {tours.slice(0, 3).map((tour) => (
+              <div 
+                key={tour.id} 
+                onClick={() => navigate(`/tours/${tour.id}`)}
+                className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 transition-all duration-500 flex flex-col cursor-pointer hover:-translate-y-2 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]"
               >
-                <div className="relative h-64 overflow-hidden">
-                  <img
-                    src={getFullImageUrl(tour.imageUrl)}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                    alt={tour.name}
+                {/* Image Container - Thiết lập Aspect Ratio gần vuông */}
+                <div className="relative aspect-[1/1] overflow-hidden">
+                  <img 
+                    src={getFullImageUrl(tour.imageUrl)} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    alt={tour.name} 
                   />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-blue-600 text-white px-4 py-1 rounded-lg text-[10px] font-black uppercase shadow-lg">
+                  
+                  {/* Badge & Rating */}
+                  <div className="absolute top-6 left-6">
+                    <span className="bg-white/90 backdrop-blur-md text-gray-900 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm">
                       {tour.code}
                     </span>
                   </div>
+                  <div className="absolute top-6 right-6 bg-blue-600 text-white px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-lg">
+                    <Star size={12} className="fill-white" />
+                    <span className="text-[11px] font-black">{tour.rating || "5.0"}</span>
+                  </div>
                 </div>
 
-                <div className="p-7 flex flex-col flex-1">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-sm text-gray-500 flex items-center gap-1.5 font-semibold">
-                      <MapPin size={16} className="text-blue-500" /> {tour.departureLocation}
-                    </span>
-                    <span className="flex items-center gap-1 text-yellow-500 text-sm font-black bg-yellow-50 px-2 py-1 rounded-lg">
-                      <Star size={14} fill="currentColor" /> {tour.rating || "5.0"}
+                {/* Content Container */}
+                <div className="p-8 flex flex-col flex-1">
+                  <div className="flex items-center gap-2 text-blue-500 mb-4">
+                    <MapPin size={14} className="shrink-0" />
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
+                      {tour.departureLocation}
                     </span>
                   </div>
 
-                  <h4 className="font-bold text-gray-900 text-xl line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-6 line-clamp-2 leading-tight">
                     {tour.name}
-                  </h4>
+                  </h3>
 
-                  <p className="text-gray-500 text-sm line-clamp-2 mb-6 italic flex-1">
-                    {tour.description || "Hành trình khám phá vẻ đẹp bất tận cùng TravelGo..."}
-                  </p>
-
-                  <div className="flex justify-between items-center pt-5 border-t border-gray-100 mt-auto">
+                  <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
                     <div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 tracking-wider">Giá chỉ từ</p>
-                        <span className="text-blue-600 font-black text-2xl">
-                          {tour.minPrice?.toLocaleString()}đ
-                        </span>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mb-1">Giá từ</p>
+                      <p className="text-2xl font-black text-gray-900 tracking-tight">
+                        {tour.minPrice?.toLocaleString()}<span className="text-blue-600 text-sm ml-0.5 font-bold">đ</span>
+                      </p>
                     </div>
-                    <div className="bg-blue-50 p-3 rounded-full text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                        <ArrowRight size={20} />
+                    
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-all duration-300">
+                      <ArrowRight size={20} />
                     </div>
                   </div>
                 </div>
@@ -210,38 +281,32 @@ const Home = () => {
         )}
       </section>
 
-      {/* 3. WHY CHOOSE US */}
-      <section className="py-24 px-6 md:px-20 bg-white">
-        <div className="grid md:grid-cols-3 gap-12">
-          <Feature 
-            icon={<Map />} 
-            title="Đa dạng lựa chọn" 
-            desc="Hơn 1000 tour du lịch trong và ngoài nước, cập nhật liên tục hàng tuần." 
-          />
-          <Feature 
-            icon={<ShieldCheck />} 
-            title="An toàn tuyệt đối" 
-            desc="Mọi chuyến đi đều có bảo hiểm du lịch và đội ngũ hỗ trợ chuyên nghiệp 24/7." 
-          />
-          <Feature 
-            icon={<CreditCard />} 
-            title="Giá luôn tốt nhất" 
-            desc="Cam kết giá cạnh tranh nhất thị trường, thanh toán linh hoạt và an toàn." 
-          />
+      {/* 4. TRUST SECTION */}
+      <section className="bg-slate-900 py-20 px-6 md:px-20 rounded-t-[3rem] md:rounded-t-[5rem]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Tại sao nên chọn TravelGo?</h2>
+            <p className="text-slate-400 max-w-xl mx-auto">Chúng tôi cam kết mang lại trải nghiệm du lịch tuyệt vời nhất cho hành trình của bạn.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+            <FeatureItem icon={<ShieldCheck className="text-blue-400" />} title="Bảo hiểm du lịch" desc="An tâm với gói bảo hiểm lên đến 1 tỷ đồng." />
+            <FeatureItem icon={<ThumbsUp className="text-green-400" />} title="Chất lượng dịch vụ" desc="Hệ thống đối tác khách sạn 4-5 sao toàn cầu." />
+            <FeatureItem icon={<CreditCard className="text-purple-400" />} title="Giá cả minh bạch" desc="Không chi phí ẩn, nhiều ưu đãi hấp dẫn." />
+            <FeatureItem icon={<Headphones className="text-orange-400" />} title="Hỗ trợ tận tâm" desc="Đội ngũ CSKH sẵn sàng giúp đỡ 24/7." />
+          </div>
         </div>
       </section>
     </div>
   );
 };
 
-// Component con cho phần tính năng
-const Feature = ({ icon, title, desc }: { icon: any; title: string; desc: string }) => (
-  <div className="flex flex-col items-center text-center p-8 rounded-3xl hover:bg-gray-50 transition-all duration-300 group">
-    <div className="w-16 h-16 mb-6 flex items-center justify-center bg-blue-100 text-blue-600 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-sm">
-      {React.cloneElement(icon, { size: 32 })}
+const FeatureItem = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => (
+  <div className="flex flex-col items-center text-center space-y-4 group">
+    <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center transition-all group-hover:bg-blue-600/20 group-hover:border-blue-600/40">
+      {React.isValidElement<LucideProps>(icon) ? React.cloneElement(icon, { size: 32 }) : icon}
     </div>
-    <h4 className="font-black text-gray-900 text-xl mb-3">{title}</h4>
-    <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{desc}</p>
+    <h4 className="text-lg font-bold text-white">{title}</h4>
+    <p className="text-slate-400 text-sm leading-relaxed">{desc}</p>
   </div>
 );
 

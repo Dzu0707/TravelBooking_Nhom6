@@ -23,8 +23,6 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminVouchers from './pages/admin/AdminVouchers';
 import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminReviews from './pages/admin/AdminReviews';
-
-// Import trang thanh toán từ nhánh phuthinhdz
 import PaymentGateway from './pages/users/PaymentGateway'; 
 
 // Tự động cuộn lên đầu trang khi chuyển trang
@@ -36,24 +34,26 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Layout dành riêng cho User/Khách
+// --- LAYOUT CHÍNH ---
 const MainLayout = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
   return (
-    <div className="flex flex-col min-h-screen w-full">
-      <Navbar />
-      {/* Logic: 
-          - Trang chủ: w-full để Banner tràn viền, Padding-top do Home.tsx tự xử lý (hoặc dùng pt-20).
-          - Các trang khác: Giới hạn độ rộng max-w-7xl để nội dung không bị quá loãng trên màn hình lớn.
+    <div className="flex flex-col min-h-screen">
+      {/* Navbar: Lưu ý hãy vào file Navbar.tsx xóa class 'fixed' 
+         và thay bằng 'sticky top-0' để nó không đè lên content.
       */}
-      <main className={`flex-grow ${isHomePage
-        ? "w-full overflow-x-hidden"
-        : "max-w-7xl mx-auto px-6 pt-32 pb-20 w-full"
-        }`}>
+      <Navbar />
+      
+      <main className={`flex-grow ${
+        isHomePage 
+          ? "w-full" // Trang chủ banner tràn viền, không padding
+          : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10" // Trang con có giới hạn chiều rộng và cách lề đẹp
+      }`}>
         <Outlet />
       </main>
+      
       <Footer />
     </div>
   );
@@ -61,16 +61,16 @@ const MainLayout = () => {
 
 // Trang báo lỗi 404
 const NotFound = () => (
-  <div className="flex flex-col items-center justify-center py-40 text-center animate-fadeIn min-h-screen bg-white">
-    <h1 className="text-[12rem] font-black text-gray-50 leading-none">404</h1>
-    <div className="relative -mt-12">
-      <p className="text-3xl font-bold text-gray-800 uppercase italic">Ối! Trang này không tồn tại</p>
-      <p className="text-gray-500 mt-3 max-w-md">Hãy để TravelGo dẫn bạn về nhà nhé!</p>
+  <div className="flex flex-col items-center justify-center min-h-screen text-center bg-white px-6">
+    <h1 className="text-[10rem] md:text-[15rem] font-black text-gray-100 leading-none select-none">404</h1>
+    <div className="relative -mt-16 md:-mt-24">
+      <p className="text-2xl md:text-4xl font-extrabold text-gray-800 uppercase tracking-tighter">Trang bạn tìm không tồn tại</p>
+      <p className="text-gray-500 mt-4 font-medium">Có vẻ như hành trình này đã kết thúc hoặc đường dẫn bị sai.</p>
       <button
         onClick={() => window.location.href = '/'}
-        className="mt-10 bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest transition-all hover:scale-105 shadow-xl shadow-indigo-100"
+        className="mt-10 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold uppercase transition-all shadow-lg active:scale-95"
       >
-        Quay về trang chủ
+        Về trang chủ
       </button>
     </div>
   </div>
@@ -81,37 +81,36 @@ const AppContent = () => {
     <>
       <Toaster
         position="top-right"
-        reverseOrder={false}
         toastOptions={{
           duration: 3000,
           style: {
-            borderRadius: '16px',
-            background: '#1e293b',
+            borderRadius: '12px',
+            background: '#0f172a',
             color: '#fff',
-            fontSize: '14px',
-            fontWeight: '600'
+            padding: '16px',
           },
         }}
       />
       <ScrollToTop />
 
       <Routes>
-        {/* --- 1. PUBLIC & USER ROUTES --- */}
+        {/* --- 1. USER & PUBLIC ROUTES --- */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/my-bookings" element={<MyBookings />} />
+          
           <Route path="/unauthorized" element={
-            <div className="flex items-center justify-center min-h-[60vh] text-center p-20">
-                <h2 className="text-4xl font-black text-rose-500 uppercase italic">403 Access Denied</h2>
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+                <h2 className="text-5xl font-black text-red-600 uppercase italic">403</h2>
+                <p className="text-gray-500 font-bold mt-2">Bạn không có quyền truy cập trang này!</p>
             </div>
           } />
-          
-          <Route path="/my-bookings" element={<MyBookings />} />
 
-          {/* Protected Routes cho User/Admin */}
+          {/* Cần đăng nhập mới vào được */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/payment-gateway" element={<PaymentGateway />} />
