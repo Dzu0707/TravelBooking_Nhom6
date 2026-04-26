@@ -9,6 +9,9 @@ import TourDetail from './pages/users/TourDetail';
 import Home from './pages/users/Home';
 import TourList from './pages/users/TourList';
 import MyBookings from './pages/users/MyBookings';
+import Profile from './pages/users/Profile';
+import NewsDetail from './pages/users/NewsDetail';
+import NewsList from './pages/users/NewsList'; // Đã thêm NewsList
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Login from './pages/components/Login';
 import TourCheckout from './pages/users/TourCheckout';
@@ -41,15 +44,12 @@ const MainLayout = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar: Lưu ý hãy vào file Navbar.tsx xóa class 'fixed' 
-         và thay bằng 'sticky top-0' để nó không đè lên content.
-      */}
       <Navbar />
       
       <main className={`flex-grow ${
         isHomePage 
-          ? "w-full" // Trang chủ banner tràn viền, không padding
-          : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10" // Trang con có giới hạn chiều rộng và cách lề đẹp
+          ? "w-full" 
+          : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10" 
       }`}>
         <Outlet />
       </main>
@@ -99,6 +99,8 @@ const AppContent = () => {
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
+          <Route path="/news" element={<NewsList />} /> {/* Route danh sách tin */}
+          <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/my-bookings" element={<MyBookings />} />
@@ -114,6 +116,7 @@ const AppContent = () => {
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/payment-gateway" element={<PaymentGateway />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 

@@ -11,7 +11,8 @@ import {
   CreditCard,
   ThumbsUp,
   ArrowRight,
-  Compass, // Đã thêm Compass vào import
+  Compass,
+  Newspaper,
   type LucideProps
 } from 'lucide-react';
 
@@ -25,9 +26,18 @@ interface Tour {
   minPrice?: number;
 }
 
+interface News {
+  id: number;
+  title: string;
+  shortDescription: string;
+  imageUrl: string;
+  createdAt: string;
+}
+
 const Home = () => {
   const navigate = useNavigate();
   const [tours, setTours] = useState<Tour[]>([]);
+  const [newsList, setNewsList] = useState<News[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // State cho bộ lọc
@@ -79,17 +89,27 @@ const Home = () => {
   }, [banners.length]);
 
   useEffect(() => {
-    const fetchFeaturedTours = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get(`${API_BASE}/api/tours`);
-        setTours(response.data.slice(0, 4));
+        // Lấy danh sách Tour
+        const tourRes = await axios.get(`${API_BASE}/api/tours`);
+        setTours(tourRes.data.slice(0, 4));
+
+        // Lấy danh sách Tin tức
+        try {
+          const newsRes = await axios.get(`${API_BASE}/api/news`);
+          setNewsList(newsRes.data.slice(0, 3));
+        } catch (err) {
+          console.warn("Chưa có endpoint /api/news");
+        }
       } catch (error) {
-        console.error("Lỗi tải tour:", error);
+        console.error("Lỗi tải dữ liệu:", error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchFeaturedTours();
+    fetchData();
   }, []);
 
   return (
@@ -128,14 +148,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 2. THANH TÌM KIẾM & LỌC TOUR (Nâng cấp lọc thật) */}
-      <section className="relative">
-        <div className="max-w-6xl mx-auto">
+      {/* 2. THANH TÌM KIẾM */}
+      <section className="relative -mt-20 z-20">
+        <div className="max-w-6xl mx-auto px-6">
           <form 
             onSubmit={handleSearch}
             className="bg-white p-3 rounded-2xl lg:rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col lg:flex-row items-center gap-2 border border-gray-100"
           >
-            {/* Lọc theo Địa điểm */}
             <div className="flex-[1.5] flex items-center gap-4 px-6 py-2 w-full lg:border-r border-gray-100">
               <MapPin className="text-blue-500 shrink-0" size={24} />
               <div className="flex-1">
@@ -150,7 +169,6 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Lọc theo Giá tiền */}
             <div className="flex-1 flex items-center gap-4 px-6 py-2 w-full lg:border-r border-gray-100">
               <CreditCard className="text-blue-500 shrink-0" size={24} />
               <div className="flex-1">
@@ -169,7 +187,6 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Lọc theo Loại hình */}
             <div className="flex-1 flex items-center gap-4 px-6 py-2 w-full lg:border-r border-gray-100">
               <Compass className="text-blue-500 shrink-0" size={24} />
               <div className="flex-1">
@@ -196,7 +213,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 3. TOUR LIST - HIỂN THỊ 3 TOUR KHUNG HÌNH GẦN VUÔNG */}
+      {/* 3. TOUR LIST */}
       <section className="py-24 px-6 md:px-20 max-w-[1440px] mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
           <div className="max-w-xl">
@@ -221,7 +238,6 @@ const Home = () => {
             <Loader2 className="animate-spin text-blue-600" size={48} />
           </div>
         ) : (
-          /* Grid 3 cột cho 3 tour */
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {tours.slice(0, 3).map((tour) => (
               <div 
@@ -229,15 +245,12 @@ const Home = () => {
                 onClick={() => navigate(`/tours/${tour.id}`)}
                 className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 transition-all duration-500 flex flex-col cursor-pointer hover:-translate-y-2 hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]"
               >
-                {/* Image Container - Thiết lập Aspect Ratio gần vuông */}
                 <div className="relative aspect-[1/1] overflow-hidden">
                   <img 
                     src={getFullImageUrl(tour.imageUrl)} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     alt={tour.name} 
                   />
-                  
-                  {/* Badge & Rating */}
                   <div className="absolute top-6 left-6">
                     <span className="bg-white/90 backdrop-blur-md text-gray-900 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm">
                       {tour.code}
@@ -249,7 +262,6 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* Content Container */}
                 <div className="p-8 flex flex-col flex-1">
                   <div className="flex items-center gap-2 text-blue-500 mb-4">
                     <MapPin size={14} className="shrink-0" />
@@ -257,11 +269,9 @@ const Home = () => {
                       {tour.departureLocation}
                     </span>
                   </div>
-
                   <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-6 line-clamp-2 leading-tight">
                     {tour.name}
                   </h3>
-
                   <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
                     <div>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mb-1">Giá từ</p>
@@ -269,7 +279,6 @@ const Home = () => {
                         {tour.minPrice?.toLocaleString()}<span className="text-blue-600 text-sm ml-0.5 font-bold">đ</span>
                       </p>
                     </div>
-                    
                     <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-all duration-300">
                       <ArrowRight size={20} />
                     </div>
@@ -281,7 +290,48 @@ const Home = () => {
         )}
       </section>
 
-      {/* 4. TRUST SECTION */}
+      {/* 4. NEWS SECTION */}
+      <section className="py-20 px-6 md:px-20 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3 mb-10">
+            <Newspaper className="text-blue-600" size={32} />
+            <h2 className="text-3xl font-black text-gray-900 uppercase">Tin tức du lịch</h2>
+            <div className="ml-auto">
+                <button 
+                  onClick={() => navigate('/news')} 
+                  className="text-blue-600 font-bold hover:underline flex items-center gap-2"
+                >
+                    Xem tất cả <ArrowRight size={18} />
+                </button>
+            </div>
+          </div>
+          
+          {newsList.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {newsList.map((news) => (
+                <div key={news.id} className="group bg-gray-50 rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+                  <img src={news.imageUrl} className="w-full h-48 object-cover group-hover:scale-105 transition-transform" />
+                  <div className="p-6">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase mb-2">{new Date(news.createdAt).toLocaleDateString()}</p>
+                    <h3 className="font-bold text-gray-800 text-lg mb-2 line-clamp-2">{news.title}</h3>
+                    <p className="text-gray-500 text-sm line-clamp-3 mb-4">{news.shortDescription}</p>
+                    <div 
+                      onClick={() => navigate(`/news/${news.id}`)} 
+                      className="text-blue-600 font-bold text-sm cursor-pointer hover:underline"
+                    >
+                        Đọc tiếp →
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400 italic">Đang cập nhật tin tức mới...</p>
+          )}
+        </div>
+      </section>
+
+      {/* 5. TRUST SECTION */}
       <section className="bg-slate-900 py-20 px-6 md:px-20 rounded-t-[3rem] md:rounded-t-[5rem]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">

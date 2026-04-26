@@ -19,6 +19,8 @@ public class TravelDbContext : DbContext
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
 
+    public DbSet<News> News { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
