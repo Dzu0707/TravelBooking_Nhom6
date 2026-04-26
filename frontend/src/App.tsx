@@ -5,70 +5,79 @@ import { Toaster } from 'react-hot-toast';
 // Components & Pages
 import Navbar from './pages/components/Navbar';
 import Footer from './pages/components/Footer';
-import TourDetail from './pages/users/TourDetail';
-import Home from './pages/users/Home';
-import TourList from './pages/users/TourList';
-import MyBookings from './pages/users/MyBookings';
-import AdminDashboard from './pages/admin/AdminDashboard';
 import Login from './pages/components/Login';
-import TourCheckout from './pages/users/TourCheckout';
 import Register from './pages/components/Register';
 import ProtectedRoute from './pages/components/ProtectedRoute';
+
+// User Pages
+import Home from './pages/users/Home';
+import TourList from './pages/users/TourList';
+import TourDetail from './pages/users/TourDetail';
+import MyBookings from './pages/users/MyBookings';
+import TourCheckout from './pages/users/TourCheckout';
+import PaymentGateway from './pages/users/PaymentGateway';
+import NewsList from './pages/users/NewsList';
+import NewsDetail from './pages/users/NewsDetail';
+
+// Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminSchedules from './pages/admin/AdminSchedules';
 import AdminTours from './pages/admin/AdminTours';
 import AdminBookings from './pages/admin/AdminBookings';
 import AdminUsers from './pages/admin/AdminUsers';
-import AdminCategories from './pages/admin/AdminCategories'; 
+import AdminCategories from './pages/admin/AdminCategories';
 import AdminVouchers from './pages/admin/AdminVouchers';
 import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminReviews from './pages/admin/AdminReviews';
-import PaymentGateway from './pages/users/PaymentGateway'; 
+import AdminNews from './pages/admin/AdminNews';
+import AdminMedia from './pages/admin/AdminMedia';
 
-// Tự động cuộn lên đầu trang khi chuyển trang
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
   return null;
 };
 
-// --- LAYOUT CHÍNH ---
 const MainLayout = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Navbar: Lưu ý hãy vào file Navbar.tsx xóa class 'fixed' 
-         và thay bằng 'sticky top-0' để nó không đè lên content.
-      */}
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      
-      <main className={`flex-grow ${
-        isHomePage 
-          ? "w-full" // Trang chủ banner tràn viền, không padding
-          : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10" // Trang con có giới hạn chiều rộng và cách lề đẹp
-      }`}>
+      <main
+        className={`flex-grow ${
+          isHomePage ? 'w-full' : 'mx-auto w-full max-w-7xl px-4 py-10 md:px-6'
+        }`}
+      >
         <Outlet />
       </main>
-      
       <Footer />
     </div>
   );
 };
 
-// Trang báo lỗi 404
 const NotFound = () => (
-  <div className="flex flex-col items-center justify-center min-h-screen text-center bg-white px-6">
-    <h1 className="text-[10rem] md:text-[15rem] font-black text-gray-100 leading-none select-none">404</h1>
+  <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
+    <h1 className="select-none text-[10rem] font-black leading-none text-gray-100 md:text-[15rem]">404</h1>
     <div className="relative -mt-16 md:-mt-24">
-      <p className="text-2xl md:text-4xl font-extrabold text-gray-800 uppercase tracking-tighter">Trang bạn tìm không tồn tại</p>
-      <p className="text-gray-500 mt-4 font-medium">Có vẻ như hành trình này đã kết thúc hoặc đường dẫn bị sai.</p>
+      <p className="text-2xl font-extrabold uppercase tracking-tighter text-gray-800 md:text-4xl">
+        Trang bạn tìm không tồn tại
+      </p>
+      <p className="mt-4 font-medium text-gray-500">
+        Có vẻ như hành trình này đã kết thúc hoặc đường dẫn bị sai.
+      </p>
       <button
-        onClick={() => window.location.href = '/'}
-        className="mt-10 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold uppercase transition-all shadow-lg active:scale-95"
+        onClick={() => {
+          window.location.href = '/';
+        }}
+        className="mt-10 rounded-full bg-blue-600 px-10 py-4 font-bold uppercase text-white shadow-lg transition-all active:scale-95 hover:bg-blue-700"
       >
         Về trang chủ
       </button>
@@ -76,7 +85,26 @@ const NotFound = () => (
   </div>
 );
 
+const Unauthorized = () => (
+  <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+    <h2 className="text-5xl font-black uppercase italic text-red-600">403</h2>
+    <p className="mt-2 font-bold text-gray-500">Bạn không có quyền truy cập trang này!</p>
+  </div>
+);
+
 const AppContent = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/admin')) {
+      document.documentElement.classList.add('admin-theme');
+      document.documentElement.style.colorScheme = 'dark';
+    } else {
+      document.documentElement.classList.remove('admin-theme');
+      document.documentElement.style.colorScheme = 'light';
+    }
+  }, [location.pathname]);
+
   return (
     <>
       <Toaster
@@ -91,36 +119,31 @@ const AppContent = () => {
           },
         }}
       />
+
       <ScrollToTop />
 
       <Routes>
-        {/* --- 1. USER & PUBLIC ROUTES --- */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
+          <Route path="/news" element={<NewsList />} />
+          <Route path="/news/:slug" element={<NewsDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/my-bookings" element={<MyBookings />} />
-          
-          <Route path="/unauthorized" element={
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-                <h2 className="text-5xl font-black text-red-600 uppercase italic">403</h2>
-                <p className="text-gray-500 font-bold mt-2">Bạn không có quyền truy cập trang này!</p>
-            </div>
-          } />
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Cần đăng nhập mới vào được */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/payment-gateway" element={<PaymentGateway />} />
           </Route>
         </Route>
 
-        {/* --- 2. ADMIN ROUTES --- */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+            <Route path="media" element={<AdminMedia />} />
             <Route path="tours" element={<AdminTours />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="categories" element={<AdminCategories />} />
@@ -129,6 +152,7 @@ const AppContent = () => {
             <Route path="transactions" element={<AdminTransactions />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="vouchers" element={<AdminVouchers />} />
+            <Route path="news" element={<AdminNews />} />
           </Route>
         </Route>
 

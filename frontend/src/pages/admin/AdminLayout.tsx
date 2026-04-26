@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Map, ClipboardList, 
   Users, LogOut, Zap, Layers, Calendar, ChevronRight, Bell, Search,
-  CreditCard, Ticket, Star, Menu, ExternalLink, Home // Thêm ExternalLink và Home
+  CreditCard, Ticket, Star, Menu, ExternalLink, Home, Newspaper, Images
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -13,6 +13,7 @@ const AdminLayout = () => {
 
   const menuItems = [
     { title: 'Tổng quan', path: '/admin', icon: <LayoutDashboard size={18} /> },
+    { title: 'Kho ảnh', path: '/admin/media', icon: <Images size={18} /> },
     { title: 'Quản lý Tour', path: '/admin/tours', icon: <Map size={18} /> },
     { title: 'Danh mục', path: '/admin/categories', icon: <Layers size={18} /> },
     { title: 'Lịch khởi hành', path: '/admin/schedules', icon: <Calendar size={18} /> },
@@ -20,6 +21,7 @@ const AdminLayout = () => {
     { title: 'Giao dịch', path: '/admin/transactions', icon: <CreditCard size={18} /> },
     { title: 'Mã giảm giá', path: '/admin/vouchers', icon: <Ticket size={18} /> },
     { title: 'Đánh giá', path: '/admin/reviews', icon: <Star size={18} /> },
+    { title: 'Tin tức', path: '/admin/news', icon: <Newspaper size={18} /> },
     { title: 'Người dùng', path: '/admin/users', icon: <Users size={18} /> },
   ];
 

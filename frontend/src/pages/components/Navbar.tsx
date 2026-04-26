@@ -75,6 +75,17 @@ const Navbar = () => {
             <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-600 rounded-full"></span>
           )}
         </Link>
+        <Link
+          to="/news"
+          className={`relative ${
+            isActive('/news') ? 'text-blue-600' : 'hover:text-blue-500'
+          }`}
+        >
+          Tin Tức
+          {isActive('/news') && (
+            <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-blue-600 rounded-full"></span>
+          )}
+        </Link>
       </div>
 
       {/* USER AREA */}
