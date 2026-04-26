@@ -4,7 +4,7 @@ import {
   XCircle, User, MapPin, 
   Search, ShieldCheck, Loader2, 
   Banknote, AlertTriangle, Fingerprint,
-  CalendarDays, Copy
+  CalendarDays, Copy, 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { 
@@ -46,7 +46,6 @@ const AdminBookings = () => {
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      // Gọi API xác nhận thanh toán
       await axios.put(`${API_BASE_URL}/${id}/confirm-payment`, {}, config);
       
       setBookings(prev => prev.map(b => 
@@ -62,17 +61,39 @@ const AdminBookings = () => {
     }
   };
 
+  // --- HÀM HỦY DÀNH CHO ADMIN MỚI THÊM ---
+  const handleCancelAdmin = async (id: number) => {
+    if (!window.confirm(`CẢNH BÁO: Bạn đang thực hiện HỦY đơn hàng #${id}. Thao tác này không thể hoàn tác. Tiếp tục?`)) return;
+    
+    try {
+      setActionLoading(id);
+      const token = localStorage.getItem('token');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      
+      // Sử dụng API hủy của hệ thống
+      await axios.put(`${API_BASE_URL}/${id}/cancel`, {}, config);
+      
+      setBookings(prev => prev.map(b => 
+        b.id === id ? { ...b, status: "Cancelled" } : b
+      ));
+      
+      toast.success(`Đã hủy đơn hàng #${id}`);
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.response?.data || "Lỗi khi hủy đơn";
+      toast.error(errorMsg);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Đã sao chép mã đối soát");
   };
 
-  // Logic lọc và tìm kiếm nâng cao
   const filteredBookings = bookings.filter((b: any) => {
     const matchesStatus = filterStatus === "All" || b.status === filterStatus;
     const searchStr = searchTerm.toLowerCase().trim();
-    
-    // Tạo mã đối soát giống hệt phía Client để tìm kiếm
     const generatedPaymentCode = `PAYTOUR${b.id}NHOM6`.toLowerCase();
     const customerName = (b.customerName || b.fullName || "").toLowerCase();
     const tourName = (b.tourName || "").toLowerCase();
@@ -88,7 +109,6 @@ const AdminBookings = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10 px-4 pt-6 font-sans">
       
-      {/* TOOLBAR */}
       <Card className="bg-slate-900 border-slate-800 rounded-3xl p-6 shadow-2xl">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
           <div>
@@ -129,7 +149,6 @@ const AdminBookings = () => {
         </div>
       </Card>
 
-      {/* BẢNG DỮ LIỆU */}
       <Card className="bg-slate-900 border-slate-800 rounded-3xl p-0 overflow-hidden shadow-2xl">
         <Table>
           <TableHead className="bg-slate-950/60">
@@ -226,9 +245,17 @@ const AdminBookings = () => {
                               <Banknote size={14}/> Duyệt tiền
                             </button>
                           )}
-                          <button className="p-2.5 text-slate-600 hover:bg-rose-600/10 hover:text-rose-500 rounded-xl transition-colors border border-transparent hover:border-rose-500/20">
-                            <XCircle size={18}/>
-                          </button>
+                          
+                          {/* NÚT HỦY CỦA ADMIN: Luôn hiển thị nếu đơn chưa bị hủy */}
+                          {b.status !== 'Cancelled' && (
+                            <button 
+                              onClick={() => handleCancelAdmin(b.id)}
+                              title="Hủy đơn hàng này"
+                              className="p-2.5 text-slate-600 hover:bg-rose-600/10 hover:text-rose-500 rounded-xl transition-colors border border-transparent hover:border-rose-500/20"
+                            >
+                              <XCircle size={18}/>
+                            </button>
+                          )}
                         </>
                       )}
                     </Flex>

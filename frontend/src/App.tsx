@@ -37,19 +37,20 @@ const ScrollToTop = () => {
 // --- LAYOUT CHÍNH ---
 const MainLayout = () => {
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const path = location.pathname;
+
+  // Xác định các trang cần tràn viền (Full Width)
+  const isFullWidthPage = path === '/' || path.startsWith('/tours');
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Navbar: Lưu ý hãy vào file Navbar.tsx xóa class 'fixed' 
-         và thay bằng 'sticky top-0' để nó không đè lên content.
-      */}
+    <div className="flex flex-col min-h-screen w-full bg-[#f8faff]">
+      {/* Đảm bảo Navbar trong file Navbar.tsx dùng sticky top-0 w-full */}
       <Navbar />
       
-      <main className={`flex-grow ${
-        isHomePage 
-          ? "w-full" // Trang chủ banner tràn viền, không padding
-          : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10" // Trang con có giới hạn chiều rộng và cách lề đẹp
+      <main className={`flex-grow w-full ${
+        isFullWidthPage 
+          ? "w-full" // Không giới hạn chiều rộng cho Home và Tour List
+          : "max-w-7xl mx-auto px-4 md:px-6 py-10" // Giới hạn cho Login, Register, MyBookings...
       }`}>
         <Outlet />
       </main>
@@ -68,7 +69,7 @@ const NotFound = () => (
       <p className="text-gray-500 mt-4 font-medium">Có vẻ như hành trình này đã kết thúc hoặc đường dẫn bị sai.</p>
       <button
         onClick={() => window.location.href = '/'}
-        className="mt-10 bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold uppercase transition-all shadow-lg active:scale-95"
+        className="mt-10 bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-4 rounded-full font-bold uppercase transition-all shadow-lg active:scale-95"
       >
         Về trang chủ
       </button>
@@ -110,7 +111,6 @@ const AppContent = () => {
             </div>
           } />
 
-          {/* Cần đăng nhập mới vào được */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/payment-gateway" element={<PaymentGateway />} />
