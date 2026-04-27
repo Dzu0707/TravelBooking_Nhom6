@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   ArrowLeft, ShieldCheck, Calendar, 
   ChevronRight, Ticket, MapPin, Tag, CreditCard, Wallet, XCircle, Clock, Zap,
-  Info, Headphones
+  Headphones, MessageSquare
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -22,7 +22,8 @@ const TourCheckout = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  
+  const [note, setNote] = useState(''); 
+
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [voucherInput, setVoucherInput] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
@@ -80,12 +81,11 @@ const TourCheckout = () => {
 
   const totalAmount = useMemo(() => Math.max(0, subTotal - discountAmount), [subTotal, discountAmount]);
 
-  // --- HÀM XỬ LÝ VOUCHER ĐÃ FIX LỖI HẾT HẠN/HẾT LƯỢT ---
+  // --- LOGIC XỬ LÝ VOUCHER ĐÃ CẬP NHẬT ---
   const handleApplyVoucher = async () => {
     const code = voucherInput.trim().toUpperCase();
     if (!code) return toast.error("Vui lòng nhập mã!");
 
-    // Tìm trong danh sách voucher đã tải từ server
     const v = systemVouchers.find(item => (item.code || item.Code || "").toUpperCase() === code);
     
     if (v) {
@@ -95,7 +95,8 @@ const TourCheckout = () => {
         return toast.error("Mã giảm giá này đã hết hạn sử dụng!");
       }
 
-      // 2. Kiểm tra số lượng lượt dùng
+      // 2. Kiểm tra số lượng lượt dùng (Quantity)
+      // Lưu ý: Đảm bảo trường này từ API trả về số lượng CÒN LẠI
       const qty = Number(v.quantity || v.Quantity || 0);
       if (qty <= 0) {
         return toast.error("Mã giảm giá này đã hết lượt sử dụng!");
@@ -110,14 +111,20 @@ const TourCheckout = () => {
       setAppliedVoucher(v);
       toast.success("Áp dụng mã thành công!");
     } else {
-      // Nếu không có sẵn trong list, gọi API kiểm tra trực tiếp (nếu có endpoint validate riêng)
+      // Nếu không tìm thấy trong list có sẵn, gọi API validate trực tiếp để server kiểm tra database mới nhất
       const loadId = toast.loading("Đang kiểm tra mã...");
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.post(`${API_BASE_URL}/api/Vouchers/validate`, { code, orderAmount: subTotal }, { headers: { Authorization: `Bearer ${token}` } });
+        // Gửi kèm subTotal để server check MinOrder và số lượng thực tế trong DB
+        const res = await axios.post(`${API_BASE_URL}/api/Vouchers/validate`, 
+          { code, orderAmount: subTotal }, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
         setAppliedVoucher(res.data);
         toast.success("Áp dụng mã thành công!", { id: loadId });
       } catch (err: any) {
+        // Server nên trả về lỗi 400 kèm message "Hết lượt dùng" hoặc "Hết hạn"
         toast.error(err.response?.data?.message || "Mã không hợp lệ hoặc đã hết lượt dùng", { id: loadId });
       }
     }
@@ -135,7 +142,7 @@ const TourCheckout = () => {
         fullName: fullName.trim(),
         email: email.trim(),
         phone: phone.trim(),
-        note: "",
+        note: note.trim(), 
         adultCount,
         childCount,
         paymentMethod: paymentMethod,
@@ -146,11 +153,7 @@ const TourCheckout = () => {
       
       const orderCode = response.data.orderCode;
       const history = JSON.parse(localStorage.getItem('checkout_history') || '{}');
-      history[orderCode] = {
-        fullName: fullName.trim(),
-        phone: phone.trim(),
-        email: email.trim()
-      };
+      history[orderCode] = { fullName: fullName.trim(), phone: phone.trim(), email: email.trim() };
       localStorage.setItem('checkout_history', JSON.stringify(history));
 
       const bookingId = response.data.id || response.data.bookingId;
@@ -194,17 +197,22 @@ const TourCheckout = () => {
                       <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-4 text-sm font-bold outline-none transition-all" />
                     </div>
                   </div>
-                  <div className="space-y-2 pb-4">
+                  <div className="space-y-2 pb-2">
                     <label className="text-[10px] font-black text-slate-400 ml-4 uppercase tracking-widest italic">Email xác nhận *</label>
                     <input value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-4 text-sm font-bold outline-none transition-all" />
                   </div>
 
-                  <div className="flex items-start gap-4 p-5 bg-indigo-50/50 rounded-3xl border border-indigo-100/50">
-                    <div className="bg-white p-2 rounded-xl shadow-sm text-indigo-600"><Info size={16}/></div>
-                    <div className="flex flex-col gap-1">
-                       <p className="text-[10px] font-black uppercase text-indigo-900 tracking-wider">Lưu ý trước khi đi</p>
-                       <p className="text-[9px] font-bold text-slate-400 uppercase leading-relaxed">Vui lòng chuẩn bị CMND/CCCD và có mặt tại điểm đón ít nhất 15 phút trước giờ khởi hành.</p>
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 ml-4 uppercase tracking-widest italic flex items-center gap-2">
+                      <MessageSquare size={14} className="text-indigo-600"/> Yêu cầu đặc biệt
+                    </label>
+                    <textarea 
+                      value={note} 
+                      onChange={e => setNote(e.target.value)}
+                      placeholder="Ví dụ: Có trẻ em đi cùng, dị ứng hải sản, cần hỗ trợ xe lăn hoặc vị trí chỗ ngồi..."
+                      rows={3}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-5 text-sm font-bold outline-none transition-all resize-none shadow-inner"
+                    />
                   </div>
 
                   <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">

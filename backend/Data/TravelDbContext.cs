@@ -1,9 +1,9 @@
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
 using TravelTour.API.Models;
 
 namespace TravelTour.API.Data;
 
-public class TravelDbContext : DbContext 
+public class TravelDbContext : DbContext
 {
     public TravelDbContext(DbContextOptions<TravelDbContext> options) : base(options) {}
 
@@ -19,11 +19,17 @@ public class TravelDbContext : DbContext
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
 
+    public DbSet<NewsCategory> NewsCategories { get; set; }
+    public DbSet<NewsTag> NewsTags { get; set; }
+    public DbSet<NewsPost> NewsPosts { get; set; }
+    public DbSet<NewsTagMap> NewsTagMaps { get; set; }
+    public DbSet<MediaAsset> MediaAssets { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // --- 1. Tự động cấu hình Decimal cho tất cả các bảng ---
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var properties = entityType.ClrType.GetProperties()
@@ -31,14 +37,28 @@ public class TravelDbContext : DbContext
 
             foreach (var property in properties)
             {
-                modelBuilder.Entity(entityType.Name).Property(property.Name).HasColumnType("decimal(18,2)");
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(property.Name)
+                    .HasColumnType("decimal(18,2)");
             }
         }
 
-        // --- 2. Ràng buộc Index ---
-        modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
-        // --- 3. Cấu hình Quan hệ & Cascade Delete ---
+        modelBuilder.Entity<NewsCategory>()
+            .HasIndex(x => x.Slug)
+            .IsUnique();
+
+        modelBuilder.Entity<NewsTag>()
+            .HasIndex(x => x.Slug)
+            .IsUnique();
+
+        modelBuilder.Entity<NewsPost>()
+            .HasIndex(x => x.Slug)
+            .IsUnique();
+
         modelBuilder.Entity<TourImage>()
             .HasOne(ti => ti.Tour)
             .WithMany(t => t.TourImages)
@@ -51,7 +71,46 @@ public class TravelDbContext : DbContext
             .HasForeignKey(ts => ts.TourId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // --- 4. Gọi Seed Data từ file DbInitializer ---
+        modelBuilder.Entity<NewsPost>()
+            .HasOne(np => np.Category)
+            .WithMany(nc => nc.NewsPosts)
+            .HasForeignKey(np => np.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<NewsPost>()
+            .HasOne(np => np.Author)
+            .WithMany(u => u.AuthoredNewsPosts)
+            .HasForeignKey(np => np.AuthorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<NewsPost>()
+            .HasOne(np => np.PublishedBy)
+            .WithMany(u => u.PublishedNewsPosts)
+            .HasForeignKey(np => np.PublishedById)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<NewsTagMap>()
+            .HasKey(x => new { x.NewsPostId, x.NewsTagId });
+
+        modelBuilder.Entity<NewsTagMap>()
+            .HasOne(x => x.NewsPost)
+            .WithMany(x => x.NewsTagMaps)
+            .HasForeignKey(x => x.NewsPostId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NewsTagMap>()
+            .HasOne(x => x.NewsTag)
+            .WithMany(x => x.NewsTagMaps)
+            .HasForeignKey(x => x.NewsTagId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<MediaAsset>()
+            .HasOne(x => x.UploadedBy)
+            .WithMany(u => u.UploadedMediaAssets)
+            .HasForeignKey(x => x.UploadedById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
         DbInitializer.Seed(modelBuilder);
     }
 }

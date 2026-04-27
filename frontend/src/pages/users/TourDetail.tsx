@@ -45,8 +45,10 @@ const TourDetail = () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/api/Tours/${id}`);
       setTour(response.data);
+      // Tự động chọn lịch trình đầu tiên còn chỗ
       if (response.data.tourSchedules?.length > 0) {
-        setSelectedScheduleId(response.data.tourSchedules[0].id);
+        const firstAvailable = response.data.tourSchedules.find((s: any) => s.availableSeats > 0 && s.status !== 'Inactive');
+        setSelectedScheduleId(firstAvailable ? firstAvailable.id : response.data.tourSchedules[0].id);
       }
     } catch (error) {
       toast.error("Không thể tải thông tin tour");
@@ -98,6 +100,7 @@ const TourDetail = () => {
   }, [id]);
 
   const handleDeleteReview = async (reviewId: number) => {
+    if (!reviewId) return;
     if (!window.confirm("Bạn xác nhận muốn xóa đánh giá này?")) return;
     const token = localStorage.getItem('token');
     const loadId = toast.loading("Đang xóa...");
@@ -113,10 +116,18 @@ const TourDetail = () => {
   };
 
   const handleNavigateToCheckout = () => {
+    const activeSchedule = tour.tourSchedules?.find((s: any) => s.id === selectedScheduleId);
+    
     if (!selectedScheduleId) {
       toast.error("Vui lòng chọn một lịch khởi hành!");
       return;
     }
+
+    if (!activeSchedule || activeSchedule.availableSeats <= 0 || activeSchedule.status === 'Inactive' || activeSchedule.status === 'Full') {
+      toast.error("Lịch trình này hiện đã hết chỗ!");
+      return;
+    }
+
     navigate(`/checkout/${id}?scheduleId=${selectedScheduleId}&adult=1&child=0`);
   };
 
@@ -130,8 +141,11 @@ const TourDetail = () => {
 
   const activeSchedule = tour.tourSchedules?.find((s: any) => s.id === selectedScheduleId);
   const images = tour.tourImages || tour.TourImages || [];
-  const displayReviews = reviews.slice(0, 2); // Chỉ hiện 2 cái đầu cho gọn
+  const displayReviews = reviews.slice(0, 2); 
   const reviewCount = reviews.length;
+
+  // Kiểm tra xem tour hiện tại có thể đặt không
+  const isBookable = activeSchedule && activeSchedule.availableSeats > 0 && activeSchedule.status !== 'Inactive' && activeSchedule.status !== 'Full';
 
   return (
     <div className="bg-[#f8faff] min-h-screen pb-24 font-sans text-slate-900 px-4">
@@ -169,11 +183,19 @@ const TourDetail = () => {
                  </p>
                  <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                    {tour.tourSchedules?.map((s: any) => (
-                     <div key={s.id} onClick={() => setSelectedScheduleId(s.id)} className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex justify-between items-center ${selectedScheduleId === s.id ? 'border-indigo-600 bg-indigo-50 shadow-md' : 'border-slate-50 hover:border-slate-200'}`}>
+                     <div 
+                        key={s.id} 
+                        onClick={() => setSelectedScheduleId(s.id)} 
+                        className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex justify-between items-center 
+                        ${selectedScheduleId === s.id ? 'border-indigo-600 bg-indigo-50 shadow-md' : 'border-slate-50 hover:border-slate-200'}
+                        ${(s.availableSeats <= 0 || s.status === 'Inactive') ? 'opacity-60 grayscale' : ''}`}
+                     >
                        <div>
-                         <p className={`text-xs font-black uppercase ${selectedScheduleId === s.id ? 'text-indigo-600' : 'text-slate-600'}`}>{new Date(s.departureDate || s.startDate).toLocaleDateString('vi-VN')}</p>
-                         <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-1 font-bold">
-                            <Users size={12} /> Còn {s.availableSeats} chỗ
+                         <p className={`text-xs font-black uppercase ${selectedScheduleId === s.id ? 'text-indigo-600' : 'text-slate-600'}`}>
+                            {new Date(s.departureDate || s.startDate).toLocaleDateString('vi-VN')}
+                         </p>
+                         <p className={`text-[10px] flex items-center gap-1 mt-1 font-bold ${s.availableSeats <= 0 ? 'text-rose-500' : 'text-slate-400'}`}>
+                            <Users size={12} /> {s.availableSeats <= 0 ? "Hết chỗ" : `Còn ${s.availableSeats} chỗ`}
                          </p>
                        </div>
                        <p className="font-black text-sm">{s.adultPrice?.toLocaleString()}đ</p>
@@ -182,12 +204,18 @@ const TourDetail = () => {
                  </div>
               </div>
               <div className="mt-auto">
-                 <div className="text-4xl font-black text-indigo-600 mb-6 tracking-tighter">{activeSchedule ? activeSchedule.adultPrice?.toLocaleString() : '---'}đ</div>
+                 <div className="text-4xl font-black text-indigo-600 mb-6 tracking-tighter">
+                    {activeSchedule ? activeSchedule.adultPrice?.toLocaleString() : '---'}đ
+                 </div>
                  <button 
-                   onClick={handleNavigateToCheckout} 
-                   className="w-full bg-slate-950 text-white py-6 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] shadow-xl hover:bg-indigo-600 transition-all flex items-center justify-center gap-2 group"
+                    onClick={handleNavigateToCheckout} 
+                    disabled={!isBookable}
+                    className={`w-full py-6 rounded-[2.5rem] font-black uppercase text-[11px] tracking-[0.3em] shadow-xl transition-all flex items-center justify-center gap-2 group
+                    ${!isBookable ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-slate-950 text-white hover:bg-indigo-600'}`}
                  >
-                   ĐẶT TOUR NGAY <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    {!isBookable ? 'HẾT CHỖ / NGỪNG NHẬN KHÁCH' : (
+                        <>ĐẶT TOUR NGAY <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /></>
+                    )}
                  </button>
               </div>
           </div>
@@ -199,7 +227,7 @@ const TourDetail = () => {
               <div className="grid grid-cols-3 gap-8 mb-12">
                  <DetailItem icon={<MapPin size={18}/>} label="Điểm khởi hành" value={tour.departureLocation} />
                  <DetailItem icon={<Calendar size={18}/>} label="Mã hành trình" value={tour.code} />
-                 <DetailItem icon={<Clock size={18}/>} label="Trạng thái" value={activeSchedule?.status || "Đang mở"} />
+                 <DetailItem icon={<Clock size={18}/>} label="Trạng thái" value={activeSchedule?.status === 'Inactive' || activeSchedule?.availableSeats <= 0 ? "Hết chỗ" : "Đang mở"} />
               </div>
               <div className="text-slate-500 italic whitespace-pre-line bg-slate-50/50 p-10 rounded-[3rem] shadow-inner font-medium leading-relaxed">{tour.description}</div>
           </div>
@@ -212,7 +240,6 @@ const TourDetail = () => {
                   {reviewCount > 0 && <span className="text-[10px] bg-white/10 px-3 py-1 rounded-full">({reviewCount})</span>}
                </h3>
 
-               {/* FORM GỬI ĐÁNH GIÁ (GIỐNG TRANG LIST) */}
                <div className="bg-white/10 p-6 rounded-[2.5rem] border border-white/5 relative z-10">
                   <div className="flex justify-center gap-2 mb-4">
                     {[1, 2, 3, 4, 5].map((s) => (
@@ -253,8 +280,8 @@ const TourDetail = () => {
                               </div>
                               {canDelete && (
                                <button 
-                                 onClick={() => handleDeleteReview(r.id)} 
-                                 className="text-white/40 hover:text-rose-500 transition-all"
+                                  onClick={() => handleDeleteReview(r.id)} 
+                                  className="text-white/40 hover:text-rose-500 transition-all"
                                >
                                  <Trash2 size={14} />
                                </button>
@@ -277,7 +304,6 @@ const TourDetail = () => {
         </div>
       </div>
 
-      {/* MODAL XEM TẤT CẢ - GIỮ NGUYÊN HOẶC TINH CHỈNH GỌN HƠN */}
       {showAllReviews && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 backdrop-blur-xl p-4">
           <div className="bg-white rounded-[3.5rem] w-full max-w-xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl">

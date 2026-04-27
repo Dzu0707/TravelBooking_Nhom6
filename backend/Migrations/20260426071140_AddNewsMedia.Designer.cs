@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelTour.API.Data;
 
@@ -11,9 +12,11 @@ using TravelTour.API.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
-    partial class TravelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260426071140_AddNewsMedia")]
+    partial class AddNewsMedia
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,29 +33,8 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AdultCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChildCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("SpecialRequest")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -87,11 +69,6 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            AdultCount = 0,
-                            ChildCount = 0,
-                            ContactEmail = "",
-                            ContactName = "",
-                            ContactPhone = "",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Confirmed",
                             TotalPassengers = 2,
@@ -173,38 +150,6 @@ namespace backend.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TravelTour.API.Models.MediaAsset", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AltText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UploadedById")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UploadedById");
-
-                    b.ToTable("MediaAssets");
-                });
-
             modelBuilder.Entity("TravelTour.API.Models.NewsCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -236,6 +181,38 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("NewsCategories");
+                });
+
+            modelBuilder.Entity("TravelTour.API.Models.NewsMedia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AltText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UploadedById")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UploadedById");
+
+                    b.ToTable("NewsMedia");
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.NewsPost", b =>
@@ -774,10 +751,10 @@ namespace backend.Migrations
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("TravelTour.API.Models.MediaAsset", b =>
+            modelBuilder.Entity("TravelTour.API.Models.NewsMedia", b =>
                 {
                     b.HasOne("TravelTour.API.Models.User", "UploadedBy")
-                        .WithMany("UploadedMediaAssets")
+                        .WithMany("UploadedNewsMedia")
                         .HasForeignKey("UploadedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -960,7 +937,7 @@ namespace backend.Migrations
 
                     b.Navigation("Reviews");
 
-                    b.Navigation("UploadedMediaAssets");
+                    b.Navigation("UploadedNewsMedia");
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.Voucher", b =>
