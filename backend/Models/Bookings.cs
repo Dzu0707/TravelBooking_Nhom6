@@ -21,4 +21,5 @@ public class Booking {
     public virtual ICollection<BookingAttendee> BookingAttendees { get; set; } = new List<BookingAttendee>();
     
     public virtual ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
+   
 }

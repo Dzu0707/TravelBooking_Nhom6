@@ -23,6 +23,7 @@ public class ToursController : ControllerBase {
     public async Task<IActionResult> GetAll() {
         var tours = await _context.Tours
             .Include(t => t.TourImages)
+            .Include(t => t.TourSchedules)
             .OrderByDescending(t => t.Id)
             .ToListAsync();
         return Ok(tours);

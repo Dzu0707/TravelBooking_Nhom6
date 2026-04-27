@@ -13,14 +13,14 @@ namespace TravelTour.API.Controllers
     public class BookingsController : ControllerBase
     {
         private readonly TravelDbContext _context;
-        private const string PAYMENT_SUFFIX = "NHOM6"; // Hằng số để dễ quản lý mã đối soát
+        private const string PAYMENT_SUFFIX = "NHOM6"; 
 
         public BookingsController(TravelDbContext context)
         {
             _context = context;
         }
 
-        // 1. LẤY TOÀN BỘ BOOKINGS (Dành cho trang Admin đối soát)
+        // 1. LẤY TOÀN BỘ BOOKINGS
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllBookings()
@@ -38,11 +38,14 @@ namespace TravelTour.API.Controllers
                         b.CreatedAt,
                         b.Status,
                         b.TotalPassengers,
-                        // Mã đối soát khớp 100% với Frontend
-                        PaymentCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}", 
-                        StartDate = b.TourSchedule != null ? b.TourSchedule.DepartureDate : (DateTime?)null,
+                        // FIX: Xóa b.PaymentMethod vì model chưa có, thay bằng mặc định
+                        PaymentMethod = "Chuyển khoản", 
+                        OrderCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}", 
                         CustomerName = b.User != null ? b.User.FullName : "Khách ẩn danh",
                         CustomerEmail = b.User != null ? b.User.Email : "N/A",
+                        // FIX: Thay b.User.PhoneNumber bằng chuỗi trống hoặc N/A
+                        CustomerPhone = "N/A", 
+                        
                         TourName = b.TourSchedule != null && b.TourSchedule.Tour != null 
                                     ? b.TourSchedule.Tour.Name : "Tour không xác định"
                     })
@@ -56,11 +59,10 @@ namespace TravelTour.API.Controllers
             }
         }
 
-        // 2. TẠO BOOKING MỚI (Khách hàng đặt tour)
+        // 2. TẠO BOOKING MỚI
         [HttpPost]
         public async Task<IActionResult> CreateBooking([FromBody] BookingRequest request)
         {
-            // Sử dụng Transaction để đảm bảo nếu trừ chỗ lỗi thì không tạo đơn hàng
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -69,7 +71,6 @@ namespace TravelTour.API.Controllers
 
                 int userId = int.Parse(userIdClaim);
 
-                // Load lịch trình và khóa bản ghi để tránh tranh chấp (Race Condition)
                 var schedule = await _context.TourSchedules
                     .FirstOrDefaultAsync(s => s.Id == request.TourScheduleId);
                 
@@ -84,24 +85,22 @@ namespace TravelTour.API.Controllers
                     TourScheduleId = request.TourScheduleId,
                     TotalPassengers = request.TotalPassengers,
                     TotalPrice = request.TotalPrice,
+                    // FIX: Bỏ gán PaymentMethod vì model chưa định nghĩa
                     Status = "Pending",
                     CreatedAt = DateTime.Now 
                 };
 
-                // Cập nhật số chỗ ngay lập tức
                 schedule.AvailableSeats -= request.TotalPassengers;
                 if (schedule.AvailableSeats <= 0) schedule.Status = "Full";
 
                 _context.Bookings.Add(newBooking);
                 await _context.SaveChangesAsync();
-
-                // Hoàn tất giao dịch
                 await transaction.CommitAsync();
 
                 return Ok(new { 
                     message = "Đặt tour thành công!", 
                     bookingId = newBooking.Id,
-                    paymentCode = $"PAYTOUR{newBooking.Id}{PAYMENT_SUFFIX}" 
+                    orderCode = $"PAYTOUR{newBooking.Id}{PAYMENT_SUFFIX}" 
                 });
             }
             catch (Exception ex)
@@ -111,7 +110,7 @@ namespace TravelTour.API.Controllers
             }
         }
 
-        // 3. LẤY BOOKINGS CÁ NHÂN (Trang My Bookings của khách)
+        // 3. LẤY BOOKINGS CÁ NHÂN
         [HttpGet("my-bookings")]
         public async Task<IActionResult> GetMyBookings()
         {
@@ -133,7 +132,9 @@ namespace TravelTour.API.Controllers
                         b.CreatedAt,
                         b.Status,
                         b.TotalPassengers,
-                        PaymentCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}",
+                        // FIX: Thay bằng mặc định
+                        PaymentMethod = "Chuyển khoản",
+                        OrderCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}",
                         StartDate = b.TourSchedule != null ? b.TourSchedule.DepartureDate : (DateTime?)null,
                         DepartureLocation = b.TourSchedule != null && b.TourSchedule.Tour != null 
                                             ? b.TourSchedule.Tour.DepartureLocation : "TP. Hồ Chí Minh",
@@ -150,7 +151,7 @@ namespace TravelTour.API.Controllers
             }
         }
 
-        // 4. XÁC NHẬN THANH TOÁN (Admin bấm duyệt tiền)
+        // 4. XÁC NHẬN THANH TOÁN
         [HttpPut("{id}/confirm-payment")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ConfirmPayment(int id)
@@ -158,29 +159,19 @@ namespace TravelTour.API.Controllers
             try
             {
                 var booking = await _context.Bookings.FindAsync(id);
-
                 if (booking == null) return NotFound("Không tìm thấy đơn hàng.");
-
-                if (booking.Status == "Cancelled")
-                    return BadRequest("Đơn hàng đã bị hủy, không thể duyệt thanh toán.");
-
-                if (booking.Status == "Confirmed")
-                    return BadRequest("Đơn hàng này đã được thanh toán trước đó.");
+                if (booking.Status == "Cancelled") return BadRequest("Đơn hàng đã bị hủy.");
+                if (booking.Status == "Confirmed") return BadRequest("Đã thanh toán trước đó.");
 
                 booking.Status = "Confirmed";
                 await _context.SaveChangesAsync();
-
-                return Ok(new { message = $"Đã xác nhận thanh toán thành công đơn hàng #{id}" });
+                return Ok(new { message = $"Đã xác nhận thanh toán đơn hàng #{id}" });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
-            }
+            catch (Exception ex) { return StatusCode(500, $"Lỗi: {ex.Message}"); }
         }
 
-        // 5. HỦY ĐƠN HÀNG (Admin hoặc hệ thống hủy)
+        // 5. HỦY ĐƠN HÀNG
         [HttpPut("{id}/cancel")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CancelBooking(int id)
         {
             try
@@ -190,9 +181,16 @@ namespace TravelTour.API.Controllers
                     .FirstOrDefaultAsync(b => b.Id == id);
 
                 if (booking == null) return NotFound("Đơn hàng không tồn tại.");
+                
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                if (userRole != "Admin")
+                {
+                    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (booking.UserId.ToString() != userIdClaim) return Forbid();
+                }
+
                 if (booking.Status == "Cancelled") return BadRequest("Đơn hàng đã hủy từ trước.");
 
-                // Trả lại số chỗ cho tour schedule
                 if (booking.TourSchedule != null)
                 {
                     booking.TourSchedule.AvailableSeats += booking.TotalPassengers;
@@ -201,21 +199,17 @@ namespace TravelTour.API.Controllers
 
                 booking.Status = "Cancelled";
                 await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Đã hủy đơn hàng và hoàn trả chỗ trống." });
+                return Ok(new { message = "Đã hủy đơn hàng." });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Lỗi: {ex.Message}");
-            }
+            catch (Exception ex) { return StatusCode(500, $"Lỗi: {ex.Message}"); }
         }
 
-        // --- DTO CLASSES ---
         public class BookingRequest
         {
             public int TourScheduleId { get; set; }
             public int TotalPassengers { get; set; }
             public decimal TotalPrice { get; set; }
+            public string? PaymentMethod { get; set; }
         }
     }
 }

@@ -80,17 +80,37 @@ const TourCheckout = () => {
 
   const totalAmount = useMemo(() => Math.max(0, subTotal - discountAmount), [subTotal, discountAmount]);
 
+  // --- HÀM XỬ LÝ VOUCHER ĐÃ FIX LỖI HẾT HẠN/HẾT LƯỢT ---
   const handleApplyVoucher = async () => {
     const code = voucherInput.trim().toUpperCase();
     if (!code) return toast.error("Vui lòng nhập mã!");
-    const localVoucher = systemVouchers.find(v => (v.code || v.Code || "").toUpperCase() === code);
+
+    // Tìm trong danh sách voucher đã tải từ server
+    const v = systemVouchers.find(item => (item.code || item.Code || "").toUpperCase() === code);
     
-    if (localVoucher) {
-      const minOrder = localVoucher.minOrderAmount || localVoucher.MinOrderAmount || 0;
-      if (subTotal < minOrder) return toast.error(`Đơn hàng tối thiểu ${minOrder.toLocaleString()}đ để dùng mã này!`);
-      setAppliedVoucher(localVoucher);
+    if (v) {
+      // 1. Kiểm tra ngày hết hạn
+      const expiry = new Date(v.expiryDate || v.ExpiryDate);
+      if (expiry < new Date()) {
+        return toast.error("Mã giảm giá này đã hết hạn sử dụng!");
+      }
+
+      // 2. Kiểm tra số lượng lượt dùng
+      const qty = Number(v.quantity || v.Quantity || 0);
+      if (qty <= 0) {
+        return toast.error("Mã giảm giá này đã hết lượt sử dụng!");
+      }
+
+      // 3. Kiểm tra đơn hàng tối thiểu
+      const minOrder = Number(v.minOrderAmount || v.MinOrderAmount || 0);
+      if (subTotal < minOrder) {
+        return toast.error(`Đơn hàng tối thiểu ${minOrder.toLocaleString()}đ để dùng mã này!`);
+      }
+
+      setAppliedVoucher(v);
       toast.success("Áp dụng mã thành công!");
     } else {
+      // Nếu không có sẵn trong list, gọi API kiểm tra trực tiếp (nếu có endpoint validate riêng)
       const loadId = toast.loading("Đang kiểm tra mã...");
       try {
         const token = localStorage.getItem('token');
@@ -98,7 +118,7 @@ const TourCheckout = () => {
         setAppliedVoucher(res.data);
         toast.success("Áp dụng mã thành công!", { id: loadId });
       } catch (err: any) {
-        toast.error(err.response?.data?.message || "Mã không hợp lệ hoặc hết hạn", { id: loadId });
+        toast.error(err.response?.data?.message || "Mã không hợp lệ hoặc đã hết lượt dùng", { id: loadId });
       }
     }
   };
@@ -124,7 +144,6 @@ const TourCheckout = () => {
       
       const response = await axios.post(`${API_BASE_URL}/api/Bookings`, data, { headers: { Authorization: `Bearer ${token}` } });
       
-      // --- LOGIC LƯU THÔNG TIN KHÁCH HÀNG ---
       const orderCode = response.data.orderCode;
       const history = JSON.parse(localStorage.getItem('checkout_history') || '{}');
       history[orderCode] = {
@@ -133,7 +152,6 @@ const TourCheckout = () => {
         email: email.trim()
       };
       localStorage.setItem('checkout_history', JSON.stringify(history));
-      // --------------------------------------
 
       const bookingId = response.data.id || response.data.bookingId;
       toast.success("Đặt tour thành công!", { id: loadId });
@@ -143,7 +161,9 @@ const TourCheckout = () => {
       } else {
         setTimeout(() => navigate('/my-bookings'), 1500);
       }
-    } catch (error: any) { toast.error(error.response?.data || "Lỗi hệ thống!", { id: loadId }); }
+    } catch (error: any) { 
+      toast.error(error.response?.data?.message || error.response?.data || "Lỗi hệ thống!", { id: loadId }); 
+    }
   };
 
   if (loading) return <div className="h-screen flex items-center justify-center font-black text-indigo-600 italic tracking-[0.5em]">LOADING...</div>;
