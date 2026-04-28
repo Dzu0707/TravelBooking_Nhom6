@@ -37,6 +37,21 @@ const TourList = () => {
 
   const API_BASE_URL = "http://localhost:5091";
 
+  // --- HÀM XỬ LÝ ẢNH THÔNG MINH ---
+  const getImgUrl = (url: any) => {
+    if (!url || typeof url !== 'string') {
+        return "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=500";
+    }
+    if (url.includes(`${API_BASE_URL}/${API_BASE_URL}`)) {
+        return url.replace(`${API_BASE_URL}/${API_BASE_URL}`, API_BASE_URL);
+    }
+    if (url.startsWith('http')) {
+        return url;
+    }
+    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    return `${API_BASE_URL}${cleanPath}`;
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -56,23 +71,15 @@ const TourList = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  const getMinPrice = (tour: any) => {
-    const schedules = tour.tourSchedules || [];
-    if (schedules.length === 0) return tour.adultPrice || 0;
-    const prices = schedules.map((s: any) => s.adultPrice).filter((p: number) => p > 0);
-    return prices.length > 0 ? Math.min(...prices) : (tour.adultPrice || 0);
-  };
-
-  const getImgUrl = (url: any) => {
-    if (!url) return "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=500";
-    return url.startsWith('http') ? url : `${API_BASE_URL}${url.startsWith('/') ? url : `/${url}`}`;
+  const getDisplayPrice = (tour: any) => {
+    return tour.minPrice > 0 ? tour.minPrice : (tour.adultPrice || 0);
   };
 
   const filteredTours = tours.filter(tour => {
     const matchesSearch = tour.name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategoryId ? tour.categoryId === selectedCategoryId : true;
-    const minPrice = getMinPrice(tour);
-    const matchesPrice = minPrice >= selectedPriceRange.min && minPrice <= selectedPriceRange.max;
+    const currentPrice = getDisplayPrice(tour);
+    const matchesPrice = currentPrice >= selectedPriceRange.min && currentPrice <= selectedPriceRange.max;
     const matchesDate = searchDate ? (tour.startDate && tour.startDate.split('T')[0] === searchDate) : true;
     return matchesSearch && matchesCategory && matchesPrice && matchesDate;
   });
@@ -139,6 +146,7 @@ const TourList = () => {
             </div>
         </div>
 
+        {/* Search Bar */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white p-3 rounded-[2rem] shadow-sm border border-slate-50">
           <div className="relative md:col-span-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
@@ -183,44 +191,51 @@ const TourList = () => {
         </div>
       </div>
 
+      {/* Tour Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-[1600px] mx-auto px-6">
         {currentTours.length > 0 ? currentTours.map((tour) => {
           const imgs = tour.tourImages || [];
-          const mainImg = tour.imageUrl || tour.thumbnail || (imgs[0]?.imageUrl);
+          const mainImg = imgs.length > 0 ? imgs[0].imageUrl : (tour.imageUrl || tour.thumbnail);
           const reviewCount = tour.reviews?.length || 0;
-          const minPrice = getMinPrice(tour);
+          const displayPrice = getDisplayPrice(tour);
 
           return (
             <div key={tour.id} className="group bg-white rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[460px] border border-slate-100 relative overflow-hidden">
               
               <div className="relative h-48 p-2 grid grid-cols-3 gap-2">
                 <div className="col-span-2 overflow-hidden rounded-[1.5rem] relative cursor-pointer" onClick={() => navigate(`/tours/${tour.id}`)}>
-                  <img src={getImgUrl(mainImg)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={tour.name} />
+                  <img 
+                    src={getImgUrl(mainImg)} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    alt={tour.name}
+                    onError={(e:any) => {e.target.src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=500"}}
+                  />
                   <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-lg flex items-center shadow-sm">
                     <Star size={10} className="text-amber-400 mr-1" fill="currentColor"/>
                     <span className="text-[10px] font-black">4.9</span>
                   </div>
                 </div>
                 <div className="col-span-1 grid grid-rows-2 gap-2">
-                   <div className="rounded-xl overflow-hidden"><img src={getImgUrl(imgs[0]?.imageUrl)} className="w-full h-full object-cover" alt="" /></div>
-                   <div className="rounded-xl overflow-hidden relative">
-                      <img src={getImgUrl(imgs[1]?.imageUrl)} className="w-full h-full object-cover" alt="" />
-                      {imgs.length > 2 && <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-[9px] font-black">+{imgs.length - 2}</div>}
-                   </div>
+                    <div className="rounded-xl overflow-hidden bg-slate-50">
+                        <img src={getImgUrl(imgs[1]?.imageUrl || mainImg)} className="w-full h-full object-cover" alt="" />
+                    </div>
+                    <div className="rounded-xl overflow-hidden relative bg-slate-50">
+                       <img src={getImgUrl(imgs[2]?.imageUrl || mainImg)} className="w-full h-full object-cover" alt="" />
+                       {imgs.length > 3 && <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white text-[9px] font-black">+{imgs.length - 3}</div>}
+                    </div>
                 </div>
               </div>
 
               <div className="p-5 flex flex-col grow">
                 <div className="flex justify-between items-center mb-2">
                     <span className="flex items-center text-indigo-600 font-black text-[8px] uppercase tracking-wider">
-                        <MapPin size={10} className="mr-1 text-rose-500" /> {tour.departureLocation}
+                        <MapPin size={10} className="mr-1 text-rose-500" /> {tour.departureLocation || "Việt Nam"}
                     </span>
                     <button 
                       onClick={() => { setActiveReviewId(tour.id); setRating(5); }} 
                       className="flex items-center gap-1 text-slate-300 hover:text-indigo-600 transition-colors"
                     >
                         <MessageSquare size={14} />
-                        {/* FIX: Chỉ hiện số nếu reviewCount > 0 */}
                         {reviewCount > 0 && <span className="text-[9px] font-bold">({reviewCount})</span>}
                     </button>
                 </div>
@@ -247,7 +262,7 @@ const TourList = () => {
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black uppercase text-slate-400 mb-0.5">Giá từ</span>
                         <div className="flex items-baseline gap-0.5">
-                            <span className="text-xl font-black text-indigo-600 italic">{minPrice.toLocaleString()}</span>
+                            <span className="text-xl font-black text-indigo-600 italic">{displayPrice.toLocaleString()}</span>
                             <span className="text-[10px] font-bold text-indigo-600 uppercase">đ</span>
                         </div>
                     </div>
@@ -256,6 +271,7 @@ const TourList = () => {
                     </button>
                 </div>
 
+                {/* Review Overlay */}
                 {activeReviewId === tour.id && (
                   <div className="absolute inset-0 bg-white/98 backdrop-blur-xl z-50 p-6 flex flex-col animate-in fade-in zoom-in duration-300">
                     <div className="flex justify-between items-center mb-4">
@@ -284,6 +300,7 @@ const TourList = () => {
         )}
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-16 flex justify-center items-center gap-4">
           <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="p-3 rounded-xl bg-white border border-slate-100 text-slate-400 disabled:opacity-20 hover:bg-indigo-600 hover:text-white transition-all"><ChevronLeft size={18} /></button>

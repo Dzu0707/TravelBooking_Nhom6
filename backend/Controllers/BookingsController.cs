@@ -13,14 +13,14 @@ namespace TravelTour.API.Controllers
     public class BookingsController : ControllerBase
     {
         private readonly TravelDbContext _context;
-        private const string PAYMENT_SUFFIX = "NHOM6";
+        private const string PAYMENT_SUFFIX = "NHOM6"; // Hằng số để dễ quản lý mã đối soát
 
         public BookingsController(TravelDbContext context)
         {
             _context = context;
         }
 
-        // 1. LẤY TOÀN BỘ BOOKINGS (Admin)
+        // 1. LẤY TOÀN BỘ BOOKINGS (Dành cho trang Admin đối soát)
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllBookings()
@@ -44,7 +44,7 @@ namespace TravelTour.API.Controllers
                         b.SpecialRequest,
                         b.AdultCount,
                         b.ChildCount,
-                        OrderCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}",
+                        PaymentCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}",
                         StartDate = b.TourSchedule != null ? b.TourSchedule.DepartureDate : (DateTime?)null,
                         CustomerName = !string.IsNullOrEmpty(b.ContactName) ? b.ContactName : (b.User != null ? b.User.FullName : "Khách ẩn danh"),
                         CustomerEmail = !string.IsNullOrEmpty(b.ContactEmail) ? b.ContactEmail : (b.User != null ? b.User.Email : "N/A"),
@@ -62,124 +62,108 @@ namespace TravelTour.API.Controllers
             }
         }
 
-        // 2. TẠO BOOKING MỚI - FIX LOGIC TRỪ VOUCHER
+        // 2. TẠO BOOKING MỚI (Khách hàng đặt tour)
         [HttpPost]
         public async Task<IActionResult> CreateBooking([FromBody] BookingRequest request)
         {
-            if (request == null) return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
-
-            // Dùng Transaction để đảm bảo nếu trừ voucher lỗi thì không tạo đơn hàng
+            // Sử dụng Transaction để đảm bảo nếu trừ chỗ lỗi thì không tạo đơn hàng
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim)) return Unauthorized("Phiên đăng nhập hết hạn.");
+
                 int userId = int.Parse(userIdClaim);
 
-                // Kiểm tra lịch trình
+                // Load lịch trình và khóa bản ghi để tránh tranh chấp (Race Condition)
                 var schedule = await _context.TourSchedules
                     .FirstOrDefaultAsync(s => s.Id == request.TourScheduleId);
                 
                 if (schedule == null) return BadRequest("Lịch trình không tồn tại.");
 
-                if (schedule.Status == "Inactive" || schedule.Status == "Full" || schedule.AvailableSeats <= 0)
-                {
-                    return BadRequest("Rất tiếc, tour đã hết chỗ.");
-                }
-
                 if (schedule.AvailableSeats < request.TotalPassengers)
-                {
-                    return BadRequest($"Chỉ còn {schedule.AvailableSeats} chỗ trống.");
-                }
+                    return BadRequest($"Rất tiếc, tour này hiện chỉ còn {schedule.AvailableSeats} chỗ trống.");
 
-                // --- LOGIC TRỪ VOUCHER (ĐÃ FIX) ---
+                // --- LOGIC XỬ LÝ VOUCHER ---
+                decimal subTotal = (request.AdultCount * schedule.AdultPrice) + (request.ChildCount * schedule.ChildPrice);
+                decimal finalPrice = subTotal; 
+
                 if (!string.IsNullOrEmpty(request.VoucherCode))
                 {
-                    // Tìm voucher trong DB (viết hoa mã để so sánh chính xác)
-                    var voucherInDb = await _context.Vouchers
-                        .Where(v => v.Code == request.VoucherCode.Trim().ToUpper())
-                        .FirstOrDefaultAsync();
+                    var voucher = await _context.Vouchers
+                        .FirstOrDefaultAsync(v => v.Code.ToUpper() == request.VoucherCode.Trim().ToUpper());
 
-                    if (voucherInDb != null)
-                    {
-                        if (voucherInDb.Quantity > 0)
-                        {
-                            // Trừ số lượng ngay lập tức
-                            voucherInDb.Quantity = voucherInDb.Quantity - 1;
-                            
-                            // Đánh dấu là đã thay đổi
-                            _context.Entry(voucherInDb).State = EntityState.Modified;
-                        }
-                        else
-                        {
-                            return BadRequest("Mã giảm giá này đã hết lượt sử dụng.");
-                        }
-                    }
-                    else 
-                    {
-                        // Nếu khách nhập mã mà không tìm thấy trong DB
-                        return BadRequest("Mã giảm giá không hợp lệ.");
-                    }
+                    if (voucher == null) return BadRequest("Mã giảm giá không tồn tại.");
+                    if (voucher.ExpiryDate < DateTime.Now) return BadRequest("Mã giảm giá đã hết hạn.");
+                    if (voucher.Quantity <= 0) return BadRequest("Mã giảm giá đã hết lượt sử dụng.");
+                    
+                    decimal discount = 0;
+                    if (voucher.DiscountType.ToLower().Contains("percent"))
+                        discount = (subTotal * voucher.DiscountValue) / 100;
+                    else
+                        discount = voucher.DiscountValue;
+
+                    finalPrice = Math.Max(0, subTotal - discount);
+                    
+                    // Trừ lượt dùng của Voucher
+                    voucher.Quantity -= 1;
                 }
+                else 
+                {
+                    finalPrice = subTotal;
+                }
+                // ---------------------------
 
-                // Tạo Booking
                 var newBooking = new Booking
                 {
                     UserId = userId,
                     TourScheduleId = request.TourScheduleId,
                     TotalPassengers = request.TotalPassengers,
-                    TotalPrice = request.TotalPrice,
+                    TotalPrice = finalPrice, 
                     Status = "Pending",
                     CreatedAt = DateTime.Now,
-                    ContactName = (request.FullName ?? "").Trim(),
-                    ContactEmail = (request.Email ?? "").Trim(),
-                    ContactPhone = (request.Phone ?? "").Trim(),
-                    SpecialRequest = request.Note,
+
+                    ContactName = request.FullName.Trim(),
+                    ContactEmail = request.Email.Trim(),
+                    ContactPhone = request.Phone.Trim(),
+                    SpecialRequest = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim(),
+
                     AdultCount = request.AdultCount,
                     ChildCount = request.ChildCount
                 };
 
-                // Cập nhật số chỗ trống của Tour
+                // Cập nhật số chỗ ngay lập tức
                 schedule.AvailableSeats -= request.TotalPassengers;
-                if (schedule.AvailableSeats <= 0) 
-                {
-                    schedule.AvailableSeats = 0;
-                    schedule.Status = "Inactive"; 
-                }
+                if (schedule.AvailableSeats <= 0) schedule.Status = "Full";
 
                 _context.Bookings.Add(newBooking);
-                
-                // Lưu tất cả thay đổi (bao gồm cả Voucher và Booking)
                 await _context.SaveChangesAsync();
 
-                // Tạo Transaction
-                var newTransaction = new Transaction
+                _context.Transactions.Add(new Transaction
                 {
                     BookingId = newBooking.Id,
                     TransactionCode = $"PAYTOUR{newBooking.Id}{PAYMENT_SUFFIX}",
                     Amount = newBooking.TotalPrice,
-                    PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) ? "cod" : request.PaymentMethod.ToLower(),
-                    Status = (request.PaymentMethod?.ToLower() == "online") ? "Pending" : "Unpaid",
+                    PaymentMethod = string.IsNullOrWhiteSpace(request.PaymentMethod) ? "cod" : request.PaymentMethod,
+                    Status = request.PaymentMethod == "online" ? "Pending" : "Unpaid",
                     CreatedAt = DateTime.Now
-                };
+                });
 
-                _context.Transactions.Add(newTransaction);
+                // Hoàn tất giao dịch
                 await _context.SaveChangesAsync();
-                
-                // Xác nhận hoàn tất transaction
                 await transaction.CommitAsync();
 
                 return Ok(new
                 {
-                    message = "Đặt tour thành công và đã áp dụng mã giảm giá!",
+                    message = "Đặt tour thành công!",
                     bookingId = newBooking.Id,
-                    orderCode = newTransaction.TransactionCode
+                    paymentCode = $"PAYTOUR{newBooking.Id}{PAYMENT_SUFFIX}"
                 });
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return StatusCode(500, $"Lỗi: {ex.Message}");
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
             }
         }
 
@@ -208,9 +192,10 @@ namespace TravelTour.API.Controllers
                         b.ContactName,
                         b.ContactEmail,
                         b.ContactPhone,
+                        b.SpecialRequest,
                         b.AdultCount,
                         b.ChildCount,
-                        OrderCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}",
+                        PaymentCode = $"PAYTOUR{b.Id}{PAYMENT_SUFFIX}",
                         StartDate = b.TourSchedule != null ? b.TourSchedule.DepartureDate : (DateTime?)null,
                         DepartureLocation = b.TourSchedule != null && b.TourSchedule.Tour != null
                             ? b.TourSchedule.Tour.DepartureLocation
@@ -229,7 +214,7 @@ namespace TravelTour.API.Controllers
             }
         }
 
-        // 4. XÁC NHẬN THANH TOÁN
+        // 4. XÁC NHẬN THANH TOÁN (Admin)
         [HttpPut("{id}/confirm-payment")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ConfirmPayment(int id)
@@ -242,26 +227,24 @@ namespace TravelTour.API.Controllers
 
                 if (booking == null) return NotFound("Không tìm thấy đơn hàng.");
                 if (booking.Status == "Cancelled") return BadRequest("Đơn hàng đã bị hủy.");
-                
+                if (booking.Status == "Confirmed") return BadRequest("Đơn hàng đã thanh toán.");
+
                 booking.Status = "Confirmed";
-
-                var latestTransaction = booking.Transactions
-                    .OrderByDescending(t => t.CreatedAt)
-                    .FirstOrDefault();
-
-                if (latestTransaction != null)
-                {
-                    latestTransaction.Status = "Paid";
-                }
+                var latestTransaction = booking.Transactions.OrderByDescending(t => t.CreatedAt).FirstOrDefault();
+                if (latestTransaction != null) latestTransaction.Status = "Paid";
 
                 await _context.SaveChangesAsync();
-                return Ok(new { message = $"Đã xác nhận thanh toán đơn hàng #{id}" });
+                return Ok(new { message = $"Đã xác nhận thanh toán thành công đơn hàng #{id}" });
             }
-            catch (Exception ex) { return StatusCode(500, $"Lỗi: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi hệ thống: {ex.Message}");
+            }
         }
 
-        // 5. HỦY ĐƠN HÀNG
+        // 5. HỦY ĐƠN HÀNG (Admin)
         [HttpPut("{id}/cancel")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CancelBooking(int id)
         {
             try
@@ -271,30 +254,23 @@ namespace TravelTour.API.Controllers
                     .FirstOrDefaultAsync(b => b.Id == id);
 
                 if (booking == null) return NotFound("Đơn hàng không tồn tại.");
-                
-                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-                if (userRole != "Admin")
-                {
-                    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    if (booking.UserId.ToString() != userIdClaim) return Forbid();
-                }
-
                 if (booking.Status == "Cancelled") return BadRequest("Đơn hàng đã hủy từ trước.");
 
                 if (booking.TourSchedule != null)
                 {
                     booking.TourSchedule.AvailableSeats += booking.TotalPassengers;
-                    if (booking.TourSchedule.Status == "Inactive" || booking.TourSchedule.Status == "Full") 
-                    {
-                        booking.TourSchedule.Status = "Active";
-                    }
+                    if (booking.TourSchedule.Status == "Full") booking.TourSchedule.Status = "Active";
                 }
 
                 booking.Status = "Cancelled";
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "Đã hủy đơn hàng." });
+
+                return Ok(new { message = "Đã hủy đơn hàng và hoàn trả chỗ trống." });
             }
-            catch (Exception ex) { return StatusCode(500, $"Lỗi: {ex.Message}"); }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi: {ex.Message}");
+            }
         }
 
         public class BookingRequest

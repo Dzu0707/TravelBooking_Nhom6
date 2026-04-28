@@ -188,6 +188,7 @@ const AdminTours = () => {
     const matchesSearch =
       tour.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tour.code.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesCategory = filterCategory === 'all' || tour.categoryId === Number(filterCategory);
     return matchesSearch && matchesCategory;
   });
@@ -198,15 +199,18 @@ const AdminTours = () => {
 
   return (
     <>
-      <div className="mx-auto max-w-7xl space-y-6 px-4 pb-10">
-        <Card className="rounded-xl border-slate-800 bg-slate-900 p-6 shadow-lg">
-          <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <section className="rounded-xl border border-slate-800 bg-slate-900/95 p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(2,6,23,0.45)]">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <Title className="flex items-center gap-2 font-bold uppercase tracking-tight text-slate-100">
-                Quản trị Tour <Box size={20} className="text-blue-500" />
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
+                Tour Management
+              </div>
+              <Title className="mt-2 flex items-center gap-2 text-lg font-black uppercase tracking-tight text-slate-100">
+                Quản trị Tour <Box size={20} className="text-cyan-400" />
               </Title>
-              <Text className="text-[11px] font-medium italic text-slate-400">
-                Dữ liệu từ bảng Tours & Categories
+              <Text className="mt-1 text-sm text-slate-400">
+                Quản lý tour, ảnh đại diện, album và lịch khởi hành từ dữ liệu thực.
               </Text>
             </div>
 
@@ -214,7 +218,7 @@ const AdminTours = () => {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-[11px] text-slate-200 outline-none"
+                className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none focus:border-cyan-500/40"
               >
                 <option value="all">Tất cả danh mục</option>
                 {categories?.map((cat) => (
@@ -224,14 +228,14 @@ const AdminTours = () => {
                 ))}
               </select>
 
-              <div className="relative flex-1 md:w-64">
+              <div className="relative flex-1 md:w-72">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                 <input
                   type="text"
                   placeholder="Tìm mã hoặc tên tour..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-lg border border-slate-800 bg-slate-950 py-2 pl-10 pr-4 text-xs text-slate-200 outline-none focus:border-blue-500/50"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 py-3 pl-10 pr-4 text-sm text-slate-200 outline-none focus:border-cyan-500/40"
                 />
               </div>
 
@@ -241,26 +245,26 @@ const AdminTours = () => {
                   setActiveTab('info');
                   setIsModalOpen(true);
                 }}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-[10px] font-bold uppercase text-white shadow-md transition-all hover:bg-blue-500"
+                className="flex items-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300 transition-all hover:bg-cyan-500/15"
               >
                 <Plus size={16} />
                 Thêm Tour
               </button>
             </div>
           </div>
-        </Card>
+        </section>
 
-        <Card className="overflow-hidden rounded-xl border-slate-800 bg-slate-900 p-0 shadow-2xl">
+        <Card className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-0 shadow-none">
           <Table>
             <TableHead className="bg-slate-950/60">
               <TableRow>
-                <TableHeaderCell className="p-5 text-[10px] font-bold uppercase text-slate-500">
+                <TableHeaderCell className="p-5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
                   Thông tin Tour
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center text-[10px] font-bold uppercase text-slate-500">
-                  Mã nhận diện
+                <TableHeaderCell className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Mã Tour
                 </TableHeaderCell>
-                <TableHeaderCell className="text-center text-[10px] font-bold uppercase text-slate-500">
+                <TableHeaderCell className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
                   Hành động
                 </TableHeaderCell>
               </TableRow>
@@ -268,19 +272,20 @@ const AdminTours = () => {
 
             <TableBody>
               {filteredTours.map((tour: Tour) => (
-                <TableRow key={tour.id} className="border-b border-slate-800/50 hover:bg-slate-800/40">
-                  <TableCell className="p-4">
+                <TableRow key={tour.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
+                  <TableCell className="p-5">
                     <Flex justifyContent="start" className="gap-4">
                       <img
                         src={getFullImageUrl(tour.imageUrl)}
-                        className="size-14 rounded-lg border border-slate-700 object-cover"
+                        className="size-16 rounded-lg border border-slate-700 object-cover"
                         alt={tour.name}
                       />
                       <div>
-                        <Text className="mb-1 text-[11px] font-bold uppercase leading-tight text-slate-200">
+                        <Text className="mb-1 text-sm font-bold uppercase leading-tight text-slate-100">
                           {tour.name}
                         </Text>
-                        <Badge size="xs" color="slate" className="text-[9px] opacity-70">
+                        <Text className="mb-2 text-xs text-slate-500">{tour.departureLocation || 'Chưa có điểm đi'}</Text>
+                        <Badge color="cyan" size="xs" className="text-[10px]">
                           {categories?.find((c) => c.id === tour.categoryId)?.name || 'Chưa phân loại'}
                         </Badge>
                       </div>
@@ -288,23 +293,23 @@ const AdminTours = () => {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <Badge color="blue" size="xs" className="text-[9px] font-bold tracking-widest">
+                    <Badge color="blue" size="xs" className="text-[10px] font-bold tracking-[0.2em]">
                       {tour.code}
                     </Badge>
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <Flex justifyContent="center" className="gap-1">
+                    <Flex justifyContent="center" className="gap-2">
                       <button
                         onClick={() => {
                           setEditingTour(tour);
                           setActiveTab('schedules');
                           setIsModalOpen(true);
                         }}
-                        className="flex items-center gap-2 rounded-lg bg-blue-500/10 px-3 py-2 text-blue-400 transition-all hover:bg-blue-500 hover:text-white"
+                        className="flex items-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-cyan-300 transition-all hover:bg-cyan-500/15"
                       >
                         <Calendar size={14} />
-                        <span className="text-[9px] font-bold uppercase">Lịch & Giá</span>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.16em]">Lịch & Giá</span>
                       </button>
 
                       <button
@@ -313,16 +318,16 @@ const AdminTours = () => {
                           setActiveTab('info');
                           setIsModalOpen(true);
                         }}
-                        className="p-2 text-slate-400 transition-colors hover:text-amber-500"
+                        className="rounded-lg border border-slate-700 bg-slate-950 p-2.5 text-slate-400 transition-colors hover:text-amber-400"
                       >
-                        <Pencil size={18} />
+                        <Pencil size={16} />
                       </button>
 
                       <button
                         onClick={() => handleDelete(tour.id)}
-                        className="p-2 text-slate-400 transition-colors hover:text-rose-500"
+                        className="rounded-lg border border-rose-500/15 bg-rose-500/5 p-2.5 text-rose-300 transition-colors hover:bg-rose-500/10"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </Flex>
                   </TableCell>
@@ -333,13 +338,15 @@ const AdminTours = () => {
         </Card>
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
-            <Card className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border-slate-800 bg-slate-900 p-0 shadow-2xl">
-              <Flex className="shrink-0 border-b border-slate-800 bg-slate-950 px-4" justifyContent="start">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-md">
+            <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+              <div className="flex shrink-0 items-center border-b border-slate-800 bg-slate-950 px-4">
                 <button
                   onClick={() => setActiveTab('info')}
-                  className={`relative px-8 py-5 text-[11px] font-bold uppercase tracking-widest transition-all ${
-                    activeTab === 'info' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-slate-600'
+                  className={`px-6 py-5 text-[11px] font-bold uppercase tracking-[0.18em] transition-all ${
+                    activeTab === 'info'
+                      ? 'border-b-2 border-cyan-400 text-cyan-300'
+                      : 'text-slate-500'
                   }`}
                 >
                   1. Thông tin & Album
@@ -348,40 +355,45 @@ const AdminTours = () => {
                 <button
                   onClick={() => setActiveTab('schedules')}
                   disabled={!editingTour}
-                  className={`relative px-8 py-5 text-[11px] font-bold uppercase tracking-widest transition-all ${
+                  className={`px-6 py-5 text-[11px] font-bold uppercase tracking-[0.18em] transition-all ${
                     activeTab === 'schedules'
-                      ? 'border-b-2 border-blue-500 text-blue-500'
-                      : 'text-slate-600 disabled:opacity-20'
+                      ? 'border-b-2 border-cyan-400 text-cyan-300'
+                      : 'text-slate-500 disabled:opacity-20'
                   }`}
                 >
                   2. Lịch khởi hành
                 </button>
 
-                <button onClick={closeModal} className="ml-auto p-3 text-slate-500 transition-colors hover:text-rose-500">
-                  <X size={24} />
+                <button
+                  onClick={closeModal}
+                  className="ml-auto rounded-lg p-3 text-slate-500 transition-colors hover:text-rose-400"
+                >
+                  <X size={22} />
                 </button>
-              </Flex>
+              </div>
 
-              <div className="flex-1 overflow-y-auto bg-slate-900/50 p-8">
+              <div className="flex-1 overflow-y-auto bg-slate-900/70 p-8">
                 {activeTab === 'info' ? (
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                    <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-10 xl:grid-cols-[1.1fr_0.9fr]">
                       <div className="space-y-8">
-                        <div className="space-y-3">
-                          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
+                          <label className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
                             Ảnh đại diện chính
                           </label>
 
-                          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-                            <div className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-slate-800 bg-slate-950">
+                          <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto]">
+                            <div className="group relative flex aspect-video items-center justify-center overflow-hidden rounded-xl border border-dashed border-slate-700 bg-slate-950">
                               {previewUrl ? (
                                 <img src={previewUrl} className="h-full w-full object-cover" alt="preview" />
                               ) : (
-                                <ImageIcon className="text-slate-800" size={40} />
+                                <ImageIcon className="text-slate-700" size={40} />
                               )}
 
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-all group-hover:opacity-100">
-                                <Text className="text-[10px] font-bold uppercase text-white">Preview ảnh đại diện</Text>
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-all group-hover:opacity-100">
+                                <Text className="text-[10px] font-bold uppercase tracking-[0.18em] text-white">
+                                  Preview ảnh đại diện
+                                </Text>
                               </div>
                             </div>
 
@@ -410,13 +422,13 @@ const AdminTours = () => {
                           </div>
                         </div>
 
-                        <div className="space-y-3">
-                          <label className="flex items-center gap-2 text-[11px] font-bold uppercase text-slate-500">
+                        <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
+                          <label className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
                             <Images size={14} />
                             Album ảnh phụ ({selectedAlbumUrls.length})
                           </label>
 
-                          <div className="space-y-4 rounded-3xl border border-slate-800 bg-slate-950/50 p-4">
+                          <div className="mt-4 space-y-4">
                             <button
                               type="button"
                               onClick={() => setIsAlbumMediaPickerOpen(true)}
@@ -426,18 +438,25 @@ const AdminTours = () => {
                               Chọn ảnh phụ từ kho
                             </button>
 
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                               {editingTour?.tourImages?.map((img) => (
-                                <div key={img.id} className="group relative aspect-square overflow-hidden rounded-xl border border-slate-700">
-                                  <img src={getFullImageUrl(img.imageUrl)} className="h-full w-full object-cover" alt="album-item" />
+                                <div
+                                  key={img.id}
+                                  className="group relative aspect-square overflow-hidden rounded-lg border border-slate-700"
+                                >
+                                  <img
+                                    src={getFullImageUrl(img.imageUrl)}
+                                    className="h-full w-full object-cover"
+                                    alt="album-item"
+                                  />
                                   <button
                                     type="button"
                                     onClick={() => handleDeleteOldImage(img.id)}
-                                    className="absolute right-1 top-1 rounded-lg bg-rose-600 p-1 text-white opacity-0 transition-all group-hover:opacity-100"
+                                    className="absolute right-2 top-2 rounded-md bg-rose-600 p-1 text-white opacity-0 transition-all group-hover:opacity-100"
                                   >
                                     <X size={14} />
                                   </button>
-                                  <div className="absolute bottom-0 left-0 right-0 bg-slate-950/80 py-1 text-center text-[8px] font-bold uppercase text-slate-500">
+                                  <div className="absolute bottom-0 left-0 right-0 bg-slate-950/80 py-1 text-center text-[8px] font-bold uppercase tracking-[0.18em] text-slate-400">
                                     Đã lưu
                                   </div>
                                 </div>
@@ -451,16 +470,19 @@ const AdminTours = () => {
                                     )
                                 )
                                 .map((url) => (
-                                  <div key={url} className="group relative aspect-square overflow-hidden rounded-xl border border-cyan-500/40 shadow-lg">
+                                  <div
+                                    key={url}
+                                    className="group relative aspect-square overflow-hidden rounded-lg border border-cyan-500/30"
+                                  >
                                     <img src={url} className="h-full w-full object-cover" alt="album-preview" />
                                     <button
                                       type="button"
                                       onClick={() => removeAlbumPreview(url)}
-                                      className="absolute inset-0 flex items-center justify-center bg-rose-500/40 text-white opacity-0 transition-all group-hover:opacity-100"
+                                      className="absolute inset-0 flex items-center justify-center bg-rose-500/30 text-white opacity-0 transition-all group-hover:opacity-100"
                                     >
                                       <Trash2 size={16} />
                                     </button>
-                                    <div className="absolute bottom-0 left-0 right-0 bg-cyan-600 py-1 text-center text-[8px] font-bold uppercase text-white">
+                                    <div className="absolute bottom-0 left-0 right-0 bg-cyan-600 py-1 text-center text-[8px] font-bold uppercase tracking-[0.18em] text-white">
                                       Đã chọn
                                     </div>
                                   </div>
@@ -470,63 +492,75 @@ const AdminTours = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-5">
-                        <div className="space-y-2">
-                          <label className="text-[11px] font-bold uppercase text-slate-500">Tên tour du lịch</label>
-                          <input
-                            {...register('name', { required: true })}
-                            className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs font-bold text-slate-100 outline-none focus:border-blue-500/50"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="rounded-2xl border border-slate-800 bg-slate-950/60 p-5">
+                        <div className="space-y-5">
                           <div className="space-y-2">
-                            <label className="text-[11px] font-bold uppercase text-slate-500">Mã tour</label>
+                            <label className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                              Tên tour du lịch
+                            </label>
                             <input
-                              {...register('code', { required: true })}
-                              className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-xs font-bold text-blue-400 outline-none"
-                              placeholder="VD: SGN-HAN-01"
+                              {...register('name', { required: true })}
+                              className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-sm font-semibold text-slate-100 outline-none focus:border-cyan-500/40"
                             />
                           </div>
 
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                                Mã tour
+                              </label>
+                              <input
+                                {...register('code', { required: true })}
+                                className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm font-bold text-cyan-300 outline-none focus:border-cyan-500/40"
+                                placeholder="VD: SGN-HAN-01"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <label className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                                Nơi khởi hành
+                              </label>
+                              <input
+                                {...register('departureLocation')}
+                                className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-sm font-semibold text-slate-100 outline-none focus:border-cyan-500/40"
+                              />
+                            </div>
+                          </div>
+
                           <div className="space-y-2">
-                            <label className="text-[11px] font-bold uppercase text-slate-500">Nơi khởi hành</label>
-                            <input
-                              {...register('departureLocation')}
-                              className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs font-bold outline-none"
+                            <label className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                              Danh mục tour
+                            </label>
+                            <select
+                              {...register('categoryId')}
+                              className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-sm font-semibold text-slate-200 outline-none focus:border-cyan-500/40"
+                            >
+                              {categories?.map((cat: any) => (
+                                <option key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                              Mô tả tóm tắt
+                            </label>
+                            <textarea
+                              {...register('description')}
+                              rows={5}
+                              className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300 outline-none focus:border-cyan-500/40"
                             />
                           </div>
-                        </div>
 
-                        <div className="space-y-2">
-                          <label className="text-[11px] font-bold uppercase text-slate-500">Danh mục tour</label>
-                          <select
-                            {...register('categoryId')}
-                            className="w-full rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs font-bold text-slate-200 outline-none"
+                          <button
+                            type="submit"
+                            className="w-full rounded-xl border border-cyan-500/20 bg-cyan-500/10 py-4 text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-300 transition-all hover:bg-cyan-500/15"
                           >
-                            {categories?.map((cat: any) => (
-                              <option key={cat.id} value={cat.id}>
-                                {cat.name}
-                              </option>
-                            ))}
-                          </select>
+                            {editingTour ? 'Lưu cập nhật' : 'Tạo Tour & Tiếp tục'}
+                          </button>
                         </div>
-
-                        <div className="space-y-2">
-                          <label className="text-[11px] font-bold uppercase text-slate-500">Mô tả tóm tắt</label>
-                          <textarea
-                            {...register('description')}
-                            rows={4}
-                            className="w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs text-slate-300 outline-none focus:border-blue-500/50"
-                          />
-                        </div>
-
-                        <button
-                          type="submit"
-                          className="w-full rounded-xl bg-blue-600 py-4 text-[11px] font-bold uppercase tracking-widest text-white shadow-xl shadow-blue-900/20 transition-all active:scale-95 hover:bg-blue-500"
-                        >
-                          {editingTour ? 'Lưu cập nhật' : 'Tạo Tour & Tiếp tục'}
-                        </button>
                       </div>
                     </div>
                   </form>
@@ -534,7 +568,7 @@ const AdminTours = () => {
                   editingTour && <AdminSchedules tourId={editingTour.id} />
                 )}
               </div>
-            </Card>
+            </div>
           </div>
         )}
       </div>

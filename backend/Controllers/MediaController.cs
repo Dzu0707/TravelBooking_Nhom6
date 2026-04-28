@@ -42,7 +42,10 @@ public class MediaController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload([FromForm] IFormFile file, [FromForm] string? altText)
+    public async Task<IActionResult> Upload(
+        [FromForm] IFormFile file,
+        [FromForm] string? altText,
+        [FromForm] string? customName)
     {
         if (file == null || file.Length == 0)
             return BadRequest(new { message = "File không hợp lệ!" });
@@ -65,7 +68,28 @@ public class MediaController : ControllerBase
         if (!Directory.Exists(uploadsRoot))
             Directory.CreateDirectory(uploadsRoot);
 
-        var fileName = $"media_{DateTime.Now:yyyyMMddHHmmssfff}_{Guid.NewGuid():N}{extension}";
+        var rawName = string.IsNullOrWhiteSpace(customName)
+            ? Path.GetFileNameWithoutExtension(file.FileName)
+            : customName.Trim();
+
+        var safeName = string.Concat(
+            rawName
+                .ToLowerInvariant()
+                .Select(c => char.IsLetterOrDigit(c) ? c : '-')
+        ).Trim('-');
+
+        while (safeName.Contains("--"))
+        {
+            safeName = safeName.Replace("--", "-");
+        }
+
+        if (string.IsNullOrWhiteSpace(safeName))
+        {
+            safeName = "image";
+        }
+
+        var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+        var fileName = $"{safeName}-{timeStamp}{extension}";
         var filePath = Path.Combine(uploadsRoot, fileName);
 
         await using (var stream = new FileStream(filePath, FileMode.Create))
@@ -93,7 +117,8 @@ public class MediaController : ControllerBase
             media.Id,
             media.FileName,
             media.FileUrl,
-            media.AltText
+            media.AltText,
+            media.CreatedAt
         });
     }
 
