@@ -1,15 +1,31 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, Map, ClipboardList, 
-  Users, LogOut, Zap, Layers, Calendar, ChevronRight, Bell, Search,
-  CreditCard, Ticket, Star, Menu, ExternalLink, Home, Newspaper, Images
+import {
+  LayoutDashboard,
+  Map,
+  ClipboardList,
+  Users,
+  LogOut,
+  Zap,
+  Layers,
+  Calendar,
+  ChevronRight,
+  Bell,
+  Search,
+  CreditCard,
+  Ticket,
+  Star,
+  Menu,
+  ExternalLink,
+  Home,
+  Newspaper,
+  Images,
 } from 'lucide-react';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const user = JSON.parse(localStorage.getItem('user') || '{"fullName": "Quản Trị Viên"}');
+
+  const user = JSON.parse(localStorage.getItem('user') || '{"fullName":"Quản Trị Viên"}');
 
   const menuItems = [
     { title: 'Tổng quan', path: '/admin', icon: <LayoutDashboard size={18} /> },
@@ -30,129 +46,165 @@ const AdminLayout = () => {
     navigate('/login');
   };
 
-  const currentItem = menuItems.find(item => 
-    item.path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(item.path)
+  const currentItem = menuItems.find((item) =>
+    item.path === '/admin'
+      ? location.pathname === '/admin'
+      : location.pathname.startsWith(item.path)
   );
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-400 font-sans antialiased overflow-hidden selection:bg-blue-500/30">
-      
-      <aside className="hidden lg:flex w-60 bg-slate-900 border-r border-slate-800 flex-col transition-all">
-        
-        <div className="h-14 flex items-center px-5 gap-3 border-b border-slate-800">
-          <div className="w-7 h-7 bg-blue-600 rounded flex items-center justify-center">
-            <Zap size={16} className="text-white fill-white" />
+    <div className="flex h-screen overflow-hidden bg-slate-950 font-sans text-slate-300 antialiased selection:bg-cyan-500/20">
+      <aside className="hidden w-72 shrink-0 border-r border-slate-800 bg-slate-900/95 lg:flex lg:flex-col">
+        <div className="border-b border-slate-800 px-5 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-300">
+              <Zap size={20} />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300">
+                Admin Panel
+              </div>
+              <div className="mt-1 text-base font-black uppercase tracking-tight text-slate-100">
+                Travel<span className="text-cyan-400">Go</span>
+              </div>
+            </div>
           </div>
-          <span className="text-sm font-bold tracking-tight text-slate-100 uppercase">
-            Travel<span className="text-blue-500">Go</span>
-          </span>
-        </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto custom-scrollbar">
-          {/* NÚT QUAY VỀ TRANG CHỦ */}
-          <Link 
-            to="/" 
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md mb-4 bg-emerald-500/5 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/10 transition-all group"
+          <Link
+            to="/"
+            className="mt-5 flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-emerald-300 transition-all hover:border-emerald-400/30 hover:bg-emerald-500/15"
           >
             <Home size={18} />
-            <span className="text-[13px] font-bold">Xem trang chủ</span>
-            <ExternalLink size={12} className="ml-auto opacity-50 group-hover:opacity-100" />
+            <span className="text-sm font-bold">Xem trang chủ</span>
+            <ExternalLink size={14} className="ml-auto opacity-70" />
           </Link>
+        </div>
 
-          <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600 mb-2">Hệ thống quản trị</p>
-          
-          {menuItems.map((item) => {
-            const isActive = item.path === '/admin' 
-              ? location.pathname === '/admin' 
-              : location.pathname.startsWith(item.path);
-            
-            return (
-              <Link 
-                key={item.path} 
-                to={item.path} 
-                className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                  isActive 
-                    ? 'bg-slate-800 text-blue-400 border border-slate-700' 
-                    : 'hover:bg-slate-800/50 hover:text-slate-200 text-slate-500'
-                }`}
-              >
-                <span className={isActive ? 'text-blue-500' : 'text-slate-600'}>
-                  {item.icon}
-                </span>
-                <span className="text-[13px] font-medium">{item.title}</span>
-                {isActive && <div className="ml-auto w-1 h-3 rounded-full bg-blue-500" />}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-3 border-t border-slate-800 bg-slate-900/50">
-          <div className="flex items-center gap-3 p-2 rounded-lg border border-slate-800 mb-2">
-            <div className="w-8 h-8 rounded bg-slate-700 flex items-center justify-center text-white text-xs font-bold border border-slate-600">
-              {user.fullName?.charAt(0) || 'A'}
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[11px] font-bold text-slate-200 truncate">{user.fullName || 'Admin'}</span>
-              <span className="text-[9px] text-emerald-500 font-medium">Online</span>
-            </div>
+        <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
+          <div className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+            Hệ thống quản trị
           </div>
-          
-          <button 
-            onClick={handleLogout} 
-            className="w-full flex items-center justify-center gap-2 py-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/5 rounded transition-colors text-[11px] font-bold border border-transparent hover:border-rose-500/10"
-          >
-            <LogOut size={13} /> 
-            <span>Đăng xuất</span>
-          </button>
+
+          <nav className="space-y-1.5">
+            {menuItems.map((item) => {
+              const isActive =
+                item.path === '/admin'
+                  ? location.pathname === '/admin'
+                  : location.pathname.startsWith(item.path);
+
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`group flex items-center gap-3 rounded-2xl px-3 py-3 transition-all ${
+                    isActive
+                      ? 'border border-cyan-500/20 bg-cyan-500/10 text-cyan-300 shadow-[0_0_0_1px_rgba(34,211,238,0.05)]'
+                      : 'border border-transparent text-slate-400 hover:border-slate-800 hover:bg-slate-950 hover:text-slate-100'
+                  }`}
+                >
+                  <span
+                    className={`transition-colors ${
+                      isActive ? 'text-cyan-300' : 'text-slate-500 group-hover:text-cyan-300'
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="text-[13px] font-semibold">{item.title}</span>
+                  {isActive && <div className="ml-auto h-2 w-2 rounded-full bg-cyan-400" />}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="border-t border-slate-800 p-4">
+          <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border border-slate-700 bg-slate-800 text-sm font-black text-slate-100">
+                {user.fullName?.charAt(0) || 'A'}
+              </div>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-bold text-slate-100">
+                  {user.fullName || 'Admin'}
+                </div>
+                <div className="mt-0.5 text-[11px] font-medium text-emerald-400">Đang hoạt động</div>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/15 bg-rose-500/5 py-2.5 text-xs font-bold uppercase text-rose-300 transition-all hover:border-rose-400/25 hover:bg-rose-500/10"
+            >
+              <LogOut size={14} />
+              Đăng xuất
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-950">
-        <header className="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900 z-30">
-          <div className="flex items-center gap-3">
-            <button className="lg:hidden p-1 text-slate-500">
-              <Menu size={20} />
-            </button>
-            <div className="flex items-center gap-2 text-slate-500 text-[11px] font-medium uppercase tracking-wider">
-              <span className="hover:text-blue-400 cursor-pointer" onClick={() => navigate('/admin')}>Hệ thống</span>
-              <ChevronRight size={12} className="text-slate-700" />
-              <span className="text-slate-200 font-bold">{currentItem?.title || 'Dashboard'}</span>
+      <main className="flex min-w-0 flex-1 flex-col bg-slate-950">
+        <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-900/95 px-5 py-4 backdrop-blur">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <button className="rounded-xl border border-slate-800 bg-slate-950 p-2 text-slate-400 lg:hidden">
+                <Menu size={18} />
+              </button>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  <button
+                    onClick={() => navigate('/admin')}
+                    className="transition-colors hover:text-cyan-300"
+                  >
+                    Hệ thống
+                  </button>
+                  <ChevronRight size={12} className="text-slate-700" />
+                  <span className="truncate text-cyan-300">{currentItem?.title || 'Tổng quan'}</span>
+                </div>
+
+                <div className="mt-1 text-lg font-black tracking-tight text-slate-100">
+                  {currentItem?.title || 'Dashboard'}
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center bg-slate-950 border border-slate-800 px-3 py-1 rounded gap-2 focus-within:border-slate-600 transition-all">
-              <Search size={12} className="text-slate-600" />
-              <input type="text" placeholder="Tìm kiếm nhanh..." className="bg-transparent border-none outline-none text-[11px] text-slate-300 w-40 placeholder:text-slate-700" />
+
+            <div className="flex items-center gap-3">
+              <div className="hidden items-center gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 sm:flex">
+                <Search size={14} className="text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm nhanh..."
+                  className="w-44 bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-600"
+                />
+              </div>
+
+              <button
+                onClick={() => navigate('/')}
+                className="rounded-xl border border-slate-800 bg-slate-950 p-2 text-slate-400 transition-colors hover:text-emerald-400 sm:hidden"
+                title="Về trang chủ"
+              >
+                <Home size={17} />
+              </button>
+
+              <button className="relative rounded-xl border border-slate-800 bg-slate-950 p-2 text-slate-400 transition-colors hover:text-slate-100">
+                <Bell size={16} />
+                <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-rose-500" />
+              </button>
             </div>
-            {/* Nút trang chủ nhanh trên Header dành cho Mobile/Tablet */}
-            <button 
-              onClick={() => navigate('/')} 
-              className="p-2 text-slate-500 hover:text-emerald-400 sm:hidden"
-              title="Về trang chủ"
-            >
-              <Home size={18} />
-            </button>
-            <button className="p-2 text-slate-500 hover:text-slate-200 relative">
-              <Bell size={16} />
-              <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-rose-600 rounded-full" />
-            </button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-5 lg:p-6 bg-slate-950">
-          <div className="max-w-7xl mx-auto">
-             <Outlet />
+        <div className="flex-1 overflow-y-auto px-5 py-5 lg:px-6 lg:py-6">
+          <div className="mx-auto max-w-7xl">
+            <Outlet />
           </div>
         </div>
       </main>
 
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        * { transition-duration: 150ms !important; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
       `}</style>
     </div>
   );

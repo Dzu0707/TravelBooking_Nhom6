@@ -12,8 +12,8 @@ using TravelTour.API.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
-    [Migration("20260426093257_AddBookingContactFields")]
-    partial class AddBookingContactFields
+    [Migration("20260427124834_InitialClean")]
+    partial class InitialClean
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

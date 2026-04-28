@@ -2,15 +2,31 @@ import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { 
-  Star, Search, CheckCircle, XCircle, 
-  Trash2, User, Quote, MessageSquare, Loader2
+import {
+  Star,
+  Search,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  User,
+  Quote,
+  MessageSquare,
+  Loader2,
 } from 'lucide-react';
 
-import { 
-  Card, Table, TableHead, TableRow, TableHeaderCell, 
-  TableBody, TableCell, Text, Flex, 
-  Grid, Metric
+import {
+  Card,
+  Table,
+  TableHead,
+  TableRow,
+  TableHeaderCell,
+  TableBody,
+  TableCell,
+  Text,
+  Flex,
+  Grid,
+  Metric,
+  Title,
 } from '@tremor/react';
 
 interface Review {
@@ -19,26 +35,23 @@ interface Review {
   rating: number;
   comment: string;
   createdAt: string;
-  // Giả sử backend của bạn chưa có trường status, 
-  // chúng ta có thể ẩn/hiện dựa trên logic riêng hoặc bổ sung sau.
 }
 
-const API_BASE_URL = "http://localhost:5091";
+const API_BASE_URL = 'http://localhost:5091';
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 1. Lấy toàn bộ danh sách đánh giá từ Backend
   const fetchAllReviews = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_BASE_URL}/api/Reviews`);
       setReviews(response.data);
     } catch (error) {
-      console.error("Lỗi lấy dữ liệu:", error);
-      toast.error("Không thể tải danh sách đánh giá");
+      console.error('Lỗi lấy dữ liệu:', error);
+      toast.error('Không thể tải danh sách đánh giá');
     } finally {
       setLoading(false);
     }
@@ -48,163 +61,202 @@ const AdminReviews = () => {
     fetchAllReviews();
   }, []);
 
-  // 2. Xóa vĩnh viễn đánh giá
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn đánh giá này?")) return;
-    
+    if (!window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn đánh giá này?')) return;
+
     const token = localStorage.getItem('token');
-    const loadId = toast.loading("Đang xử lý xóa...");
-    
+    const loadId = toast.loading('Đang xử lý xóa...');
+
     try {
       await axios.delete(`${API_BASE_URL}/api/Reviews/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      toast.success("Đã xóa đánh giá thành công", { id: loadId });
-      setReviews(prev => prev.filter(r => r.id !== id));
+      toast.success('Đã xóa đánh giá thành công', { id: loadId });
+      setReviews((prev) => prev.filter((r) => r.id !== id));
     } catch (error) {
-      toast.error("Lỗi: Bạn không có quyền hoặc server gặp sự cố", { id: loadId });
+      toast.error('Lỗi: Bạn không có quyền hoặc server gặp sự cố', { id: loadId });
     }
   };
 
   const renderStars = (count: number) => (
     <div className="flex gap-0.5">
       {[...Array(5)].map((_, i) => (
-        <Star 
-          key={i} 
-          size={10} 
-          fill={i < count ? "#EAB308" : "none"} 
-          className={i < count ? "text-yellow-500" : "text-slate-700"} 
+        <Star
+          key={i}
+          size={10}
+          fill={i < count ? '#EAB308' : 'none'}
+          className={i < count ? 'text-yellow-500' : 'text-slate-700'}
         />
       ))}
     </div>
   );
 
-  // Lọc dữ liệu theo tìm kiếm
-  const filteredReviews = reviews.filter(r => 
-    r.userName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    r.comment?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredReviews = reviews.filter(
+    (review) =>
+      review.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      review.comment?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Tính toán chỉ số thống kê thực tế
-  const avgRating = reviews.length > 0 
-    ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length).toFixed(1) 
-    : 0;
+  const avgRating =
+    reviews.length > 0
+      ? (reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length).toFixed(1)
+      : '0';
 
-  if (loading) return (
-    <div className="h-96 flex items-center justify-center">
-      <Loader2 className="animate-spin text-blue-500" size={40} />
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="animate-spin text-cyan-400" size={36} />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10 px-4 pt-6 animate-in fade-in duration-500">
-      
-      {/* STATS */}
-      <Grid numItemsMd={2} numItemsLg={3} className="gap-4">
-        <Card className="bg-slate-900 border-slate-800 p-4 rounded-xl">
-          <Text className="text-[10px] text-slate-500 font-bold uppercase">Xếp hạng trung bình</Text>
-          <Flex justifyContent="start" alignItems="baseline" className="gap-2 mt-1">
-            <Metric className="text-white font-black text-xl">{avgRating}</Metric>
-            <div className="flex mb-1">{renderStars(Math.round(Number(avgRating)))}</div>
-          </Flex>
-          <Text className="text-[9px] text-emerald-500 font-bold mt-2 italic uppercase tracking-tighter">Dữ liệu từ {reviews.length} đánh giá</Text>
-        </Card>
-
-        <Card className="bg-slate-900 border-slate-800 p-4 rounded-xl border-l-4 border-l-amber-500">
-          <Text className="text-[10px] text-slate-500 font-bold uppercase">Tổng phản hồi</Text>
-          <Metric className="text-amber-500 font-black text-xl mt-1">{reviews.length}</Metric>
-          <Text className="text-[9px] text-slate-600 font-bold mt-2 uppercase italic tracking-tighter">Cập nhật thời gian thực</Text>
-        </Card>
-
-        <Card className="bg-blue-600 border-none p-4 rounded-xl flex flex-col justify-between shadow-lg">
-          <Text className="text-blue-100 font-bold uppercase text-[10px]">Trạng thái hệ thống</Text>
-          <Text className="text-white text-[12px] font-black uppercase mt-2 flex items-center gap-2">
-            <MessageSquare size={14}/> Sẵn sàng quản lý dữ liệu
-          </Text>
-          <div className="mt-2 size-7 rounded-full bg-blue-400 flex items-center justify-center text-[10px] text-blue-900 font-black">
-            <CheckCircle size={16}/>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <section className="rounded-xl border border-slate-800 bg-slate-900/95 p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(2,6,23,0.45)]">
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
+            Review Management
           </div>
+          <Title className="mt-2 flex items-center gap-2 text-lg font-black uppercase tracking-tight text-slate-100">
+            Quản lý đánh giá <MessageSquare size={20} className="text-cyan-400" />
+          </Title>
+          <Text className="mt-1 text-sm text-slate-400">
+            Kiểm soát phản hồi từ người dùng và theo dõi chất lượng trải nghiệm tour.
+          </Text>
+        </div>
+      </section>
+
+      <Grid numItemsMd={2} numItemsLg={3} className="gap-4">
+        <Card className="rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-none">
+          <Text className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+            Xếp hạng trung bình
+          </Text>
+          <Flex justifyContent="start" alignItems="baseline" className="mt-2 gap-2">
+            <Metric className="text-2xl font-black text-slate-100">{avgRating}</Metric>
+            <div className="mb-1 flex">{renderStars(Math.round(Number(avgRating)))}</div>
+          </Flex>
+          <Text className="mt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-emerald-400">
+            Dữ liệu từ {reviews.length} đánh giá
+          </Text>
+        </Card>
+
+        <Card className="rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-none">
+          <Text className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+            Tổng phản hồi
+          </Text>
+          <Metric className="mt-2 text-2xl font-black text-amber-400">{reviews.length}</Metric>
+          <Text className="mt-2 text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+            Cập nhật thời gian thực
+          </Text>
+        </Card>
+
+        <Card className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 p-5 shadow-none">
+          <Text className="text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200">
+            Trạng thái hệ thống
+          </Text>
+          <Text className="mt-2 flex items-center gap-2 text-sm font-black uppercase text-white">
+            <CheckCircle size={15} />
+            Sẵn sàng quản lý dữ liệu
+          </Text>
         </Card>
       </Grid>
 
-      {/* FILTER BAR */}
-      <Card className="bg-slate-900 border-slate-800 rounded-xl p-4 shadow-xl">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" size={15} />
-            <input 
-              type="text"
-              placeholder="Tìm khách hàng hoặc nội dung đánh giá..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 pl-9 pr-4 text-[11px] text-slate-200 outline-none focus:border-blue-500/50 transition-all"
-            />
-          </div>
+      <Card className="rounded-xl border border-slate-800 bg-slate-900 p-4 shadow-none">
+        <div className="relative">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+            size={16}
+          />
+          <input
+            type="text"
+            placeholder="Tìm khách hàng hoặc nội dung đánh giá..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-xl border border-slate-800 bg-slate-950 py-3 pl-10 pr-4 text-sm text-slate-200 outline-none transition-all focus:border-cyan-500/40"
+          />
         </div>
       </Card>
 
-      {/* TABLE */}
-      <Card className="bg-slate-900 border-slate-800 rounded-xl p-0 overflow-hidden shadow-2xl">
+      <Card className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-0 shadow-none">
         <Table>
           <TableHead className="bg-slate-950/60">
             <TableRow>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500 p-5">Người dùng</TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500">Đánh giá nội dung</TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase text-slate-500 text-right">Thao tác</TableHeaderCell>
+              <TableHeaderCell className="p-5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                Người dùng
+              </TableHeaderCell>
+              <TableHeaderCell className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                Đánh giá nội dung
+              </TableHeaderCell>
+              <TableHeaderCell className="text-right text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                Thao tác
+              </TableHeaderCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {filteredReviews.map((r) => (
-              <TableRow key={r.id} className="hover:bg-slate-800/40 transition-colors border-b border-slate-800/50 group">
-                <TableCell className="p-4">
+            {filteredReviews.map((review) => (
+              <TableRow
+                key={review.id}
+                className="group border-b border-slate-800/50 transition-colors hover:bg-slate-800/30"
+              >
+                <TableCell className="p-5">
                   <Flex justifyContent="start" className="gap-3">
-                    <div className="size-9 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 text-slate-500 shrink-0">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-500">
                       <User size={18} />
                     </div>
+
                     <div>
-                      <Text className="font-bold text-slate-100 text-[11px] uppercase leading-tight">{r.userName || "Ẩn danh"}</Text>
-                      <Text className="text-[9px] text-slate-500 font-medium mt-0.5 tracking-tighter">
-                        ID: #{r.id}
+                      <Text className="text-[11px] font-bold uppercase leading-tight text-slate-100">
+                        {review.userName || 'Ẩn danh'}
+                      </Text>
+                      <Text className="mt-1 text-[10px] font-medium text-slate-500">
+                        ID: #{review.id}
                       </Text>
                     </div>
                   </Flex>
                 </TableCell>
-                
-                <TableCell className="max-w-md">
+
+                <TableCell className="max-w-md p-5">
                   <div className="flex gap-2">
-                    <Quote size={10} className="text-slate-700 shrink-0 mt-1"/>
+                    <Quote size={10} className="mt-1 shrink-0 text-slate-700" />
                     <div>
-                      <Text className="text-[11px] text-slate-300 italic line-clamp-2 leading-relaxed">"{r.comment}"</Text>
-                      <div className="flex items-center gap-3 mt-2">
-                        {renderStars(r.rating)}
-                        <Text className="text-[9px] text-slate-600 font-bold uppercase">
-                          {r.createdAt ? format(new Date(r.createdAt), 'dd/MM/yyyy HH:mm') : '---'}
+                      <Text className="line-clamp-2 text-sm italic leading-relaxed text-slate-300">
+                        "{review.comment}"
+                      </Text>
+                      <div className="mt-2 flex items-center gap-3">
+                        {renderStars(review.rating)}
+                        <Text className="text-[10px] font-medium uppercase tracking-[0.16em] text-slate-500">
+                          {review.createdAt
+                            ? format(new Date(review.createdAt), 'dd/MM/yyyy HH:mm')
+                            : '---'}
                         </Text>
                       </div>
                     </div>
                   </div>
                 </TableCell>
 
-                <TableCell className="text-right p-4">
+                <TableCell className="p-5 text-right">
                   <Flex justifyContent="end" className="gap-2">
-                    <button 
-                      className="p-2 text-slate-500 hover:text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all" 
+                    <button
+                      className="rounded-lg border border-emerald-500/15 bg-emerald-500/5 p-2.5 text-emerald-300 transition-colors hover:bg-emerald-500/10"
                       title="Duyệt nhanh"
                     >
-                      <CheckCircle size={18}/>
+                      <CheckCircle size={16} />
                     </button>
-                    <button 
-                      className="p-2 text-slate-500 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-all" 
+
+                    <button
+                      className="rounded-lg border border-amber-500/15 bg-amber-500/5 p-2.5 text-amber-300 transition-colors hover:bg-amber-500/10"
                       title="Gắn cờ"
                     >
-                      <XCircle size={18}/>
+                      <XCircle size={16} />
                     </button>
-                    <button 
-                      onClick={() => handleDelete(r.id)} 
-                      className="p-2 text-rose-500/60 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all" 
+
+                    <button
+                      onClick={() => handleDelete(review.id)}
+                      className="rounded-lg border border-rose-500/15 bg-rose-500/5 p-2.5 text-rose-300 transition-colors hover:bg-rose-500/10"
                       title="Xóa vĩnh viễn"
                     >
-                      <Trash2 size={18}/>
+                      <Trash2 size={16} />
                     </button>
                   </Flex>
                 </TableCell>
@@ -212,9 +264,9 @@ const AdminReviews = () => {
             ))}
           </TableBody>
         </Table>
-        
+
         {filteredReviews.length === 0 && (
-          <div className="p-16 text-center text-slate-500 font-bold uppercase text-[10px] tracking-widest opacity-40">
+          <div className="p-16 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
             Không có dữ liệu đánh giá
           </div>
         )}
