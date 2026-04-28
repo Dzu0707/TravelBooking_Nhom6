@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
-  ArrowLeft, ShieldCheck, Users, Calendar, 
-  ChevronRight, Ticket, Info, MapPin, Tag, CheckCircle2, CreditCard, Wallet
+  ArrowLeft, ShieldCheck, Calendar, 
+  ChevronRight, Ticket, MapPin, Tag, CreditCard, Wallet, XCircle, Clock, Zap,
+  Headphones, MessageSquare
 } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
@@ -21,8 +22,8 @@ const TourCheckout = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [note, setNote] = useState('');
-  
+  const [note, setNote] = useState(''); 
+
   const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
   const [voucherInput, setVoucherInput] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
@@ -50,18 +51,12 @@ const TourCheckout = () => {
       try {
         const tourRes = await axios.get(`${API_BASE_URL}/api/Tours/${id}`);
         setTour(tourRes.data);
-        
         try {
           const vRes = await axios.get(`${API_BASE_URL}/api/Vouchers`, config);
           setSystemVouchers(Array.isArray(vRes.data) ? vRes.data : []);
-        } catch (vErr) { 
-          console.warn("Voucher fetch restricted"); 
-        }
+        } catch (vErr) { console.warn("Voucher fetch restricted"); }
         setLoading(false);
-      } catch (error) { 
-        console.error("Fetch error:", error);
-        setLoading(false); 
-      }
+      } catch (error) { setLoading(false); }
     };
     fetchData();
   }, [id]);
@@ -74,70 +69,71 @@ const TourCheckout = () => {
   const subTotal = useMemo(() => {
     const aPrice = Number(selectedSchedule?.adultPrice || 0);
     const cPrice = Number(selectedSchedule?.childPrice || 0);
-    const total = (adultCount * aPrice) + (childCount * cPrice);
-    return isNaN(total) ? 0 : total;
+    return (adultCount * aPrice) + (childCount * cPrice);
   }, [adultCount, childCount, selectedSchedule]);
 
   const discountAmount = useMemo(() => {
     if (!appliedVoucher) return 0;
     const val = Number(appliedVoucher.discountValue ?? appliedVoucher.DiscountValue ?? 0);
     const type = String(appliedVoucher.discountType ?? appliedVoucher.DiscountType ?? "").toLowerCase();
-    if (isNaN(val)) return 0;
     return type.includes('percent') ? (subTotal * val) / 100 : val;
   }, [appliedVoucher, subTotal]);
 
   const totalAmount = useMemo(() => Math.max(0, subTotal - discountAmount), [subTotal, discountAmount]);
 
-  const validateForm = () => {
-    if (!fullName.trim() || fullName.trim().split(" ").length < 2) {
-      toast.error("Vui lòng nhập đầy đủ Họ và Tên!");
-      return false;
-    }
-    const phoneRegex = /^(0[3|5|7|8|9])([0-9]{8})$/;
-    if (!phoneRegex.test(phone)) {
-      toast.error("Số điện thoại không hợp lệ!");
-      return false;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Email không đúng định dạng!");
-      return false;
-    }
-    return true;
-  };
-
+  // --- LOGIC XỬ LÝ VOUCHER ĐÃ CẬP NHẬT ---
   const handleApplyVoucher = async () => {
     const code = voucherInput.trim().toUpperCase();
     if (!code) return toast.error("Vui lòng nhập mã!");
-    const localVoucher = systemVouchers.find(v => (v.code || v.Code || "").toUpperCase() === code);
-    if (localVoucher) {
-      setAppliedVoucher(localVoucher);
+
+    const v = systemVouchers.find(item => (item.code || item.Code || "").toUpperCase() === code);
+    
+    if (v) {
+      // 1. Kiểm tra ngày hết hạn
+      const expiry = new Date(v.expiryDate || v.ExpiryDate);
+      if (expiry < new Date()) {
+        return toast.error("Mã giảm giá này đã hết hạn sử dụng!");
+      }
+
+      // 2. Kiểm tra số lượng lượt dùng (Quantity)
+      // Lưu ý: Đảm bảo trường này từ API trả về số lượng CÒN LẠI
+      const qty = Number(v.quantity || v.Quantity || 0);
+      if (qty <= 0) {
+        return toast.error("Mã giảm giá này đã hết lượt sử dụng!");
+      }
+
+      // 3. Kiểm tra đơn hàng tối thiểu
+      const minOrder = Number(v.minOrderAmount || v.MinOrderAmount || 0);
+      if (subTotal < minOrder) {
+        return toast.error(`Đơn hàng tối thiểu ${minOrder.toLocaleString()}đ để dùng mã này!`);
+      }
+
+      setAppliedVoucher(v);
       toast.success("Áp dụng mã thành công!");
     } else {
+      // Nếu không tìm thấy trong list có sẵn, gọi API validate trực tiếp để server kiểm tra database mới nhất
       const loadId = toast.loading("Đang kiểm tra mã...");
       try {
         const token = localStorage.getItem('token');
+        // Gửi kèm subTotal để server check MinOrder và số lượng thực tế trong DB
         const res = await axios.post(`${API_BASE_URL}/api/Vouchers/validate`, 
           { code, orderAmount: subTotal }, 
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        if (res.data) {
-          setAppliedVoucher(res.data);
-          toast.success("Áp dụng mã thành công!", { id: loadId });
-        }
+        
+        setAppliedVoucher(res.data);
+        toast.success("Áp dụng mã thành công!", { id: loadId });
       } catch (err: any) {
-        toast.error(err.response?.data?.message || "Mã không hợp lệ", { id: loadId });
+        // Server nên trả về lỗi 400 kèm message "Hết lượt dùng" hoặc "Hết hạn"
+        toast.error(err.response?.data?.message || "Mã không hợp lệ hoặc đã hết lượt dùng", { id: loadId });
       }
     }
   };
 
-  // --- HÀM SUBMIT ĐÃ ĐƯỢC CẬP NHẬT ĐỂ KHÔNG BỊ UNDEFINED ---
   const handleSubmit = async () => {
+    if (!fullName.trim() || !phone.trim() || !email.trim()) return toast.error("Vui lòng điền đầy đủ thông tin!");
     const token = localStorage.getItem('token');
-    if (!token) return toast.error("Vui lòng đăng nhập để đặt tour!");
-    if (!validateForm()) return;
-
-    const loadId = toast.loading("Đang xử lý đặt tour...");
+    const loadId = toast.loading("Đang xử lý...");
     try {
       const data = {
         tourScheduleId: Number(selectedSchedule?.id),
@@ -146,180 +142,170 @@ const TourCheckout = () => {
         fullName: fullName.trim(),
         email: email.trim(),
         phone: phone.trim(),
-        note: note.trim(),
+        note: note.trim(), 
         adultCount,
         childCount,
-        paymentMethod, 
+        paymentMethod: paymentMethod,
         voucherCode: appliedVoucher?.code || appliedVoucher?.Code || null
       };
+      
+      const response = await axios.post(`${API_BASE_URL}/api/Bookings`, data, { headers: { Authorization: `Bearer ${token}` } });
+      
+      const orderCode = response.data.orderCode;
+      const history = JSON.parse(localStorage.getItem('checkout_history') || '{}');
+      history[orderCode] = { fullName: fullName.trim(), phone: phone.trim(), email: email.trim() };
+      localStorage.setItem('checkout_history', JSON.stringify(history));
 
-      const response = await axios.post(`${API_BASE_URL}/api/Bookings`, data, { 
-        headers: { Authorization: `Bearer ${token}` } 
-      });
-
-      // Lấy ID từ phản hồi của Backend (Thử cả chữ thường và chữ hoa tùy theo API)
-      const bookingId = response.data.id || response.data.BookingId || response.data.bookingId;
-
-      if (!bookingId) {
-        console.error("Dữ liệu trả về không có ID:", response.data);
-        toast.error("Lỗi: Không nhận được mã đơn hàng từ hệ thống!", { id: loadId });
-        return;
-      }
-
-      toast.success("Ghi nhận đơn đặt tour!", { id: loadId });
-
+      const bookingId = response.data.id || response.data.bookingId;
+      toast.success("Đặt tour thành công!", { id: loadId });
+      
       if (paymentMethod === 'online') {
-        // Sử dụng bookingId chắc chắn đã lấy được ở trên
         setTimeout(() => navigate(`/payment-gateway?bookingId=${bookingId}&amount=${totalAmount}`), 1000);
       } else {
         setTimeout(() => navigate('/my-bookings'), 1500);
       }
-
     } catch (error: any) { 
-      const errorMsg = error.response?.data || "Lỗi hệ thống, vui lòng thử lại!";
-      toast.error(errorMsg, { id: loadId }); 
+      toast.error(error.response?.data?.message || error.response?.data || "Lỗi hệ thống!", { id: loadId }); 
     }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center font-black text-indigo-600 uppercase italic">Đang tải dữ liệu...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center font-black text-indigo-600 italic tracking-[0.5em]">LOADING...</div>;
 
   return (
     <div className="bg-[#f8faff] min-h-screen pb-20 font-sans text-slate-900">
-      <div className="max-w-6xl mx-auto px-4 pt-12">
-        <button onClick={() => navigate(-1)} className="group flex items-center text-slate-400 mb-10 font-black uppercase text-[10px] tracking-[0.4em] hover:text-indigo-600 transition-all outline-none">
-          <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform"/> QUAY LẠI
+      <div className="max-w-6xl mx-auto px-4 pt-6"> 
+        <button onClick={() => navigate(-1)} className="group flex items-center text-slate-400 mb-6 transition-all hover:text-indigo-600">
+          <ArrowLeft size={14} strokeWidth={2} className="mr-2 group-hover:-translate-x-1 transition-transform"/> 
+          <span className="text-[11px] font-medium uppercase tracking-[0.2em]">Quay lại</span>
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* CỘT TRÁI */}
-          <div className="lg:col-span-7 space-y-8">
-            <div className="bg-white p-10 md:p-12 rounded-[3.5rem] shadow-2xl shadow-indigo-100/20 border border-white">
-              <h2 className="text-2xl font-black text-slate-800 mb-10 uppercase italic flex items-center gap-4">
-                <div className="w-2.5 h-10 bg-indigo-600 rounded-full"></div> THÔNG TIN LIÊN LẠC
-              </h2>
-
-              <div className="space-y-8">
-                <div className="flex items-center gap-4 bg-indigo-50 text-indigo-600 p-5 rounded-[2rem] border border-indigo-100/50">
-                  <Info size={22} />
-                  <p className="text-[11px] font-black uppercase tracking-widest text-indigo-700">Kiểm tra kỹ thông tin trước khi xác nhận.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 ml-5 uppercase tracking-widest">Họ và tên *</label>
-                    <input value={fullName} onChange={e => setFullName(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.8rem] p-5 text-sm font-bold outline-none transition-all" placeholder="Nguyễn Văn A" />
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black text-slate-400 ml-5 uppercase tracking-widest">Số điện thoại *</label>
-                    <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.8rem] p-5 text-sm font-bold outline-none transition-all" placeholder="090..." />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 ml-5 uppercase tracking-widest">Địa chỉ Email *</label>
-                  <input value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.8rem] p-5 text-sm font-bold outline-none transition-all" placeholder="example@gmail.com" />
-                </div>
-
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 ml-5 uppercase tracking-widest">Yêu cầu đặc biệt</label>
-                  <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.8rem] p-5 text-sm font-medium outline-none transition-all resize-none" placeholder="Ghi chú thêm về dịch vụ..." />
-                </div>
-
-                {/* PHƯƠNG THỨC THANH TOÁN */}
-                <div className="pt-10 border-t border-slate-100">
-                  <div className="flex items-center gap-3 mb-6"><Wallet size={20} className="text-indigo-600" /><h3 className="text-[12px] font-black uppercase text-slate-800 tracking-widest">Phương thức thanh toán</h3></div>
-                  <div className="grid grid-cols-1 gap-4">
-                    <PaymentOption 
-                      active={paymentMethod === 'cod'} 
-                      onClick={() => setPaymentMethod('cod')}
-                      title="Thanh toán khi khởi hành"
-                      desc="Trả trực tiếp cho hướng dẫn viên"
-                    />
-                    <PaymentOption 
-                      active={paymentMethod === 'online'} 
-                      onClick={() => setPaymentMethod('online')}
-                      title="Chuyển khoản / Cổng thanh toán"
-                      desc="Thanh toán ngay qua QR hoặc Thẻ"
-                      icon={<CreditCard size={20} className="text-slate-400" />}
-                    />
-                  </div>
-                </div>
-
-                {/* VOUCHER & SỐ KHÁCH */}
-                <div className="grid grid-cols-1 gap-10 pt-10 border-t border-slate-100">
-                  <div>
-                    <div className="flex items-center gap-3 mb-6"><Tag size={20} className="text-indigo-600" /><h3 className="text-[12px] font-black uppercase text-slate-800 tracking-widest">Ưu đãi / Voucher</h3></div>
-                    <div className="flex gap-4">
-                      <div className="relative flex-1">
-                        <input value={voucherInput} onChange={e => setVoucherInput(e.target.value)} disabled={!!appliedVoucher} className="w-full bg-slate-100 rounded-[1.8rem] p-5 text-sm font-black uppercase tracking-widest outline-none" placeholder="NHẬP MÃ..." />
-                        {appliedVoucher && <CheckCircle2 className="absolute right-6 top-1/2 -translate-y-1/2 text-emerald-500" size={24} />}
-                      </div>
-                      {appliedVoucher ? (
-                        <button onClick={() => {setAppliedVoucher(null); setVoucherInput('')}} className="px-8 bg-slate-200 rounded-[1.8rem] font-black text-[11px] uppercase transition-colors hover:bg-slate-300">Gỡ mã</button>
-                      ) : (
-                        <button onClick={handleApplyVoucher} className="px-10 bg-indigo-600 text-white rounded-[1.8rem] font-black text-[11px] uppercase shadow-xl hover:bg-indigo-700 transition-all">Áp dụng</button>
-                      )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          <div className="lg:col-span-7 flex">
+            <div className="bg-white p-10 rounded-[3rem] shadow-xl border border-white w-full flex flex-col justify-between">
+              <div>
+                <h2 className="text-xl font-black text-slate-800 mb-8 uppercase italic flex items-center gap-4">
+                  <div className="w-2 h-8 bg-indigo-600 rounded-full"></div> THÔNG TIN ĐẶT CHỖ
+                </h2>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 ml-4 uppercase tracking-widest italic">Họ và tên *</label>
+                      <input value={fullName} onChange={e => setFullName(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-4 text-sm font-bold outline-none transition-all" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 ml-4 uppercase tracking-widest italic">Số điện thoại *</label>
+                      <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-4 text-sm font-bold outline-none transition-all" />
                     </div>
                   </div>
-
-                  <div>
-                    <div className="flex items-center gap-3 mb-8"><Users size={22} className="text-indigo-600" /><h3 className="text-[12px] font-black uppercase text-slate-800 tracking-widest">Hành khách</h3></div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Counter label="Người lớn" count={adultCount} setCount={setAdultCount} min={1} />
-                      <Counter label="Trẻ em" count={childCount} setCount={setChildCount} min={0} />
-                    </div>
+                  <div className="space-y-2 pb-2">
+                    <label className="text-[10px] font-black text-slate-400 ml-4 uppercase tracking-widest italic">Email xác nhận *</label>
+                    <input value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-4 text-sm font-bold outline-none transition-all" />
                   </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 ml-4 uppercase tracking-widest italic flex items-center gap-2">
+                      <MessageSquare size={14} className="text-indigo-600"/> Yêu cầu đặc biệt
+                    </label>
+                    <textarea 
+                      value={note} 
+                      onChange={e => setNote(e.target.value)}
+                      placeholder="Ví dụ: Có trẻ em đi cùng, dị ứng hải sản, cần hỗ trợ xe lăn hoặc vị trí chỗ ngồi..."
+                      rows={3}
+                      className="w-full bg-slate-50 border-2 border-transparent focus:border-indigo-100 focus:bg-white rounded-[1.5rem] p-5 text-sm font-bold outline-none transition-all resize-none shadow-inner"
+                    />
+                  </div>
+
+                  <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <ServiceCommit icon={<Clock size={18}/>} title="Xác nhận tức thì" desc="Sau khi thanh toán" />
+                    <ServiceCommit icon={<ShieldCheck size={18}/>} title="Bảo hiểm du lịch" desc="Mức bồi thường cao" />
+                    <ServiceCommit icon={<Zap size={18}/>} title="Hỗ trợ 24/7" desc="Hotline & Zalo" />
+                    <ServiceCommit icon={<Headphones size={18}/>} title="HDV Tận Tâm" desc="Nhiều kinh nghiệm" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-slate-100 mt-8">
+                <div className="flex items-center gap-3 mb-6"><Wallet size={20} className="text-indigo-600" /><h3 className="text-[11px] font-black uppercase text-slate-800 tracking-widest">Phương thức thanh toán</h3></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <PaymentOption active={paymentMethod === 'cod'} onClick={() => setPaymentMethod('cod')} title="Thanh toán khi đi" desc="Trả tiền mặt cho HDV" icon={<Wallet size={18} className="text-slate-400" />} />
+                  <PaymentOption active={paymentMethod === 'online'} onClick={() => setPaymentMethod('online')} title="Thanh toán Online" desc="VNPay / QR / ATM" icon={<CreditCard size={18} className="text-slate-400" />} />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* CỘT PHẢI */}
-          <div className="lg:col-span-5 space-y-8">
-            <div className="bg-[#1a237e] rounded-[4rem] p-10 md:p-12 text-white shadow-2xl relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 opacity-5 rotate-12"><Ticket size={300} /></div>
-                <h3 className="text-2xl font-black mb-10 uppercase italic relative z-10">Tóm tắt đơn hàng</h3>
+          <div className="lg:col-span-5 flex">
+            <div className="bg-[#1a237e] rounded-[3.5rem] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden flex flex-col w-full">
+                <div className="absolute -top-10 -right-10 opacity-5 rotate-12"><Ticket size={250} /></div>
                 
-                <div className="flex gap-6 mb-12 relative z-10 bg-white/10 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-md">
-                  <img src={getImgUrl(tour?.thumbnail || tour?.imageUrl)} className="w-24 h-24 rounded-[2rem] object-cover border-2 border-white/20 shadow-2xl" alt="" />
+                <div className="flex gap-5 mb-8 relative z-10 bg-white/10 p-5 rounded-[2rem] border border-white/10 backdrop-blur-md">
+                  <img src={getImgUrl(tour?.thumbnail || tour?.imageUrl)} className="w-20 h-20 rounded-2xl object-cover border-2 border-white/20 shadow-xl" alt="" />
                   <div className="flex flex-col justify-center">
-                    <h4 className="font-black text-md uppercase italic line-clamp-2 leading-tight mb-3 tracking-tighter">{tour?.name}</h4>
-                    <div className="space-y-1.5 opacity-80">
-                      <p className="text-[10px] uppercase font-bold flex items-center gap-2">
-                        <Calendar size={14} className="text-amber-400"/> {formatDate(selectedSchedule?.departureDate)}
-                      </p>
-                      <p className="text-[10px] uppercase font-bold flex items-center gap-2">
-                        <MapPin size={14} className="text-amber-400"/> {tour?.departureLocation || 'TP.HCM'}
-                      </p>
+                    <h4 className="font-black text-sm uppercase italic line-clamp-2 leading-tight mb-2 tracking-tighter">{tour?.name}</h4>
+                    <p className="text-[9px] uppercase font-bold flex items-center gap-2 opacity-70">
+                        <Calendar size={12} className="text-amber-400"/> {formatDate(selectedSchedule?.departureDate)}
+                    </p>
+                    <p className="text-[9px] uppercase font-bold flex items-center gap-2 opacity-70">
+                        <MapPin size={12} className="text-amber-400"/> {tour?.departureLocation || 'TP.HCM'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6 relative z-10 flex-grow">
+                  <div className="space-y-4 bg-black/20 p-5 rounded-[2.5rem] border border-white/5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest">Người lớn</span>
+                        <span className="text-[9px] opacity-60">{(selectedSchedule?.adultPrice || 0).toLocaleString()}đ</span>
+                      </div>
+                      <InlineCounter count={adultCount} setCount={setAdultCount} min={1} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-widest">Trẻ em</span>
+                        <span className="text-[9px] opacity-60">{(selectedSchedule?.childPrice || 0).toLocaleString()}đ</span>
+                      </div>
+                      <InlineCounter count={childCount} setCount={setChildCount} min={0} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                          <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={14} />
+                          <input value={voucherInput} onChange={e => setVoucherInput(e.target.value)} disabled={!!appliedVoucher} placeholder="MÃ GIẢM GIÁ" className="w-full bg-white/10 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-[10px] font-black uppercase outline-none focus:bg-white/20 transition-all" />
+                      </div>
+                      {appliedVoucher ? (
+                        <button onClick={() => {setAppliedVoucher(null); setVoucherInput('')}} className="bg-red-500/20 text-red-400 p-3.5 rounded-xl"><XCircle size={18}/></button>
+                      ) : (
+                        <button onClick={handleApplyVoucher} className="bg-amber-400 text-indigo-900 px-6 py-3.5 rounded-xl font-black text-[10px] uppercase hover:bg-amber-300 transition-all">DÙNG</button>
+                      )}
+                    </div>
+
+                    <div className="flex justify-between text-[11px] font-black uppercase opacity-40 pt-4 tracking-widest">
+                      <span>Tạm tính</span>
+                      <span>{subTotal.toLocaleString()}đ</span>
+                    </div>
+
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-[11px] font-black uppercase text-emerald-400 tracking-widest">
+                        <span>Voucher giảm giá</span>
+                        <span>-{discountAmount.toLocaleString()}đ</span>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col pt-6 border-t border-white/10">
+                      <span className="text-[10px] font-black uppercase italic tracking-[0.4em] opacity-40 mb-2">Tổng thanh toán</span>
+                      <span className="text-5xl font-black tracking-tighter text-amber-400 drop-shadow-2xl">{totalAmount.toLocaleString()}đ</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-5 pt-8 border-t border-white/10 relative z-10">
-                  <div className="flex justify-between text-[12px] font-bold uppercase opacity-50 tracking-widest">
-                    <span>Tạm tính ({adultCount}L + {childCount}T)</span>
-                    <span>{subTotal.toLocaleString()}đ</span>
-                  </div>
-                  {discountAmount > 0 && (
-                    <div className="flex justify-between text-[12px] font-black uppercase text-emerald-400 tracking-widest">
-                      <span>Giảm giá Voucher</span>
-                      <span>-{discountAmount.toLocaleString()}đ</span>
-                    </div>
-                  )}
-                  <div className="flex flex-col pt-10 border-t border-white/10">
-                    <span className="text-[11px] font-black uppercase italic tracking-[0.4em] opacity-40 mb-3">Tổng cộng</span>
-                    <span className="text-6xl font-black tracking-tighter text-amber-400 drop-shadow-2xl">{totalAmount.toLocaleString()}đ</span>
-                  </div>
+                <div className="relative z-10 pt-8 mt-auto">
+                  <button onClick={handleSubmit} className="w-full bg-indigo-500 hover:bg-indigo-400 text-white py-6 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.4em] flex items-center justify-center gap-3 transition-all shadow-xl hover:scale-[1.02]">
+                    {paymentMethod === 'online' ? 'TIẾN HÀNH THANH TOÁN' : 'XÁC NHẬN ĐẶT TOUR'} <ChevronRight size={20} />
+                  </button>
                 </div>
-            </div>
-
-            <div className="bg-white p-10 md:p-12 rounded-[4rem] shadow-xl border border-indigo-50 text-center">
-               <button onClick={handleSubmit} className="w-full bg-indigo-600 hover:bg-[#1a237e] text-white py-8 rounded-[2.5rem] font-black uppercase text-[12px] tracking-[0.4em] flex items-center justify-center gap-3 transition-all shadow-2xl shadow-indigo-100 hover:scale-[1.02]">
-                 {paymentMethod === 'online' ? 'TIẾN HÀNH THANH TOÁN' : 'XÁC NHẬN ĐẶT TOUR'} <ChevronRight size={20} />
-               </button>
-               <p className="mt-8 text-[10px] font-black uppercase text-slate-300 tracking-widest italic flex items-center justify-center gap-2">
-                 <ShieldCheck size={14} className="text-emerald-500" /> Thanh toán an toàn & bảo mật
-               </p>
             </div>
           </div>
         </div>
@@ -328,30 +314,34 @@ const TourCheckout = () => {
   );
 };
 
+const ServiceCommit = ({ icon, title, desc }: any) => (
+  <div className="flex gap-3 items-center">
+    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">{icon}</div>
+    <div>
+      <p className="text-[10px] font-black uppercase">{title}</p>
+      <p className="text-[9px] text-slate-400 font-bold uppercase">{desc}</p>
+    </div>
+  </div>
+);
+
 const PaymentOption = ({ active, onClick, title, desc, icon }: any) => (
-  <div 
-    onClick={onClick}
-    className={`p-6 rounded-[2rem] border-2 cursor-pointer transition-all flex items-center gap-5 ${active ? 'border-indigo-600 bg-indigo-50' : 'border-slate-100 hover:border-indigo-200 bg-slate-50/50'}`}
-  >
-    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${active ? 'border-indigo-600' : 'border-slate-300'}`}>
-      {active && <div className="w-3 h-3 bg-indigo-600 rounded-full"></div>}
+  <div onClick={onClick} className={`p-5 rounded-[1.8rem] border-2 cursor-pointer transition-all flex items-center gap-4 h-full ${active ? 'border-indigo-600 bg-indigo-50' : 'border-slate-50 bg-slate-50/50 hover:border-indigo-100'}`}>
+    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${active ? 'border-indigo-600' : 'border-slate-300'}`}>
+      {active && <div className="w-2.5 h-2.5 bg-indigo-600 rounded-full"></div>}
     </div>
     <div className="flex-1">
-      <p className="text-[12px] font-black uppercase tracking-tight">{title}</p>
-      <p className="text-[10px] text-slate-400 font-bold uppercase">{desc}</p>
+      <p className="text-[11px] font-black uppercase tracking-tight leading-tight">{title}</p>
+      <p className="text-[9px] text-slate-400 font-bold uppercase mt-1">{desc}</p>
     </div>
     {icon}
   </div>
 );
 
-const Counter = ({ label, count, setCount, min }: any) => (
-  <div className="bg-slate-50 p-6 rounded-[2.2rem] flex items-center justify-between border border-white">
-    <span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">{label}</span>
-    <div className="flex items-center gap-6">
-      <button onClick={() => setCount(Math.max(min, count - 1))} className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center font-black text-slate-800 hover:bg-indigo-600 hover:text-white transition-all outline-none">-</button>
-      <span className="font-black text-indigo-600 text-xl w-6 text-center">{count}</span>
-      <button onClick={() => setCount(count + 1)} className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center font-black text-slate-800 hover:bg-indigo-600 hover:text-white transition-all outline-none">+</button>
-    </div>
+const InlineCounter = ({ count, setCount, min }: any) => (
+  <div className="flex items-center gap-4 bg-white/10 rounded-2xl p-1.5 border border-white/5">
+    <button onClick={() => setCount(Math.max(min, count - 1))} className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center font-black text-white hover:bg-white/20 transition-all">-</button>
+    <span className="font-black text-amber-400 text-sm w-4 text-center">{count}</span>
+    <button onClick={() => setCount(count + 1)} className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center font-black text-white hover:bg-white/40 transition-all">+</button>
   </div>
 );
 
