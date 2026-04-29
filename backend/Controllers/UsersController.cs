@@ -12,9 +12,13 @@ namespace TravelTour.API.Controllers;
 public class UsersController : ControllerBase 
 {
     private readonly TravelDbContext _context;
-    public UsersController(TravelDbContext context) => _context = context;
+    
+    public UsersController(TravelDbContext context) 
+    {
+        _context = context;
+    }
 
-    // LẤY DANH SÁCH TẤT CẢ USER (Chỉ Admin)
+    // 1. LẤY DANH SÁCH TẤT CẢ USER (Chỉ dành cho Admin)
     [HttpGet] 
     [Authorize(Roles = "Admin")] 
     public async Task<IActionResult> GetAll() 
@@ -26,6 +30,7 @@ public class UsersController : ControllerBase
                 u.FullName,
                 u.Email,
                 u.Phone,
+                u.Address,
                 u.IsLocked,
                 u.CreatedAt,
                 RoleName = u.Role != null ? u.Role.Name : "N/A"
@@ -34,7 +39,7 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
     
-    // LẤY THÔNG TIN CÁ NHÂN (User đang đăng nhập)
+    // 2. LẤY THÔNG TIN CÁ NHÂN (Dành cho User đang đăng nhập)
     [HttpGet("profile")]
     [Authorize]
     public async Task<IActionResult> GetProfile() 
@@ -50,15 +55,17 @@ public class UsersController : ControllerBase
         if (user == null) 
             return NotFound(new { message = "Người dùng không tồn tại!" });
 
+        // Trả về đầy đủ thông tin bao gồm Address
         return Ok(new { 
             user.FullName, 
             user.Email, 
             user.Phone,
+            user.Address, 
             Role = user.Role?.Name 
         });
     }
 
-    // KHÓA / MỞ KHÓA TÀI KHOẢN (Chỉ Admin)
+    // 3. KHÓA / MỞ KHÓA TÀI KHOẢN (Chỉ dành cho Admin)
     [HttpPut("{id}/toggle-lock")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> ToggleLock(int id)
@@ -72,14 +79,12 @@ public class UsersController : ControllerBase
         return Ok(new { message = user.IsLocked ? "Đã khóa tài khoản" : "Đã mở khóa tài khoản" });
     }
 
-    // ====================================================================
-    // API CẬP NHẬT THÔNG TIN CÁ NHÂN
-    // ====================================================================
+    // 4. API CẬP NHẬT THÔNG TIN CÁ NHÂN
     [HttpPut("update-profile")]
-    [Authorize] // Bắt buộc phải có token đăng nhập
+    [Authorize] 
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
-        // 1. Lấy Email của người dùng hiện tại từ Token
+        // 1. Lấy Email từ Token
         var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
         if (string.IsNullOrEmpty(userEmail)) 
             return Unauthorized(new { message = "Không xác định được danh tính!" });
@@ -89,9 +94,10 @@ public class UsersController : ControllerBase
         if (user == null) 
             return NotFound(new { message = "Người dùng không tồn tại!" });
 
-        // 3. Cập nhật thông tin cơ bản
+        // 3. Cập nhật các trường thông tin
         user.FullName = request.FullName;
         user.Phone = request.Phone;
+        user.Address = request.Address; // Cập nhật địa chỉ
 
         // 4. Kiểm tra và cập nhật Email nếu có thay đổi
         if (!string.IsNullOrEmpty(request.Email) && request.Email != user.Email)
@@ -103,7 +109,7 @@ public class UsersController : ControllerBase
             user.Email = request.Email;
         }
 
-        // 5. Kiểm tra và cập nhật Mật khẩu (Sử dụng PasswordHash và BCrypt)
+        // 5. Kiểm tra và cập nhật Mật khẩu nếu có
         if (!string.IsNullOrEmpty(request.NewPassword))
         {
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword); 

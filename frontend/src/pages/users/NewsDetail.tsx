@@ -10,18 +10,18 @@ const NewsDetail = () => {
   useEffect(() => {
     if (!slug) return;
 
-    axios.get(`http://localhost:5091/api/public/news/${slug}`)
+    // SỬA: Đường dẫn đúng là /api/news/slug/ + slug
+    axios.get(`http://localhost:5091/api/news/slug/${slug}`)
       .then((res) => setItem(res.data))
+      .catch((err) => {
+          console.error(err);
+          setItem(null);
+      })
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) {
-    return <div className="text-sm font-bold uppercase text-slate-400">Đang tải bài viết...</div>;
-  }
-
-  if (!item) {
-    return <div className="text-sm font-bold uppercase text-rose-500">Bài viết không tồn tại</div>;
-  }
+  if (loading) return <div className="p-10 text-center">Đang tải bài viết...</div>;
+  if (!item) return <div className="p-10 text-center text-rose-500 font-bold">Bài viết không tồn tại</div>;
 
   return (
     <article className="mx-auto max-w-4xl space-y-8">
@@ -30,13 +30,14 @@ const NewsDetail = () => {
       )}
 
       <div className="space-y-4">
-        <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">{item.category?.name}</div>
+        {/* SỬA: Dùng item.categoryName */}
+        <div className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">{item.categoryName}</div>
         <h1 className="text-4xl font-black leading-tight text-slate-900">{item.title}</h1>
         <p className="text-lg text-slate-500">{item.summary}</p>
       </div>
 
       <div className="flex flex-wrap gap-3 text-xs font-semibold text-slate-500">
-        <span>Tác giả: {item.author}</span>
+        <span>Tác giả: {item.authorName}</span>
         <span>Lượt xem: {item.viewCount}</span>
       </div>
 

@@ -18,6 +18,7 @@ import TourCheckout from './pages/users/TourCheckout';
 import PaymentGateway from './pages/users/PaymentGateway';
 import NewsList from './pages/users/NewsList';
 import NewsDetail from './pages/users/NewsDetail';
+import Profile from './pages/users/Profile'; // Đã thêm import Profile
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -32,7 +33,6 @@ import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminNews from './pages/admin/AdminNews';
 import AdminMedia from './pages/admin/AdminMedia';
-
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -132,6 +132,7 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/my-bookings" element={<MyBookings />} />
+          <Route path="/profile" element={<Profile />} /> {/* Đã thêm Route Profile */}
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>

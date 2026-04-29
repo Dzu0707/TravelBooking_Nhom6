@@ -20,6 +20,10 @@ public class User
     public int RoleId { get; set; }
 
     public string Phone { get; set; } = string.Empty;
+
+    // THÊM THUỘC TÍNH ADDRESS VÀO ĐÂY
+    public string Address { get; set; } = string.Empty;
+
     public virtual Role? Role { get; set; }
 
     public bool IsLocked { get; set; } = false;
@@ -37,7 +41,7 @@ public class User
 
     [JsonIgnore]
     public virtual ICollection<NewsPost> PublishedNewsPosts { get; set; } = new List<NewsPost>();
+
     [JsonIgnore]
     public virtual ICollection<MediaAsset> UploadedMediaAssets { get; set; } = new List<MediaAsset>();
-
 }
