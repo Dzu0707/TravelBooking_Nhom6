@@ -30,7 +30,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel Tour API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-        Description = "Bearer [token]",
+        Description = "Nhập token theo định dạng: Bearer {token}",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -72,23 +72,23 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// --- 6. CẤU HÌNH STATIC FILES CHO /uploads/tours/ ---
-// Đường dẫn vật lý đến thư mục "Uploads" (viết hoa chữ cái đầu cho đúng chuẩn Windows/Linux folder)
+// --- 6. CẤU HÌNH STATIC FILES CHO UPLOADS ---
+// Tạo folder "Uploads" tại thư mục gốc nếu chưa có
 var physicalPath = Path.Combine(app.Environment.ContentRootPath, "Uploads");
-
 if (!Directory.Exists(physicalPath))
 {
     Directory.CreateDirectory(physicalPath);
 }
 
-app.UseStaticFiles(); // Cho wwwroot (mặc định)
-
-// Cấu hình để hiểu đường dẫn URL "/uploads" (viết thường) trỏ vào folder "Uploads"
+// Cho phép truy cập file tĩnh trong thư mục "Uploads" thông qua URL "/uploads"
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(physicalPath),
     RequestPath = "/uploads" 
 });
+
+// Cho phép truy cập file trong wwwroot (mặc định)
+app.UseStaticFiles(); 
 
 // 7. Middleware Pipeline
 app.UseCors("AllowAll");

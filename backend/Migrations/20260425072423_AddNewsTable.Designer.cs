@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelTour.API.Data;
 
@@ -11,9 +12,11 @@ using TravelTour.API.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(TravelDbContext))]
-    partial class TravelDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260425072423_AddNewsTable")]
+    partial class AddNewsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,29 +65,8 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AdultCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChildCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContactPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("SpecialRequest")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -119,11 +101,6 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            AdultCount = 0,
-                            ChildCount = 0,
-                            ContactEmail = "",
-                            ContactName = "",
-                            ContactPhone = "",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Confirmed",
                             TotalPassengers = 2,
@@ -203,182 +180,6 @@ namespace backend.Migrations
                             Description = "Trải nghiệm không khí vùng cao",
                             Name = "Du lịch Núi"
                         });
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.MediaAsset", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AltText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UploadedById")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UploadedById");
-
-                    b.ToTable("MediaAssets");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("NewsCategories");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsPost", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsFeatured")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("PublishedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("PublishedById")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Summary")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ThumbnailUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ViewCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("PublishedById");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("NewsPosts");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsTag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("NewsTags");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsTagMap", b =>
-                {
-                    b.Property<int>("NewsPostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NewsTagId")
-                        .HasColumnType("int");
-
-                    b.HasKey("NewsPostId", "NewsTagId");
-
-                    b.HasIndex("NewsTagId");
-
-                    b.ToTable("NewsTagMaps");
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.Review", b =>
@@ -661,10 +462,6 @@ namespace backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -703,7 +500,6 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            Address = "",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@travel.com",
                             FullName = "Nguyễn Admin",
@@ -715,7 +511,6 @@ namespace backend.Migrations
                         new
                         {
                             Id = 2,
-                            Address = "",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "user@gmail.com",
                             FullName = "Trần Khách Hàng",
@@ -812,62 +607,6 @@ namespace backend.Migrations
                     b.Navigation("Booking");
                 });
 
-            modelBuilder.Entity("TravelTour.API.Models.MediaAsset", b =>
-                {
-                    b.HasOne("TravelTour.API.Models.User", "UploadedBy")
-                        .WithMany("UploadedMediaAssets")
-                        .HasForeignKey("UploadedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("UploadedBy");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsPost", b =>
-                {
-                    b.HasOne("TravelTour.API.Models.User", "Author")
-                        .WithMany("AuthoredNewsPosts")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TravelTour.API.Models.NewsCategory", "Category")
-                        .WithMany("NewsPosts")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("TravelTour.API.Models.User", "PublishedBy")
-                        .WithMany("PublishedNewsPosts")
-                        .HasForeignKey("PublishedById")
-                        .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Author");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("PublishedBy");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsTagMap", b =>
-                {
-                    b.HasOne("TravelTour.API.Models.NewsPost", "NewsPost")
-                        .WithMany("NewsTagMaps")
-                        .HasForeignKey("NewsPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TravelTour.API.Models.NewsTag", "NewsTag")
-                        .WithMany("NewsTagMaps")
-                        .HasForeignKey("NewsTagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NewsPost");
-
-                    b.Navigation("NewsTag");
-                });
-
             modelBuilder.Entity("TravelTour.API.Models.Review", b =>
                 {
                     b.HasOne("TravelTour.API.Models.Tour", "Tour")
@@ -954,21 +693,6 @@ namespace backend.Migrations
                     b.Navigation("Tours");
                 });
 
-            modelBuilder.Entity("TravelTour.API.Models.NewsCategory", b =>
-                {
-                    b.Navigation("NewsPosts");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsPost", b =>
-                {
-                    b.Navigation("NewsTagMaps");
-                });
-
-            modelBuilder.Entity("TravelTour.API.Models.NewsTag", b =>
-                {
-                    b.Navigation("NewsTagMaps");
-                });
-
             modelBuilder.Entity("TravelTour.API.Models.Role", b =>
                 {
                     b.Navigation("Users");
@@ -990,15 +714,9 @@ namespace backend.Migrations
 
             modelBuilder.Entity("TravelTour.API.Models.User", b =>
                 {
-                    b.Navigation("AuthoredNewsPosts");
-
                     b.Navigation("Bookings");
 
-                    b.Navigation("PublishedNewsPosts");
-
                     b.Navigation("Reviews");
-
-                    b.Navigation("UploadedMediaAssets");
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.Voucher", b =>

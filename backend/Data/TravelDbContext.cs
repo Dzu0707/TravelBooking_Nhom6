@@ -19,12 +19,16 @@ public class TravelDbContext : DbContext
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
 
+<<<<<<< HEAD
     public DbSet<NewsCategory> NewsCategories { get; set; }
     public DbSet<NewsTag> NewsTags { get; set; }
     public DbSet<NewsPost> NewsPosts { get; set; }
     public DbSet<NewsTagMap> NewsTagMaps { get; set; }
     public DbSet<MediaAsset> MediaAssets { get; set; }
 
+=======
+    public DbSet<News> News { get; set; }
+>>>>>>> 9fcc8939d677855e115e5ea79c439a0f496ca9fa
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
