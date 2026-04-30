@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialClean : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -126,6 +126,7 @@ namespace backend.Migrations
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsLocked = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -405,6 +406,11 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "NewsCategories",
+                columns: new[] { "Id", "CreatedAt", "Description", "IsActive", "Name", "Slug" },
+                values: new object[] { 1, new DateTime(2026, 4, 29, 4, 30, 35, 21, DateTimeKind.Utc).AddTicks(1758), null, true, "Tin tức du lịch", "tin-tuc-du-lich" });
+
+            migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -433,12 +439,17 @@ namespace backend.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "CreatedAt", "Email", "FullName", "IsLocked", "PasswordHash", "Phone", "RoleId" },
+                columns: new[] { "Id", "Address", "CreatedAt", "Email", "FullName", "IsLocked", "PasswordHash", "Phone", "RoleId" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@travel.com", "Nguyễn Admin", false, "hashed_password", "0338083908", 1 },
-                    { 2, new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "user@gmail.com", "Trần Khách Hàng", false, "hashed_password", "0879390378", 2 }
+                    { 1, "", new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@travel.com", "Nguyễn Admin", false, "hashed_password", "0338083908", 1 },
+                    { 2, "", new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "user@gmail.com", "Trần Khách Hàng", false, "hashed_password", "0879390378", 2 }
                 });
+
+            migrationBuilder.InsertData(
+                table: "NewsPosts",
+                columns: new[] { "Id", "AuthorId", "CategoryId", "Content", "CreatedAt", "IsFeatured", "PublishedAt", "PublishedById", "Slug", "Status", "Summary", "ThumbnailUrl", "Title", "UpdatedAt", "ViewCount" },
+                values: new object[] { 1, 1, 1, "Nội dung chi tiết về Đà Lạt...", new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), true, null, null, "kham-pha-ve-dep-da-lat", "Published", "Đà Lạt luôn là điểm đến hấp dẫn với không khí trong lành", "https://images.unsplash.com/photo-1635390059383-745100067332", "Khám phá vẻ đẹp Đà Lạt", new DateTime(2026, 4, 29, 4, 30, 35, 21, DateTimeKind.Utc).AddTicks(1780), 0 });
 
             migrationBuilder.InsertData(
                 table: "TourImages",

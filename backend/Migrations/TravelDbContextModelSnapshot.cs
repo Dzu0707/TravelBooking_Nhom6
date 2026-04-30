@@ -22,38 +22,6 @@ namespace backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("News", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ShortDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("News");
-                });
-
             modelBuilder.Entity("TravelTour.API.Models.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -268,6 +236,16 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("NewsCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 4, 29, 4, 30, 35, 21, DateTimeKind.Utc).AddTicks(1758),
+                            IsActive = true,
+                            Name = "Tin tức du lịch",
+                            Slug = "tin-tuc-du-lich"
+                        });
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.NewsPost", b =>
@@ -337,6 +315,24 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.ToTable("NewsPosts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AuthorId = 1,
+                            CategoryId = 1,
+                            Content = "Nội dung chi tiết về Đà Lạt...",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "kham-pha-ve-dep-da-lat",
+                            Status = "Published",
+                            Summary = "Đà Lạt luôn là điểm đến hấp dẫn với không khí trong lành",
+                            ThumbnailUrl = "https://images.unsplash.com/photo-1635390059383-745100067332",
+                            Title = "Khám phá vẻ đẹp Đà Lạt",
+                            UpdatedAt = new DateTime(2026, 4, 29, 4, 30, 35, 21, DateTimeKind.Utc).AddTicks(1780),
+                            ViewCount = 0
+                        });
                 });
 
             modelBuilder.Entity("TravelTour.API.Models.NewsTag", b =>

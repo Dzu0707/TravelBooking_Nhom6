@@ -46,9 +46,10 @@ interface NewsItem {
   viewCount: number;
   publishedAt?: string;
   createdAt: string;
-  category: string;
-  author: string;
-  tags: string[];
+  // Sửa lại interface để khớp với Object trả về từ Backend
+  category: any; 
+  author: any;
+  tags: any[];
 }
 
 interface NewsDetailResponse {
@@ -170,7 +171,7 @@ const AdminNewsPosts = () => {
       }
     } catch (err: any) {
       console.error('NEWS_FETCH_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'NEWS_FETCH_FAILURE: 500');
+      toast.error(err.response?.data?.message || 'Lỗi đồng bộ dữ liệu');
     } finally {
       setLoading(false);
     }
@@ -218,7 +219,7 @@ const AdminNewsPosts = () => {
       setIsModalOpen(true);
     } catch (err: any) {
       console.error('NEWS_DETAIL_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'NEWS_DETAIL_FAILURE: 500');
+      toast.error(err.response?.data?.message || 'Lỗi lấy chi tiết');
     }
   };
 
@@ -235,26 +236,10 @@ const AdminNewsPosts = () => {
   };
 
   const validateForm = () => {
-    if (!formData.title.trim()) {
-      toast.error('TITLE_REQUIRED');
-      return false;
-    }
-
-    if (!formData.summary.trim()) {
-      toast.error('SUMMARY_REQUIRED');
-      return false;
-    }
-
-    if (!formData.content.trim()) {
-      toast.error('CONTENT_REQUIRED');
-      return false;
-    }
-
-    if (!formData.categoryId) {
-      toast.error('CATEGORY_REQUIRED');
-      return false;
-    }
-
+    if (!formData.title.trim()) { toast.error('Yêu cầu tiêu đề'); return false; }
+    if (!formData.summary.trim()) { toast.error('Yêu cầu tóm tắt'); return false; }
+    if (!formData.content.trim()) { toast.error('Yêu cầu nội dung'); return false; }
+    if (!formData.categoryId) { toast.error('Yêu cầu danh mục'); return false; }
     return true;
   };
 
@@ -265,27 +250,22 @@ const AdminNewsPosts = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     const payload = buildPayload();
-    const toastId = toast.loading(editingId ? 'NEWS_UPDATE_PENDING' : 'NEWS_CREATE_PENDING');
+    const toastId = toast.loading(editingId ? 'Đang cập nhật...' : 'Đang khởi tạo...');
     setSubmitting(true);
-
     try {
       if (editingId) {
         await axios.put(`${API}/News/${editingId}`, payload, { headers });
-        toast.success('NEWS_UPDATE_SUCCESS: 200', { id: toastId });
+        toast.success('Cập nhật thành công', { id: toastId });
       } else {
         await axios.post(`${API}/News`, payload, { headers });
-        toast.success('NEWS_CREATE_SUCCESS: 201', { id: toastId });
+        toast.success('Khởi tạo thành công', { id: toastId });
       }
-
       closeModal();
       fetchData();
     } catch (err: any) {
-      console.error('NEWS_WRITE_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'NEWS_WRITE_FAILURE: 500', { id: toastId });
+      toast.error('Lỗi lưu dữ liệu', { id: toastId });
     } finally {
       setSubmitting(false);
     }
@@ -293,36 +273,32 @@ const AdminNewsPosts = () => {
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Xóa bài viết này?')) return;
-
     try {
       await axios.delete(`${API}/News/${id}`, { headers });
-      toast.success('NEWS_DELETE_SUCCESS: 200');
+      toast.success('Đã xóa');
       fetchData();
     } catch (err: any) {
-      console.error('NEWS_DELETE_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'NEWS_DELETE_FAILURE: 500');
+      toast.error('Lỗi xóa');
     }
   };
 
   const handlePublish = async (id: number) => {
     try {
       await axios.put(`${API}/News/${id}/publish`, {}, { headers });
-      toast.success('NEWS_PUBLISH_SUCCESS: 200');
+      toast.success('Đã xuất bản');
       fetchData();
     } catch (err: any) {
-      console.error('NEWS_PUBLISH_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'NEWS_PUBLISH_FAILURE: 500');
+      toast.error('Lỗi xuất bản');
     }
   };
 
   const handleToggleFeatured = async (id: number) => {
     try {
       await axios.put(`${API}/News/${id}/toggle-featured`, {}, { headers });
-      toast.success('NEWS_FEATURE_TOGGLE_SUCCESS: 200');
+      toast.success('Đã thay đổi trạng thái nổi bật');
       fetchData();
     } catch (err: any) {
-      console.error('NEWS_FEATURE_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'NEWS_FEATURE_TOGGLE_FAILURE: 500');
+      toast.error('Lỗi thực hiện');
     }
   };
 
@@ -338,6 +314,7 @@ const AdminNewsPosts = () => {
   return (
     <>
       <div className="space-y-5">
+        {/* Metrics Section */}
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
             <div className="flex items-center justify-between">
@@ -346,7 +323,6 @@ const AdminNewsPosts = () => {
             </div>
             <div className="mt-4 text-2xl font-black text-slate-100">{metrics.published}</div>
           </div>
-
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Draft</span>
@@ -354,7 +330,6 @@ const AdminNewsPosts = () => {
             </div>
             <div className="mt-4 text-2xl font-black text-slate-100">{metrics.draft}</div>
           </div>
-
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Featured</span>
@@ -362,7 +337,6 @@ const AdminNewsPosts = () => {
             </div>
             <div className="mt-4 text-2xl font-black text-slate-100">{metrics.featured}</div>
           </div>
-
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">View Count</span>
@@ -372,6 +346,7 @@ const AdminNewsPosts = () => {
           </div>
         </section>
 
+        {/* Filters & Actions */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900 p-4 shadow-lg shadow-black/20">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="grid flex-1 gap-3 xl:grid-cols-[1fr_180px_220px]">
@@ -384,52 +359,31 @@ const AdminNewsPosts = () => {
                   className="w-full rounded-xl border border-slate-800 bg-slate-950 py-3 pl-11 pr-10 text-xs font-bold text-white outline-none transition-all focus:border-cyan-500/50"
                 />
                 {keyword && (
-                  <button
-                    type="button"
-                    onClick={() => setKeyword('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-rose-500"
-                  >
+                  <button type="button" onClick={() => setKeyword('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-rose-500">
                     <X size={16} />
                   </button>
                 )}
               </div>
-
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white outline-none focus:border-cyan-500/50"
-              >
+              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white outline-none focus:border-cyan-500/50">
                 <option value="">Toàn bộ trạng thái</option>
                 <option value="Draft">Draft</option>
                 <option value="Published">Published</option>
                 <option value="Archived">Archived</option>
               </select>
-
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white outline-none focus:border-cyan-500/50"
-              >
+              <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-xs font-bold text-white outline-none focus:border-cyan-500/50">
                 <option value="">Toàn bộ danh mục</option>
                 {categories.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
+                  <option key={item.id} value={item.id}>{item.name}</option>
                 ))}
               </select>
             </div>
-
-            <button
-              type="button"
-              onClick={openCreate}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white shadow-lg shadow-cyan-950/40 transition-all hover:bg-cyan-500 active:scale-95"
-            >
-              <Plus size={16} />
-              Tạo bài viết
+            <button onClick={openCreate} className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-all hover:bg-cyan-500 active:scale-95">
+              <Plus size={16} /> Tạo bài viết
             </button>
           </div>
         </section>
 
+        {/* Main Table */}
         <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 ring-1 ring-white/5">
           <table className="w-full text-left">
             <thead className="border-b border-slate-800/50 bg-slate-950/70 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
@@ -441,16 +395,13 @@ const AdminNewsPosts = () => {
                 <th className="p-5 text-center">Tác vụ</th>
               </tr>
             </thead>
-
             <tbody className="divide-y divide-slate-800/40">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="p-20 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <Loader2 size={30} className="animate-spin text-cyan-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                        Đang đồng bộ bản tin
-                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Đang đồng bộ bản tin</span>
                     </div>
                   </td>
                 </tr>
@@ -460,100 +411,51 @@ const AdminNewsPosts = () => {
                     <td className="p-5">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <div className="text-sm font-bold uppercase tracking-tight text-slate-100">
-                            {item.title}
-                          </div>
+                          <div className="text-sm font-bold uppercase tracking-tight text-slate-100">{item.title}</div>
                           {item.isFeatured && (
-                            <span className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-[9px] font-bold uppercase text-cyan-300">
-                              Featured
-                            </span>
+                            <span className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-[9px] font-bold uppercase text-cyan-300">Featured</span>
                           )}
                         </div>
-                        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                          {item.slug}
-                        </div>
-                        <div className="line-clamp-2 max-w-xl text-[11px] leading-5 text-slate-400">
-                          {item.summary}
-                        </div>
+                        <div className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">{item.slug}</div>
+                        <div className="line-clamp-2 max-w-xl text-[11px] leading-5 text-slate-400">{item.summary}</div>
                       </div>
                     </td>
-
                     <td className="p-5">
                       <div className="space-y-2">
+                        {/* FIX: Sử dụng item.category.name thay vì item.category */}
                         <div className="inline-flex items-center gap-2 text-[11px] font-bold text-cyan-400">
                           <FolderKanban size={13} />
-                          {item.category}
+                          {typeof item.category === 'object' ? item.category?.name : item.category}
                         </div>
+                        {/* FIX: Sử dụng item.author.fullName thay vì item.author */}
                         <div className="text-[10px] uppercase tracking-[0.16em] text-slate-500">
-                          {item.author}
+                          {typeof item.author === 'object' ? item.author?.fullName : item.author}
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {item.tags?.slice(0, 3).map((tag) => (
-                            <span
-                              key={`${item.id}-${tag}`}
-                              className="rounded-full border border-slate-700 bg-slate-950 px-2 py-1 text-[9px] font-bold uppercase text-slate-400"
-                            >
-                              {tag}
+                          {item.tags?.slice(0, 3).map((tag: any) => (
+                            <span key={`${item.id}-${tag.id || tag}`} className="rounded-full border border-slate-700 bg-slate-950 px-2 py-1 text-[9px] font-bold uppercase text-slate-400">
+                               {/* FIX: Nếu tag là object thì lấy name */}
+                              {tag.name || tag}
                             </span>
                           ))}
                         </div>
                       </div>
                     </td>
-
                     <td className="p-5 text-center">
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-bold uppercase ${
-                          statusStyles[item.status] || 'border-slate-700 bg-slate-950 text-slate-300'
-                        }`}
-                      >
+                      <span className={`inline-flex rounded-full border px-3 py-1 text-[10px] font-bold uppercase ${statusStyles[item.status] || 'border-slate-700 bg-slate-950 text-slate-300'}`}>
                         {item.status}
                       </span>
                       <div className="mt-2 text-[10px] text-slate-500">{formatDateTime(item.publishedAt)}</div>
                     </td>
-
                     <td className="p-5 text-center">
-                      <div className="text-sm font-black text-amber-400">
-                        {item.viewCount.toLocaleString('vi-VN')}
-                      </div>
+                      <div className="text-sm font-black text-amber-400">{item.viewCount.toLocaleString('vi-VN')}</div>
                     </td>
-
                     <td className="p-5">
                       <div className="flex justify-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(item.id)}
-                          className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-amber-500/10 hover:text-amber-400"
-                          title="Hiệu chỉnh"
-                        >
-                          <Pencil size={16} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handlePublish(item.id)}
-                          className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-emerald-500/10 hover:text-emerald-400"
-                          title="Xuất bản"
-                        >
-                          <CheckCircle2 size={16} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleToggleFeatured(item.id)}
-                          className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-cyan-500/10 hover:text-cyan-400"
-                          title="Nổi bật"
-                        >
-                          <Star size={16} fill={item.isFeatured ? 'currentColor' : 'none'} />
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item.id)}
-                          className="flex size-9 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-rose-500/10 hover:text-rose-400"
-                          title="Xóa"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <button onClick={() => openEdit(item.id)} className="flex size-9 items-center justify-center rounded-lg text-slate-500 hover:bg-amber-500/10 hover:text-amber-400"><Pencil size={16} /></button>
+                        <button onClick={() => handlePublish(item.id)} className="flex size-9 items-center justify-center rounded-lg text-slate-500 hover:bg-emerald-500/10 hover:text-emerald-400"><CheckCircle2 size={16} /></button>
+                        <button onClick={() => handleToggleFeatured(item.id)} className="flex size-9 items-center justify-center rounded-lg text-slate-500 hover:bg-cyan-500/10 hover:text-cyan-400"><Star size={16} fill={item.isFeatured ? 'currentColor' : 'none'} /></button>
+                        <button onClick={() => handleDelete(item.id)} className="flex size-9 items-center justify-center rounded-lg text-slate-500 hover:bg-rose-500/10 hover:text-rose-400"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
@@ -562,12 +464,8 @@ const AdminNewsPosts = () => {
                 <tr>
                   <td colSpan={5} className="p-20 text-center">
                     <div className="space-y-2">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                        Không có bản tin khớp truy vấn
-                      </div>
-                      <div className="text-xs text-slate-600">
-                        Kiểm tra bộ lọc hoặc khởi tạo bài viết mới.
-                      </div>
+                      <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Không có bản tin khớp truy vấn</div>
+                      <div className="text-xs text-slate-600">Kiểm tra bộ lọc hoặc khởi tạo bài viết mới.</div>
                     </div>
                   </td>
                 </tr>
@@ -576,223 +474,78 @@ const AdminNewsPosts = () => {
           </table>
         </section>
 
+        {/* Modal Form */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md">
-            <form
-              onSubmit={handleSubmit}
-              className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl"
-            >
+            <form onSubmit={handleSubmit} className="max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
               <div className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-6 py-5">
                 <div>
-                  <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">
-                    {editingId ? 'Hiệu chỉnh bản tin' : 'Khởi tạo bản tin'}
-                  </h2>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Đồng bộ metadata, nội dung, tag map và trạng thái xuất bản.
-                  </p>
+                  <h2 className="text-[11px] font-bold uppercase tracking-[0.18em] text-white">{editingId ? 'Hiệu chỉnh bản tin' : 'Khởi tạo bản tin'}</h2>
+                  <p className="mt-1 text-xs text-slate-500">Đồng bộ metadata, nội dung và trạng thái.</p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="text-slate-500 transition-colors hover:text-rose-500"
-                >
-                  <X size={20} />
-                </button>
+                <button type="button" onClick={closeModal} className="text-slate-500 hover:text-rose-500"><X size={20} /></button>
               </div>
-
               <div className="grid gap-4 p-6 lg:grid-cols-2">
                 <div className="space-y-2 lg:col-span-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Tiêu đề
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
-                    placeholder="Tiêu đề bài viết"
-                    value={formData.title}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    required
-                  />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Tiêu đề</label>
+                  <input className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50" placeholder="Tiêu đề bài viết" value={formData.title} onChange={(e) => handleTitleChange(e.target.value)} required />
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Slug
-                  </label>
-                  <input
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
-                    placeholder="du-lich-phu-quoc"
-                    value={formData.slug}
-                    onChange={(e) => handleChange('slug', e.target.value)}
-                  />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Slug</label>
+                  <input className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50" value={formData.slug} onChange={(e) => handleChange('slug', e.target.value)} />
                 </div>
-
                 <div className="space-y-2 lg:col-span-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Ảnh đại diện
-                  </label>
-
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Ảnh đại diện</label>
                   <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
-                    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
-                      <div className="aspect-[4/3] bg-slate-900">
-                        {formData.thumbnailUrl ? (
-                          <img
-                            src={formData.thumbnailUrl}
-                            alt="Thumbnail preview"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full items-center justify-center text-slate-600">
-                            <ImagePlus size={28} />
-                          </div>
-                        )}
-                      </div>
+                    <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 aspect-[4/3] bg-slate-900">
+                      {formData.thumbnailUrl ? <img src={formData.thumbnailUrl} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-slate-600"><ImagePlus size={28} /></div>}
                     </div>
-
                     <div className="space-y-3">
-                      <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-400">
-                        {formData.thumbnailUrl || 'Chưa gắn ảnh đại diện'}
-                      </div>
-
+                      <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-400">{formData.thumbnailUrl || 'Chưa gắn ảnh đại diện'}</div>
                       <div className="flex gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setIsMediaPickerOpen(true)}
-                          className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300"
-                        >
-                          Chọn từ kho ảnh
-                        </button>
-
-                        {formData.thumbnailUrl && (
-                          <button
-                            type="button"
-                            onClick={() => handleChange('thumbnailUrl', '')}
-                            className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400"
-                          >
-                            Xóa ảnh
-                          </button>
-                        )}
+                        <button type="button" onClick={() => setIsMediaPickerOpen(true)} className="rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-cyan-300">Chọn ảnh</button>
+                        {formData.thumbnailUrl && <button type="button" onClick={() => handleChange('thumbnailUrl', '')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-[11px] font-bold uppercase text-slate-400">Xóa</button>}
                       </div>
                     </div>
                   </div>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Danh mục
-                  </label>
-                  <select
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
-                    value={formData.categoryId}
-                    onChange={(e) => handleChange('categoryId', Number(e.target.value))}
-                  >
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Danh mục</label>
+                  <select className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none" value={formData.categoryId} onChange={(e) => handleChange('categoryId', Number(e.target.value))}>
                     <option value={0}>Chọn danh mục</option>
-                    {categories.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
+                    {categories.map((item) => (<option key={item.id} value={item.id}>{item.name}</option>))}
                   </select>
                 </div>
-
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Trạng thái
-                  </label>
-                  <select
-                    className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
-                    value={formData.status}
-                    onChange={(e) => handleChange('status', e.target.value)}
-                  >
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Trạng thái</label>
+                  <select className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none" value={formData.status} onChange={(e) => handleChange('status', e.target.value)}>
                     <option value="Draft">Draft</option>
                     <option value="Published">Published</option>
-                    <option value="Archived">Archived</option>
                   </select>
                 </div>
-
                 <div className="space-y-2 lg:col-span-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Tóm tắt
-                  </label>
-                  <textarea
-                    className="min-h-[110px] w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
-                    placeholder="Tóm tắt ngắn gọn nội dung bài viết"
-                    value={formData.summary}
-                    onChange={(e) => handleChange('summary', e.target.value)}
-                    required
-                  />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Tóm tắt</label>
+                  <textarea className="min-h-[110px] w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none" value={formData.summary} onChange={(e) => handleChange('summary', e.target.value)} required />
                 </div>
-
                 <div className="space-y-2 lg:col-span-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Nội dung
-                  </label>
-                  <textarea
-                    className="min-h-[260px] w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
-                    placeholder="Nội dung chi tiết bài viết"
-                    value={formData.content}
-                    onChange={(e) => handleChange('content', e.target.value)}
-                    required
-                  />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Nội dung</label>
+                  <textarea className="min-h-[260px] w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none" value={formData.content} onChange={(e) => handleChange('content', e.target.value)} required />
                 </div>
-
                 <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 lg:col-span-2">
-                  <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    <Tag size={12} />
-                    Tag map
-                  </div>
-
+                  <div className="mb-3 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500"><Tag size={12} /> Tags</div>
                   <div className="flex flex-wrap gap-2">
-                    {tags.length > 0 ? (
-                      tags.map((tag) => {
-                        const active = formData.tagIds.includes(tag.id);
-
-                        return (
-                          <button
-                            type="button"
-                            key={tag.id}
-                            onClick={() => toggleTag(tag.id)}
-                            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase transition-all ${
-                              active
-                                ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300'
-                                : 'border-slate-700 bg-slate-900 text-slate-400'
-                            }`}
-                          >
-                            {tag.name}
-                          </button>
-                        );
-                      })
-                    ) : (
-                      <div className="text-xs text-slate-500">Chưa có tag nào được khởi tạo.</div>
-                    )}
+                    {tags.map((tag) => (
+                      <button type="button" key={tag.id} onClick={() => toggleTag(tag.id)} className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase ${formData.tagIds.includes(tag.id) ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300' : 'border-slate-700 bg-slate-900 text-slate-400'}`}>
+                        {tag.name}
+                      </button>
+                    ))}
                   </div>
                 </div>
-
-                <label className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-300 lg:col-span-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.isFeatured}
-                    onChange={(e) => handleChange('isFeatured', e.target.checked)}
-                  />
-                  Đánh dấu nổi bật trong luồng hiển thị công khai
-                </label>
               </div>
-
               <div className="flex gap-3 border-t border-slate-800 bg-slate-950 px-6 py-5">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 rounded-xl bg-slate-800 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-600 py-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white disabled:opacity-60"
-                >
-                  {submitting && <Loader2 size={14} className="animate-spin" />}
-                  Lưu bản tin
+                <button type="button" onClick={closeModal} className="flex-1 rounded-xl bg-slate-800 py-3 text-[11px] font-bold uppercase text-slate-400">Hủy</button>
+                <button type="submit" disabled={submitting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-600 py-3 text-[11px] font-bold uppercase text-white disabled:opacity-60">
+                  {submitting && <Loader2 size={14} className="animate-spin" />} Lưu bài viết
                 </button>
               </div>
             </form>

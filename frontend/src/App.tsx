@@ -2,22 +2,9 @@ import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-// Components & Pages
+// Layout & Global Components
 import Navbar from './pages/components/Navbar';
 import Footer from './pages/components/Footer';
-<<<<<<< HEAD
-=======
-import TourDetail from './pages/users/TourDetail';
-import Home from './pages/users/Home';
-import TourList from './pages/users/TourList';
-import MyBookings from './pages/users/MyBookings';
-import Profile from './pages/users/Profile';
-import NewsDetail from './pages/users/NewsDetail';
-import NewsList from './pages/users/NewsList'; // Đã thêm NewsList
-import AdminDashboard from './pages/admin/AdminDashboard';
->>>>>>> 9fcc8939d677855e115e5ea79c439a0f496ca9fa
-import Login from './pages/components/Login';
-import Register from './pages/components/Register';
 import ProtectedRoute from './pages/components/ProtectedRoute';
 
 // User Pages
@@ -29,7 +16,9 @@ import TourCheckout from './pages/users/TourCheckout';
 import PaymentGateway from './pages/users/PaymentGateway';
 import NewsList from './pages/users/NewsList';
 import NewsDetail from './pages/users/NewsDetail';
-import Profile from './pages/users/Profile'; // Đã thêm import Profile
+import Profile from './pages/users/Profile';
+import Login from './pages/components/Login';
+import Register from './pages/components/Register';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -47,11 +36,9 @@ import AdminMedia from './pages/admin/AdminMedia';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-
   return null;
 };
 
@@ -60,24 +47,9 @@ const MainLayout = () => {
   const isHomePage = location.pathname === '/';
 
   return (
-<<<<<<< HEAD
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main
-        className={`flex-grow ${
-          isHomePage ? 'w-full' : 'mx-auto w-full max-w-7xl px-4 py-10 md:px-6'
-        }`}
-      >
-=======
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      
-      <main className={`flex-grow ${
-        isHomePage 
-          ? "w-full" 
-          : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10" 
-      }`}>
->>>>>>> 9fcc8939d677855e115e5ea79c439a0f496ca9fa
+      <main className={`flex-grow ${isHomePage ? "w-full" : "max-w-7xl mx-auto w-full px-4 md:px-6 py-10"}`}>
         <Outlet />
       </main>
       <Footer />
@@ -87,23 +59,11 @@ const MainLayout = () => {
 
 const NotFound = () => (
   <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 text-center">
-    <h1 className="select-none text-[10rem] font-black leading-none text-gray-100 md:text-[15rem]">404</h1>
-    <div className="relative -mt-16 md:-mt-24">
-      <p className="text-2xl font-extrabold uppercase tracking-tighter text-gray-800 md:text-4xl">
-        Trang bạn tìm không tồn tại
-      </p>
-      <p className="mt-4 font-medium text-gray-500">
-        Có vẻ như hành trình này đã kết thúc hoặc đường dẫn bị sai.
-      </p>
-      <button
-        onClick={() => {
-          window.location.href = '/';
-        }}
-        className="mt-10 rounded-full bg-blue-600 px-10 py-4 font-bold uppercase text-white shadow-lg transition-all active:scale-95 hover:bg-blue-700"
-      >
-        Về trang chủ
-      </button>
-    </div>
+    <h1 className="select-none text-[10rem] font-black leading-none text-gray-100">404</h1>
+    <p className="text-2xl font-extrabold uppercase text-gray-800">Trang bạn tìm không tồn tại</p>
+    <button onClick={() => window.location.href = '/'} className="mt-10 rounded-full bg-blue-600 px-10 py-4 font-bold text-white hover:bg-blue-700">
+      Về trang chủ
+    </button>
   </div>
 );
 
@@ -129,46 +89,30 @@ const AppContent = () => {
 
   return (
     <>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            borderRadius: '12px',
-            background: '#0f172a',
-            color: '#fff',
-            padding: '16px',
-          },
-        }}
-      />
-
+      <Toaster position="top-right" toastOptions={{ duration: 3000, style: { borderRadius: '12px', background: '#0f172a', color: '#fff' } }} />
       <ScrollToTop />
-
       <Routes>
+        {/* Public Routes */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<TourList />} />
           <Route path="/tours/:id" element={<TourDetail />} />
-<<<<<<< HEAD
           <Route path="/news" element={<NewsList />} />
-          <Route path="/news/:slug" element={<NewsDetail />} />
-=======
-          <Route path="/news" element={<NewsList />} /> {/* Route danh sách tin */}
           <Route path="/news/:id" element={<NewsDetail />} />
->>>>>>> 9fcc8939d677855e115e5ea79c439a0f496ca9fa
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          <Route path="/profile" element={<Profile />} /> {/* Đã thêm Route Profile */}
           <Route path="/unauthorized" element={<Unauthorized />} />
 
+          {/* Protected User Routes */}
           <Route element={<ProtectedRoute allowedRoles={['User', 'Admin']} />}>
+            <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/checkout/:id" element={<TourCheckout />} />
             <Route path="/payment-gateway" element={<PaymentGateway />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>
 
+        {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute allowedRoles={['Admin']} />}>
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
