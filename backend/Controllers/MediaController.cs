@@ -34,7 +34,7 @@ public class MediaController : ControllerBase
                 x.FileUrl,
                 x.AltText,
                 x.CreatedAt,
-                UploadedBy = x.UploadedBy != null ? x.UploadedBy.FullName : "N/A"
+                UploadedBy = x.UploadedBy != null ? x.UploadedBy.FullName : "Hệ thống/Manual"
             })
             .ToListAsync();
 
@@ -56,15 +56,9 @@ public class MediaController : ControllerBase
         if (!allowedExtensions.Contains(extension))
             return BadRequest(new { message = "Chỉ chấp nhận jpg, jpeg, png, webp!" });
 
-        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-        if (string.IsNullOrEmpty(userEmail))
-            return Unauthorized(new { message = "Không xác định được danh tính!" });
+        var webRoot = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var uploadsRoot = Path.Combine(webRoot, "uploads", "media");
 
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userEmail);
-        if (user == null)
-            return Unauthorized(new { message = "Người dùng không tồn tại!" });
-
-        var uploadsRoot = Path.Combine(_environment.ContentRootPath, "Uploads", "media");
         if (!Directory.Exists(uploadsRoot))
             Directory.CreateDirectory(uploadsRoot);
 
@@ -72,12 +66,7 @@ public class MediaController : ControllerBase
             ? Path.GetFileNameWithoutExtension(file.FileName)
             : customName.Trim();
 
-        var safeName = string.Concat(
-            rawName
-                .ToLowerInvariant()
-                .Select(c => char.IsLetterOrDigit(c) ? c : '-')
-        ).Trim('-');
-
+        var safeName = string.Concat(rawName.ToLowerInvariant().Select(c => char.IsLetterOrDigit(c) ? c : '-')).Trim('-');
         while (safeName.Contains("--"))
         {
             safeName = safeName.Replace("--", "-");
@@ -85,11 +74,10 @@ public class MediaController : ControllerBase
 
         if (string.IsNullOrWhiteSpace(safeName))
         {
-            safeName = "image";
+            safeName = "media";
         }
 
-        var timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-        var fileName = $"{safeName}-{timeStamp}{extension}";
+        var fileName = $"{safeName}-{DateTime.Now:yyyyMMddHHmmss}{extension}";
         var filePath = Path.Combine(uploadsRoot, fileName);
 
         await using (var stream = new FileStream(filePath, FileMode.Create))
@@ -97,29 +85,62 @@ public class MediaController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        var baseUrl = $"{Request.Scheme}://{Request.Host}";
-        var fileUrl = $"{baseUrl}/uploads/media/{fileName}";
+        var fileUrl = $"/uploads/media/{fileName}";
+        var uploadedById = await GetCurrentUserIdAsync();
 
         var media = new MediaAsset
         {
             FileName = fileName,
             FileUrl = fileUrl,
-            AltText = altText,
-            UploadedById = user.Id,
+            AltText = altText ?? safeName,
+            UploadedById = uploadedById,
             CreatedAt = DateTime.Now
         };
 
         _context.MediaAssets.Add(media);
         await _context.SaveChangesAsync();
 
-        return Ok(new
+        return Ok(media);
+    }
+
+    [HttpPost("sync")]
+    public async Task<IActionResult> SyncFolder()
+    {
+        var webRoot = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var uploadsRoot = Path.Combine(webRoot, "uploads", "media");
+
+        if (!Directory.Exists(uploadsRoot))
+            return BadRequest(new { message = "Thư mục chưa tồn tại!" });
+
+        var files = Directory.GetFiles(uploadsRoot);
+        var dbFiles = await _context.MediaAssets.Select(x => x.FileName).ToListAsync();
+
+        var addedCount = 0;
+        foreach (var path in files)
         {
-            media.Id,
-            media.FileName,
-            media.FileUrl,
-            media.AltText,
-            media.CreatedAt
-        });
+            var fileName = Path.GetFileName(path);
+            if (!dbFiles.Contains(fileName))
+            {
+                var media = new MediaAsset
+                {
+                    FileName = fileName,
+                    FileUrl = $"/uploads/media/{fileName}",
+                    AltText = "Auto Synced",
+                    CreatedAt = DateTime.Now,
+                    UploadedById = 10
+                };
+
+                _context.MediaAssets.Add(media);
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0)
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        return Ok(new { message = $"Đã đồng bộ {addedCount} ảnh mới từ thư mục vào hệ thống." });
     }
 
     [HttpDelete("{id}")]
@@ -127,17 +148,53 @@ public class MediaController : ControllerBase
     {
         var media = await _context.MediaAssets.FindAsync(id);
         if (media == null)
+        {
             return NotFound(new { message = "Không tìm thấy ảnh!" });
+        }
 
-        var uploadsRoot = Path.Combine(_environment.ContentRootPath, "Uploads", "media");
-        var filePath = Path.Combine(uploadsRoot, media.FileName);
+        var isUsedByTour = await _context.TourImages.AnyAsync(x => x.MediaAssetId == id);
+        if (isUsedByTour)
+        {
+            return BadRequest(new { message = "Ảnh đang được gắn vào tour, không thể xóa." });
+        }
 
-        if (System.IO.File.Exists(filePath))
-            System.IO.File.Delete(filePath);
+        var webRoot = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+        if (!string.IsNullOrWhiteSpace(media.FileUrl) && media.FileUrl.StartsWith("/"))
+        {
+            var relativePath = media.FileUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            var filePath = Path.Combine(webRoot, relativePath);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
 
         _context.MediaAssets.Remove(media);
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Xóa ảnh thành công!" });
+        return Ok(new { message = "Đã xóa ảnh!" });
+    }
+
+    private async Task<int> GetCurrentUserIdAsync()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (int.TryParse(userIdClaim, out var userId))
+        {
+            return userId;
+        }
+
+        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (!string.IsNullOrWhiteSpace(userEmail))
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userEmail);
+            if (user != null)
+            {
+                return user.Id;
+            }
+        }
+
+        return 10;
     }
 }

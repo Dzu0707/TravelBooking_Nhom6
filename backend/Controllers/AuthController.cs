@@ -46,22 +46,26 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginModel model) 
+    public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-        // Phải Include Role để lấy được tên Role (Admin/User)
         var user = await _context.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == model.Email);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash)) {
-            return Unauthorized(new { message = "Sai tài khoản hoặc mật khẩu!" });
-        }
+        if (user == null)
+            return Unauthorized(new { message = "Email không tồn tại!" });
 
-        var token = CreateToken(user); 
+        if (user.IsLocked)
+            return Unauthorized(new { message = "Tài khoản bị khóa!" });
 
-        // Trả về cấu trúc mà React của bạn đang mong đợi
-        return Ok(new { 
-            token = token, 
+        if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+            return Unauthorized(new { message = "Sai mật khẩu!" });
+
+        var token = CreateToken(user);
+
+        return Ok(new
+        {
+            token,
             role = user.Role?.Name ?? "User",
             roleId = user.RoleId,
             fullName = user.FullName

@@ -39,11 +39,22 @@ interface Tour {
   departureLocation: string;
   categoryId: number;
   description?: string;
-  tourImages?: { id: number; imageUrl: string }[];
+  tourImages?: { id: number; imageUrl: string; isPrimary: boolean }[];
 }
 
 const AdminTours = () => {
   const API_BASE = 'http://localhost:5091';
+  const normalize = (url?: string) => {
+    if (!url) return '';
+    return url
+    .replace(API_BASE, '')
+    .replace(/^\/+/, '');
+  };
+  const getFullImageUrl = (path: string | undefined) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
   const { tours, fetchTours, deleteTour, categories, fetchCategories } = useTourStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,12 +77,6 @@ const AdminTours = () => {
     fetchTours();
     if (fetchCategories) fetchCategories();
   }, [fetchTours, fetchCategories]);
-
-  const getFullImageUrl = (path: string | undefined) => {
-    if (!path) return '';
-    if (path.startsWith('http')) return path;
-    return `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
-  };
 
   useEffect(() => {
     if (editingTour) {
@@ -130,44 +135,63 @@ const AdminTours = () => {
       const formData = new FormData();
       formData.append('Name', data.name);
       formData.append('Code', data.code);
-      formData.append('DepartureLocation', data.departureLocation);
+      formData.append('DepartureLocation', data.departureLocation || '');
       formData.append('CategoryId', data.categoryId.toString());
       formData.append('Description', data.description || '');
+      formData.append('AdultPrice', '0');
+      formData.append('ChildPrice', '0');
 
-      if (!editingTour) {
-        formData.append('MinPrice', '0');
+      // 1. Chỉ gửi ImageUrl nếu nó KHÁC với ảnh hiện tại (hoặc khi tạo mới)
+      const normalizedSelected = normalize(selectedMediaUrl);
+      const normalizedCurrent = editingTour ? normalize(editingTour.imageUrl) : null;
+
+      if (normalizedSelected && normalizedSelected !== normalizedCurrent) {
+        formData.append('ImageUrl', normalizedSelected);
       }
 
-      if (selectedMediaUrl) {
-        formData.append('ImageUrl', selectedMediaUrl);
+      // 2. Chỉ gửi những Album URLs chưa có trong DB
+      if (selectedAlbumUrls && selectedAlbumUrls.length > 0) {
+        const existingUrls = editingTour?.tourImages?.map(img => normalize(img.imageUrl)) || [];
+        
+        selectedAlbumUrls.forEach((url) => {
+          const nUrl = normalize(url);
+          // Nếu là tour mới, hoặc là URL chưa tồn tại trong album cũ thì mới gửi lên
+          if (nUrl && !existingUrls.includes(nUrl)) {
+            formData.append('AlbumImageUrls', nUrl);
+          }
+        });
       }
-
-      selectedAlbumUrls.forEach((url, index) => {
-        formData.append(`AlbumImageUrls[${index}]`, url);
-      });
 
       const token = localStorage.getItem('token');
       const url = editingTour ? `${API_BASE}/api/tours/${editingTour.id}` : `${API_BASE}/api/tours`;
 
       const response = await fetch(url, {
         method: editingTour ? 'PUT' : 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          'Authorization': `Bearer ${token}` 
+        },
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Không thể lưu dữ liệu!');
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.message || 'Không thể lưu dữ liệu!');
+      }
 
       const updatedData = await response.json();
-
       toast.success(editingTour ? 'Cập nhật thành công!' : 'Tạo tour thành công!', { id: loadId });
 
       await fetchTours();
-      setEditingTour(updatedData);
-      setSelectedAlbumUrls(updatedData?.tourImages?.map((img: any) => getFullImageUrl(img.imageUrl)) || []);
-
+      
+      // Nếu tạo mới thành công, chuyển sang tab lịch trình
       if (!editingTour) {
+        setEditingTour(updatedData);
         setActiveTab('schedules');
+      } else {
+        // Nếu là update, cập nhật lại state tour đang sửa để đồng bộ ảnh
+        setEditingTour(updatedData);
       }
+      
     } catch (error: any) {
       toast.error(error.message || 'Lỗi xử lý', { id: loadId });
     }
@@ -439,7 +463,7 @@ const AdminTours = () => {
                             </button>
 
                             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                              {editingTour?.tourImages?.map((img) => (
+                              {editingTour?.tourImages?.filter((img) => !img.isPrimary).map((img) => (
                                 <div
                                   key={img.id}
                                   className="group relative aspect-square overflow-hidden rounded-lg border border-slate-700"
@@ -466,7 +490,7 @@ const AdminTours = () => {
                                 .filter(
                                   (url) =>
                                     !editingTour?.tourImages?.some(
-                                      (img) => getFullImageUrl(img.imageUrl) === url
+                                      (img) => normalize(img.imageUrl) === normalize(url)
                                     )
                                 )
                                 .map((url) => (
@@ -474,7 +498,12 @@ const AdminTours = () => {
                                     key={url}
                                     className="group relative aspect-square overflow-hidden rounded-lg border border-cyan-500/30"
                                   >
-                                    <img src={url} className="h-full w-full object-cover" alt="album-preview" />
+                                    <img
+                                      src={url}
+                                      className="h-full w-full object-cover"
+                                      alt="album-preview"
+                                    />
+
                                     <button
                                       type="button"
                                       onClick={() => removeAlbumPreview(url)}
@@ -482,6 +511,7 @@ const AdminTours = () => {
                                     >
                                       <Trash2 size={16} />
                                     </button>
+
                                     <div className="absolute bottom-0 left-0 right-0 bg-cyan-600 py-1 text-center text-[8px] font-bold uppercase tracking-[0.18em] text-white">
                                       Đã chọn
                                     </div>
@@ -577,8 +607,9 @@ const AdminTours = () => {
         <MediaPicker
           value={selectedMediaUrl || previewUrl}
           onSelect={(url) => {
-            setSelectedMediaUrl(url);
-            setPreviewUrl(url);
+            const full = getFullImageUrl(url);
+            setSelectedMediaUrl(full);
+            setPreviewUrl(full);
           }}
           onClose={() => setIsMainMediaPickerOpen(false)}
         />
@@ -589,7 +620,10 @@ const AdminTours = () => {
           multiple
           values={selectedAlbumUrls}
           onSelect={() => {}}
-          onSelectMany={(urls) => setSelectedAlbumUrls(urls)}
+          onSelectMany={(urls) => {
+            const fullUrls = urls.map((u) => getFullImageUrl(u));
+            setSelectedAlbumUrls((prev) => Array.from(new Set([...prev, ...fullUrls])));
+          }}
           onClose={() => setIsAlbumMediaPickerOpen(false)}
         />
       )}

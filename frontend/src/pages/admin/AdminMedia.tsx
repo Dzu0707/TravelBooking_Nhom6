@@ -4,6 +4,13 @@ import { ImagePlus, Loader2, Trash2, Upload, Image as ImageIcon, Copy } from 'lu
 import toast from 'react-hot-toast';
 
 const API = 'http://localhost:5091/api';
+const BASE_URL = 'http://localhost:5091';
+
+const resolveUrl = (url?: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return BASE_URL + url;
+};
 
 interface MediaItem {
   id: number;
@@ -180,7 +187,11 @@ const AdminMedia = () => {
               {items.map((item) => (
                 <div key={item.id} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
                   <div className="aspect-[4/3] overflow-hidden bg-slate-900">
-                    <img src={item.fileUrl} alt={item.altText || item.fileName} className="h-full w-full object-cover" />
+                   <img 
+                      src={resolveUrl(item.fileUrl)} 
+                      alt={item.altText || item.fileName} 
+                      className="h-full w-full object-cover" 
+                    />
                   </div>
 
                   <div className="space-y-3 p-4">
@@ -201,7 +212,7 @@ const AdminMedia = () => {
                       </button>
 
                       <a
-                        href={item.fileUrl}
+                        href={resolveUrl(item.fileUrl)}
                         target="_blank"
                         rel="noreferrer"
                         className="flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-slate-300"

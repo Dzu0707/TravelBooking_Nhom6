@@ -8,7 +8,7 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. CORS
+// 1. Cấu hình CORS
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAll", policy => {
         policy.AllowAnyOrigin()
@@ -17,7 +17,7 @@ builder.Services.AddCors(options => {
     });
 });
 
-// 2. Controllers + JSON
+// 2. Cấu hình Controllers và JSON (Xử lý vòng lặp và Null)
 builder.Services.AddControllers()
     .AddJsonOptions(options => {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
@@ -26,11 +26,11 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 
-// 3. Swagger
+// 3. Swagger với cấu hình Bearer Token
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Travel Tour API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-        Description = "Bearer [token]",
+        Description = "Nhập theo định dạng: Bearer [token]",
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
@@ -72,25 +72,20 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// --- 6. CẤU HÌNH STATIC FILES CHO /uploads/tours/ ---
-// Đường dẫn vật lý đến thư mục "Uploads" (viết hoa chữ cái đầu cho đúng chuẩn Windows/Linux folder)
-var physicalPath = Path.Combine(app.Environment.ContentRootPath, "Uploads");
+// Tự động tạo thư mục nếu chưa có 
+var webRoot = app.Environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+var mediaPath = Path.Combine(webRoot, "uploads", "media");
 
-if (!Directory.Exists(physicalPath))
+if (!Directory.Exists(mediaPath))
 {
-    Directory.CreateDirectory(physicalPath);
+    Directory.CreateDirectory(mediaPath);
 }
 
-app.UseStaticFiles(); // Cho wwwroot (mặc định)
+// Chỉ cần dòng này để phục vụ tất cả file trong wwwroot
+// Truy cập qua: https://localhost:xxxx/uploads/media/ten-file.jpg
+app.UseStaticFiles(); 
 
-// Cấu hình để hiểu đường dẫn URL "/uploads" (viết thường) trỏ vào folder "Uploads"
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(physicalPath),
-    RequestPath = "/uploads" 
-});
-
-// 7. Middleware Pipeline
+// --- 7. Middleware Pipeline ---
 app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())

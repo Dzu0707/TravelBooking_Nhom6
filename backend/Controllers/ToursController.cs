@@ -1,8 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TravelTour.API.Data;
 using TravelTour.API.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace TravelTour.API.Controllers;
 
@@ -25,8 +26,38 @@ public class ToursController : ControllerBase
     {
         var tours = await _context.Tours
             .Include(t => t.TourImages)
+                .ThenInclude(ti => ti.MediaAsset)
             .Include(t => t.TourSchedules)
             .OrderByDescending(t => t.Id)
+            .Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.Code,
+                t.DepartureLocation,
+                t.CategoryId,
+                t.Description,
+                t.MinPrice,
+                t.CreatedAt,
+                ImageUrl = t.TourImages
+                    .Where(i => i.IsPrimary)
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => i.MediaAsset != null ? i.MediaAsset.FileUrl : null)
+                    .FirstOrDefault(),
+                TourImages = t.TourImages
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => new
+                    {
+                        i.Id,
+                        i.IsPrimary,
+                        i.SortOrder,
+                        i.MediaAssetId,
+                        ImageUrl = i.MediaAsset != null ? i.MediaAsset.FileUrl : null,
+                        FileName = i.MediaAsset != null ? i.MediaAsset.FileName : null,
+                        AltText = i.MediaAsset != null ? i.MediaAsset.AltText : null
+                    }),
+                TourSchedules = t.TourSchedules
+            })
             .ToListAsync();
 
         return Ok(tours);
@@ -38,8 +69,39 @@ public class ToursController : ControllerBase
     {
         var tour = await _context.Tours
             .Include(t => t.TourImages)
+                .ThenInclude(ti => ti.MediaAsset)
             .Include(t => t.TourSchedules)
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .Where(t => t.Id == id)
+            .Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.Code,
+                t.DepartureLocation,
+                t.CategoryId,
+                t.Description,
+                t.MinPrice,
+                t.CreatedAt,
+                ImageUrl = t.TourImages
+                    .Where(i => i.IsPrimary)
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => i.MediaAsset != null ? i.MediaAsset.FileUrl : null)
+                    .FirstOrDefault(),
+                TourImages = t.TourImages
+                    .OrderBy(i => i.SortOrder)
+                    .Select(i => new
+                    {
+                        i.Id,
+                        i.IsPrimary,
+                        i.SortOrder,
+                        i.MediaAssetId,
+                        ImageUrl = i.MediaAsset != null ? i.MediaAsset.FileUrl : null,
+                        FileName = i.MediaAsset != null ? i.MediaAsset.FileName : null,
+                        AltText = i.MediaAsset != null ? i.MediaAsset.AltText : null
+                    }),
+                TourSchedules = t.TourSchedules
+            })
+            .FirstOrDefaultAsync();
 
         if (tour == null) return NotFound();
         return Ok(tour);
@@ -50,57 +112,86 @@ public class ToursController : ControllerBase
     public async Task<IActionResult> Create([FromForm] TourDto dto)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
+
         try
         {
-            var mainImageUrl = "/uploads/tours/default.jpg";
-
-            if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
-            {
-                mainImageUrl = dto.ImageUrl;
-            }
-            else if (dto.ImageFile != null)
-            {
-                mainImageUrl = await UploadProcess(dto.ImageFile);
-            }
-
             var tour = new Tour
             {
                 Name = dto.Name,
                 Code = dto.Code,
                 DepartureLocation = dto.DepartureLocation,
                 CategoryId = dto.CategoryId,
-                Description = dto.Description ?? "",
-                CreatedAt = DateTime.Now,
-                ImageUrl = mainImageUrl
+                Description = dto.Description ?? string.Empty,
+                MinPrice = dto.AdultPrice,
+                CreatedAt = DateTime.Now
             };
 
             _context.Tours.Add(tour);
             await _context.SaveChangesAsync();
 
+            var sortOrder = 1;
+            var hasPrimary = false;
+
+            if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
+            {
+                var media = await CreateMediaAssetFromUrlAsync(dto.ImageUrl);
+                _context.TourImages.Add(new TourImage
+                {
+                    TourId = tour.Id,
+                    MediaAssetId = media.Id,
+                    IsPrimary = true,
+                    SortOrder = sortOrder++
+                });
+                hasPrimary = true;
+            }
+            else if (dto.ImageFile != null)
+            {
+                var uploadedUrl = await UploadProcess(dto.ImageFile);
+                var media = await CreateMediaAssetFromUploadAsync(dto.ImageFile.FileName, uploadedUrl);
+                _context.TourImages.Add(new TourImage
+                {
+                    TourId = tour.Id,
+                    MediaAssetId = media.Id,
+                    IsPrimary = true,
+                    SortOrder = sortOrder++
+                });
+                hasPrimary = true;
+            }
+
             if (dto.AlbumImageUrls != null && dto.AlbumImageUrls.Any())
             {
-                foreach (var url in dto.AlbumImageUrls
-                             .Where(x => !string.IsNullOrWhiteSpace(x))
-                             .Distinct())
+                foreach (var url in dto.AlbumImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct())
                 {
+                    var media = await CreateMediaAssetFromUrlAsync(url);
                     _context.TourImages.Add(new TourImage
                     {
                         TourId = tour.Id,
-                        ImageUrl = url
+                        MediaAssetId = media.Id,
+                        IsPrimary = false,
+                        SortOrder = sortOrder++
                     });
                 }
             }
-            else if (dto.AlbumFiles != null && dto.AlbumFiles.Any())
+
+            if (dto.AlbumFiles != null && dto.AlbumFiles.Any())
             {
                 foreach (var file in dto.AlbumFiles)
                 {
-                    var path = await UploadProcess(file);
+                    var uploadedUrl = await UploadProcess(file);
+                    var media = await CreateMediaAssetFromUploadAsync(file.FileName, uploadedUrl);
                     _context.TourImages.Add(new TourImage
                     {
                         TourId = tour.Id,
-                        ImageUrl = path
+                        MediaAssetId = media.Id,
+                        IsPrimary = false,
+                        SortOrder = sortOrder++
                     });
                 }
+            }
+
+            if (!hasPrimary)
+            {
+                return BadRequest(new { message = "Tour phải có ít nhất 1 ảnh chính." });
             }
 
             _context.TourSchedules.Add(new TourSchedule
@@ -118,11 +209,7 @@ public class ToursController : ControllerBase
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            var result = await _context.Tours
-                .Include(t => t.TourImages)
-                .FirstOrDefaultAsync(t => t.Id == tour.Id);
-
-            return Ok(result);
+            return await GetById(tour.Id);
         }
         catch (Exception ex)
         {
@@ -137,6 +224,7 @@ public class ToursController : ControllerBase
     {
         var tour = await _context.Tours
             .Include(t => t.TourImages)
+                .ThenInclude(ti => ti.MediaAsset)
             .FirstOrDefaultAsync(t => t.Id == id);
 
         if (tour == null) return NotFound();
@@ -145,55 +233,102 @@ public class ToursController : ControllerBase
         tour.Code = dto.Code;
         tour.DepartureLocation = dto.DepartureLocation;
         tour.CategoryId = dto.CategoryId;
-        tour.Description = dto.Description ?? "";
+        tour.Description = dto.Description ?? string.Empty;
+        tour.MinPrice = dto.AdultPrice;
+
+        var currentPrimary = tour.TourImages.FirstOrDefault(i => i.IsPrimary);
 
         if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
         {
-            tour.ImageUrl = dto.ImageUrl;
-        }
-        else if (dto.ImageFile != null)
-        {
-            DeletePhysicalFile(tour.ImageUrl);
-            tour.ImageUrl = await UploadProcess(dto.ImageFile);
-        }
+            var media = await CreateMediaAssetFromUrlAsync(dto.ImageUrl);
 
-        if (dto.AlbumImageUrls != null && dto.AlbumImageUrls.Any())
-        {
-            foreach (var url in dto.AlbumImageUrls
-                         .Where(x => !string.IsNullOrWhiteSpace(x))
-                         .Distinct())
+            if (currentPrimary != null)
             {
-                var exists = tour.TourImages != null && tour.TourImages.Any(img => img.ImageUrl == url);
-                if (!exists)
-                {
-                    _context.TourImages.Add(new TourImage
-                    {
-                        TourId = id,
-                        ImageUrl = url
-                    });
-                }
+                currentPrimary.MediaAssetId = media.Id;
             }
-        }
-        else if (dto.AlbumFiles != null && dto.AlbumFiles.Any())
-        {
-            foreach (var file in dto.AlbumFiles)
+            else
             {
-                var path = await UploadProcess(file);
                 _context.TourImages.Add(new TourImage
                 {
                     TourId = id,
-                    ImageUrl = path
+                    MediaAssetId = media.Id,
+                    IsPrimary = true,
+                    SortOrder = 1
+                });
+            }
+        }
+        else if (dto.ImageFile != null)
+        {
+            var uploadedUrl = await UploadProcess(dto.ImageFile);
+            var media = await CreateMediaAssetFromUploadAsync(dto.ImageFile.FileName, uploadedUrl);
+
+            if (currentPrimary != null)
+            {
+                currentPrimary.MediaAssetId = media.Id;
+            }
+            else
+            {
+                _context.TourImages.Add(new TourImage
+                {
+                    TourId = id,
+                    MediaAssetId = media.Id,
+                    IsPrimary = true,
+                    SortOrder = 1
                 });
             }
         }
 
-        await _context.SaveChangesAsync();
+        var maxSortOrder = tour.TourImages.Any() ? tour.TourImages.Max(x => x.SortOrder) : 0;
 
-        var updatedTour = await _context.Tours
-            .Include(t => t.TourImages)
-            .FirstOrDefaultAsync(t => t.Id == id);
+        if (dto.AlbumImageUrls != null && dto.AlbumImageUrls.Any())
+        {
+            foreach (var url in dto.AlbumImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct())
+            {
+                var exists = tour.TourImages.Any(img =>
+                    img.MediaAsset != null &&
+                    img.MediaAsset.FileUrl == url);
 
-        return Ok(updatedTour);
+                if (!exists)
+                {
+                    var media = await CreateMediaAssetFromUrlAsync(url);
+                    _context.TourImages.Add(new TourImage
+                    {
+                        TourId = id,
+                        MediaAssetId = media.Id,
+                        IsPrimary = false,
+                        SortOrder = ++maxSortOrder
+                    });
+                }
+            }
+        }
+
+        if (dto.AlbumFiles != null && dto.AlbumFiles.Any())
+        {
+            foreach (var file in dto.AlbumFiles)
+            {
+                var uploadedUrl = await UploadProcess(file);
+                var media = await CreateMediaAssetFromUploadAsync(file.FileName, uploadedUrl);
+
+                _context.TourImages.Add(new TourImage
+                {
+                    TourId = id,
+                    MediaAssetId = media.Id,
+                    IsPrimary = false,
+                    SortOrder = ++maxSortOrder
+                });
+            }
+        }
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = "Lỗi khi lưu: " + ex.Message });
+        }
+
+        return await GetById(id);
     }
 
     [HttpDelete("{id}")]
@@ -206,18 +341,9 @@ public class ToursController : ControllerBase
 
         if (tour == null) return NotFound();
 
-        DeletePhysicalFile(tour.ImageUrl);
-
-        if (tour.TourImages != null)
-        {
-            foreach (var img in tour.TourImages)
-            {
-                DeletePhysicalFile(img.ImageUrl);
-            }
-        }
-
         _context.Tours.Remove(tour);
         await _context.SaveChangesAsync();
+
         return NoContent();
     }
 
@@ -225,9 +351,13 @@ public class ToursController : ControllerBase
     {
         var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         var path = Path.Combine(wwwPath, "uploads", "tours");
-        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
         var fullPath = Path.Combine(path, fileName);
 
         using var stream = new FileStream(fullPath, FileMode.Create);
@@ -236,27 +366,52 @@ public class ToursController : ControllerBase
         return $"/uploads/tours/{fileName}";
     }
 
-    private void DeletePhysicalFile(string? path)
+    private async Task<MediaAsset> CreateMediaAssetFromUrlAsync(string url)
     {
-        if (string.IsNullOrEmpty(path) || path.Contains("default.jpg") || !path.StartsWith("/"))
-            return;
+        var normalizedUrl = url.Trim();
 
-        if (path.StartsWith("/uploads/media/", StringComparison.OrdinalIgnoreCase))
-            return;
+        var existing = await _context.MediaAssets
+            .FirstOrDefaultAsync(x => x.FileUrl == normalizedUrl);
 
-        var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-        var fullPath = Path.Combine(wwwPath, path.TrimStart('/'));
-
-        if (System.IO.File.Exists(fullPath))
+        if (existing != null)
         {
-            try
-            {
-                System.IO.File.Delete(fullPath);
-            }
-            catch
-            {
-            }
+            return existing;
         }
+
+        var media = new MediaAsset
+        {
+            FileName = Path.GetFileName(normalizedUrl),
+            FileUrl = normalizedUrl,
+            AltText = Path.GetFileNameWithoutExtension(normalizedUrl),
+            UploadedById = GetCurrentUserId(),
+            CreatedAt = DateTime.Now
+        };
+
+        _context.MediaAssets.Add(media);
+        await _context.SaveChangesAsync();
+        return media;
+    }
+
+    private async Task<MediaAsset> CreateMediaAssetFromUploadAsync(string originalFileName, string fileUrl)
+    {
+        var media = new MediaAsset
+        {
+            FileName = Path.GetFileName(originalFileName),
+            FileUrl = fileUrl,
+            AltText = Path.GetFileNameWithoutExtension(originalFileName),
+            UploadedById = GetCurrentUserId(),
+            CreatedAt = DateTime.Now
+        };
+
+        _context.MediaAssets.Add(media);
+        await _context.SaveChangesAsync();
+        return media;
+    }
+
+    private int GetCurrentUserId()
+    {
+        var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return int.TryParse(claim, out var userId) ? userId : 10;
     }
 }
 

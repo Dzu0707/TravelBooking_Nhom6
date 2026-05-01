@@ -19,8 +19,13 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const BACKEND_URL = "http://localhost:5091";
 const API = 'http://localhost:5091/api';
-
+const getImageUrl = (path: string | undefined | null) => {
+  if (!path) return "/placeholder.png";
+  if (path.startsWith("http")) return path;
+  return `${BACKEND_URL}${path.startsWith("/") ? "" : "/"}${path}`;
+};
 interface Category {
   id: number;
   name: string;
@@ -636,10 +641,10 @@ const AdminNewsPosts = () => {
                     <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
                       <div className="aspect-[4/3] bg-slate-900">
                         {formData.thumbnailUrl ? (
-                          <img
-                            src={formData.thumbnailUrl}
-                            alt="Thumbnail preview"
-                            className="h-full w-full object-cover"
+                          <img 
+                            src={getImageUrl(formData.thumbnailUrl)} 
+                            alt={formData.title}
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <div className="flex h-full items-center justify-center text-slate-600">
@@ -648,7 +653,7 @@ const AdminNewsPosts = () => {
                         )}
                       </div>
                     </div>
-
+                    
                     <div className="space-y-3">
                       <div className="rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-400">
                         {formData.thumbnailUrl || 'Chưa gắn ảnh đại diện'}

@@ -20,16 +20,8 @@ import {
 import toast from 'react-hot-toast';
 import {
   Card,
-  Table,
-  TableHead,
-  TableRow,
-  TableHeaderCell,
-  TableBody,
-  TableCell,
   Text,
   Title,
-  Flex,
-  Badge,
 } from '@tremor/react';
 
 const AdminBookings = () => {
@@ -193,197 +185,209 @@ const AdminBookings = () => {
       </section>
 
       <Card className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-0 shadow-none">
-        <Table>
-          <TableHead className="bg-slate-950/60">
-            <TableRow>
-              <TableHeaderCell className="p-5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Tour & Khách hàng
-              </TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Liên hệ & Ghi chú
-              </TableHeaderCell>
-              <TableHeaderCell className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Mã đối soát
-              </TableHeaderCell>
-              <TableHeaderCell className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Giá trị & Số lượng
-              </TableHeaderCell>
-              <TableHeaderCell className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Trạng thái
-              </TableHeaderCell>
-              <TableHeaderCell className="p-5 text-right text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Thao tác
-              </TableHeaderCell>
-            </TableRow>
-          </TableHead>
+        <div className="w-full overflow-hidden">
+          <table className="w-full table-fixed">
+            <colgroup>
+              <col className="w-[25%]" />
+              <col className="w-[21%]" />
+              <col className="w-[16%]" />
+              <col className="w-[16%]" />
+              <col className="w-[22%]" />
+            </colgroup>
 
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="p-20 text-center">
-                  <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="animate-spin text-cyan-400" size={32} />
-                    <Text className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Đang truy xuất dữ liệu...
-                    </Text>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : filteredBookings.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="p-20 text-center">
-                  <Text className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                    Không có dữ liệu khớp với tìm kiếm
-                  </Text>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredBookings.map((b: any) => {
-                const displayCode = `PAYTOUR${b.id}NHOM6`;
+            <thead className="bg-slate-950/60">
+              <tr>
+                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Tour & Khách hàng
+                </th>
+                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Liên hệ & Ghi chú
+                </th>
+                <th className="p-4 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Mã đối soát
+                </th>
+                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Giá trị
+                </th>
+                <th className="p-4 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                  Trạng thái & Thao tác
+                </th>
+              </tr>
+            </thead>
 
-                return (
-                  <TableRow
-                    key={b.id}
-                    className="border-b border-slate-800/50 transition-colors hover:bg-slate-800/30"
-                  >
-                    <TableCell className="p-5">
-                      <Flex justifyContent="start" className="gap-4">
-                        <div className="flex size-11 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-cyan-300">
-                          <MapPin size={18} />
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="p-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <Loader2 className="animate-spin text-cyan-400" size={32} />
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                        Đang truy xuất dữ liệu...
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredBookings.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-16 text-center">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                      Không có dữ liệu khớp với tìm kiếm
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredBookings.map((b: any) => {
+                  const displayCode = `PAYTOUR${b.id}NHOM6`;
+
+                  return (
+                    <tr
+                      key={b.id}
+                      className="border-b border-slate-800/50 align-top transition-colors hover:bg-slate-800/30"
+                    >
+                      <td className="p-4">
+                        <div className="flex gap-3">
+                          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-cyan-300">
+                            <MapPin size={16} />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold uppercase tracking-tight text-slate-100">
+                              {b.tourName || 'N/A'}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1 truncate text-[11px] font-medium text-slate-400">
+                              <User size={11} className="shrink-0 text-slate-500" />
+                              {b.customerName || b.contactName || b.fullName}
+                            </p>
+                            <p className="mt-1 flex items-center gap-1 text-[10px] font-medium uppercase text-slate-500">
+                              <CalendarDays size={11} className="shrink-0" />
+                              {b.startDate
+                                ? new Date(b.startDate).toLocaleDateString('vi-VN')
+                                : 'Chưa có lịch'}
+                            </p>
+                          </div>
                         </div>
+                      </td>
 
-                        <div>
-                          <Text className="text-sm font-bold uppercase tracking-tight text-slate-100">
-                            {b.tourName || 'N/A'}
-                          </Text>
-                          <Text className="mt-1 flex items-center gap-1 text-[11px] font-medium text-slate-400">
-                            <User size={11} className="text-slate-500" />
-                            {b.customerName || b.contactName || b.fullName}
-                          </Text>
-                          <Text className="mt-1 flex items-center gap-1 text-[10px] font-medium uppercase text-slate-500">
-                            <CalendarDays size={11} />
-                            {b.startDate
-                              ? new Date(b.startDate).toLocaleDateString('vi-VN')
-                              : 'Chưa có lịch'}
-                          </Text>
+                      <td className="p-4">
+                        <div className="min-w-0 space-y-2">
+                          <p className="flex items-center gap-2 truncate text-[11px] font-medium text-slate-300">
+                            <Phone size={12} className="shrink-0 text-slate-500" />
+                            {b.contactPhone || 'Chưa có SĐT'}
+                          </p>
+                          <p className="flex items-center gap-2 truncate text-[11px] font-medium text-slate-400">
+                            <Mail size={12} className="shrink-0 text-slate-500" />
+                            {b.contactEmail || b.customerEmail || 'Chưa có email'}
+                          </p>
+                          <p className="flex items-start gap-2 text-[11px] italic text-amber-300">
+                            <MessageSquareMore size={12} className="mt-0.5 shrink-0 text-amber-500" />
+                            <span className="line-clamp-2">
+                              {b.specialRequest || 'Không có yêu cầu'}
+                            </span>
+                          </p>
                         </div>
-                      </Flex>
-                    </TableCell>
+                      </td>
 
-                    <TableCell className="p-5">
-                      <div className="space-y-2">
-                        <Text className="flex items-center gap-2 text-[11px] font-medium text-slate-300">
-                          <Phone size={12} className="text-slate-500" />
-                          {b.contactPhone || 'Chưa có SĐT'}
-                        </Text>
-                        <Text className="flex items-center gap-2 text-[11px] font-medium text-slate-400">
-                          <Mail size={12} className="text-slate-500" />
-                          {b.contactEmail || b.customerEmail || 'Chưa có email'}
-                        </Text>
-                        <Text className="flex items-start gap-2 text-[11px] italic text-amber-300">
-                          <MessageSquareMore size={12} className="mt-0.5 text-amber-500" />
-                          <span className="line-clamp-2">
-                            {b.specialRequest || 'Không có yêu cầu'}
-                          </span>
-                        </Text>
-                      </div>
-                    </TableCell>
+                      <td className="p-4 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full bg-cyan-500/5 px-3 py-1.5 ring-1 ring-cyan-500/20">
+                            <Fingerprint size={13} className="shrink-0 text-cyan-400" />
+                            <span className="truncate font-mono text-[10px] font-bold uppercase text-cyan-300">
+                              {displayCode}
+                            </span>
+                          </div>
 
-                    <TableCell className="text-center">
-                      <div className="group flex items-center justify-center gap-2">
-                        <Badge
-                          color="cyan"
-                          icon={Fingerprint}
-                          className="bg-cyan-500/5 px-3 py-1.5 font-mono text-[10px] font-bold uppercase ring-1 ring-cyan-500/20"
-                        >
-                          {displayCode}
-                        </Badge>
-                        <button
-                          onClick={() => handleCopy(displayCode)}
-                          className="rounded-md p-1 text-slate-500 opacity-0 transition-all group-hover:opacity-100 hover:text-cyan-300"
-                        >
-                          <Copy size={14} />
-                        </button>
-                      </div>
-                    </TableCell>
+                          <button
+                            onClick={() => handleCopy(displayCode)}
+                            className="inline-flex items-center gap-1 text-[10px] text-slate-500 transition hover:text-cyan-300"
+                          >
+                            <Copy size={12} />
+                            Copy
+                          </button>
+                        </div>
+                      </td>
 
-                    <TableCell>
-                      <Text className="text-[15px] font-bold italic text-emerald-400">
-                        {b.totalPrice?.toLocaleString('vi-VN')} đ
-                      </Text>
-                      <Text className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
-                        <Users size={10} />
-                        {b.totalPassengers} khách
-                        {typeof b.adultCount === 'number' && typeof b.childCount === 'number'
-                          ? ` • ${b.adultCount} NL / ${b.childCount} TE`
-                          : ''}
-                      </Text>
-                      <Text className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
-                        <CalendarDays size={10} />
-                        {new Date(b.createdAt).toLocaleDateString('vi-VN')}
-                      </Text>
-                    </TableCell>
+                      <td className="p-4">
+                        <p className="truncate text-[15px] font-bold italic text-emerald-400">
+                          {b.totalPrice?.toLocaleString('vi-VN')} đ
+                        </p>
+                        <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                          <Users size={10} className="shrink-0" />
+                          {b.totalPassengers} khách
+                          {typeof b.adultCount === 'number' && typeof b.childCount === 'number'
+                            ? ` • ${b.adultCount} NL / ${b.childCount} TE`
+                            : ''}
+                        </p>
+                        <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                          <CalendarDays size={10} className="shrink-0" />
+                          {new Date(b.createdAt).toLocaleDateString('vi-VN')}
+                        </p>
+                      </td>
 
-                    <TableCell className="text-center">
-                      <div className="flex flex-col items-center gap-1.5">
-                        <span
-                          className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] ${
-                            b.status === 'Confirmed'
-                              ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                              : b.status === 'Pending'
-                                ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                                : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
-                          }`}
-                        >
-                          {b.status === 'Confirmed'
-                            ? 'Đã duyệt'
-                            : b.status === 'Pending'
-                              ? 'Chờ tiền'
-                              : 'Đã hủy'}
-                        </span>
-                        {b.status === 'Pending' && (
-                          <span className="flex items-center gap-1 text-[8px] font-bold uppercase tracking-[0.16em] text-rose-400">
-                            <AlertTriangle size={10} />
-                            Kiểm tra sao kê
-                          </span>
-                        )}
-                      </div>
-                    </TableCell>
+                      <td className="p-4 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="flex flex-col items-center gap-1.5">
+                            <span
+                              className={`rounded-full border px-3 py-1 text-[9px] font-bold uppercase tracking-[0.16em] ${
+                                b.status === 'Confirmed'
+                                  ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                                  : b.status === 'Pending'
+                                    ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                                    : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
+                              }`}
+                            >
+                              {b.status === 'Confirmed'
+                                ? 'Đã duyệt'
+                                : b.status === 'Pending'
+                                  ? 'Chờ tiền'
+                                  : 'Đã hủy'}
+                            </span>
 
-                    <TableCell className="p-5 text-right">
-                      <Flex justifyContent="end" className="gap-2">
-                        {actionLoading === b.id ? (
-                          <Loader2 size={18} className="animate-spin text-cyan-400" />
-                        ) : (
-                          <>
                             {b.status === 'Pending' && (
-                              <button
-                                onClick={() => handleVerifyPayment(b.id)}
-                                className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300 transition-all hover:bg-emerald-500/15"
-                              >
-                                <Banknote size={14} /> Duyệt tiền
-                              </button>
+                              <span className="flex items-center gap-1 text-[8px] font-bold uppercase tracking-[0.16em] text-rose-400">
+                                <AlertTriangle size={10} />
+                                Kiểm tra sao kê
+                              </span>
                             )}
-                            {b.status !== 'Cancelled' && (
-                              <button
-                                onClick={() => handleCancelAdmin(b.id)}
-                                className="rounded-xl border border-transparent p-2.5 text-slate-600 transition-colors hover:border-rose-500/20 hover:bg-rose-600/10 hover:text-rose-500"
-                                title="Hủy đơn hàng"
-                              >
-                                <XCircle size={18} />
-                              </button>
+                          </div>
+
+                          <div className="flex flex-wrap items-center justify-center gap-2">
+                            {actionLoading === b.id ? (
+                              <Loader2 size={18} className="animate-spin text-cyan-400" />
+                            ) : (
+                              <>
+                                {b.status === 'Pending' && (
+                                  <button
+                                    onClick={() => handleVerifyPayment(b.id)}
+                                    className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300 transition-all hover:bg-emerald-500/15"
+                                  >
+                                    <Banknote size={13} />
+                                    Duyệt
+                                  </button>
+                                )}
+
+                                {b.status !== 'Cancelled' && (
+                                  <button
+                                    onClick={() => handleCancelAdmin(b.id)}
+                                    className="rounded-xl border border-transparent p-2 text-slate-600 transition-colors hover:border-rose-500/20 hover:bg-rose-600/10 hover:text-rose-500"
+                                    title="Hủy đơn hàng"
+                                  >
+                                    <XCircle size={17} />
+                                  </button>
+                                )}
+                              </>
                             )}
-                          </>
-                        )}
-                      </Flex>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </Card>
+
     </div>
   );
 };

@@ -1,87 +1,146 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 using TravelTour.API.Data;
 using TravelTour.API.Models;
 
 namespace TravelTour.API.Controllers;
 
 [Authorize(Roles = "Admin")]
-[Route("api/[controller]")] // Route sẽ là api/TourImages
+[Route("api/[controller]")]
 [ApiController]
-public class TourImagesController : ControllerBase {
+public class TourImagesController : ControllerBase
+{
     private readonly IWebHostEnvironment _env;
     private readonly TravelDbContext _context;
 
-    public TourImagesController(IWebHostEnvironment env, TravelDbContext context) {
+    public TourImagesController(IWebHostEnvironment env, TravelDbContext context)
+    {
         _env = env;
         _context = context;
     }
 
-    // POST: api/TourImages/upload/5
-    // Dùng khi Admin muốn thêm lẻ 1 ảnh vào album của Tour đã có sẵn
     [HttpPost("upload/{tourId}")]
-    public async Task<IActionResult> Upload(int tourId, IFormFile file) {
-        if (file == null || file.Length == 0) return BadRequest("File trống");
+    public async Task<IActionResult> Upload(int tourId, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest("File trống");
+        }
 
-        try {
+        var tourExists = await _context.Tours.AnyAsync(t => t.Id == tourId);
+        if (!tourExists)
+        {
+            return NotFound(new { message = "Không tìm thấy tour" });
+        }
+
+        try
+        {
             var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
             var folder = Path.Combine(wwwPath, "uploads", "tours");
-            
-            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
             var fullPath = Path.Combine(folder, fileName);
 
-            using (var stream = new FileStream(fullPath, FileMode.Create)) {
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
                 await file.CopyToAsync(stream);
             }
 
-            var tourImage = new TourImage {
+            var fileUrl = $"/uploads/tours/{fileName}";
+
+            var mediaAsset = new MediaAsset
+            {
+                FileName = file.FileName,
+                FileUrl = fileUrl,
+                AltText = Path.GetFileNameWithoutExtension(file.FileName),
+                UploadedById = 10,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.MediaAssets.Add(mediaAsset);
+            await _context.SaveChangesAsync();
+
+            var maxSortOrder = await _context.TourImages
+                .Where(x => x.TourId == tourId)
+                .Select(x => (int?)x.SortOrder)
+                .MaxAsync() ?? 0;
+
+            var tourImage = new TourImage
+            {
                 TourId = tourId,
-                ImageUrl = $"/uploads/tours/{fileName}",
-                IsPrimary = false
+                MediaAssetId = mediaAsset.Id,
+                IsPrimary = false,
+                SortOrder = maxSortOrder + 1
             };
 
             _context.TourImages.Add(tourImage);
             await _context.SaveChangesAsync();
 
-            return Ok(new { id = tourImage.Id, url = tourImage.ImageUrl });
-        } catch (Exception ex) {
+            return Ok(new
+            {
+                id = tourImage.Id,
+                mediaAssetId = mediaAsset.Id,
+                url = mediaAsset.FileUrl
+            });
+        }
+        catch (Exception ex)
+        {
             return StatusCode(500, $"Lỗi server: {ex.Message}");
         }
     }
 
-    // DELETE: api/TourImages/11
-    // Dùng khi Admin bấm nút [X] xóa 1 ảnh trong album
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id) {
-        var image = await _context.TourImages.FindAsync(id);
-        
-        if (image == null) {
+    public async Task<IActionResult> Delete(int id)
+    {
+        var image = await _context.TourImages
+            .Include(x => x.MediaAsset)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (image == null)
+        {
             return NotFound(new { message = "Không tìm thấy ảnh trong dữ liệu" });
         }
 
-        try {
-            // 1. Xóa file vật lý trên ổ đĩa
-            if (!string.IsNullOrEmpty(image.ImageUrl)) {
-                var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                // Loại bỏ dấu gạch chéo đầu tiên để Path.Combine hoạt động đúng
-                var relativePath = image.ImageUrl.TrimStart('/');
-                var fullPath = Path.Combine(wwwPath, relativePath);
-                
-                if (System.IO.File.Exists(fullPath)) {
-                    System.IO.File.Delete(fullPath);
-                }
-            }
-        } catch (IOException) {
-            // Nếu file đang bị lock, chúng ta vẫn tiếp tục xóa record trong DB 
-            // hoặc log lỗi ở đây nếu cần thiết
-        }
+        var mediaAsset = image.MediaAsset;
 
-        // 2. Xóa record trong Database
         _context.TourImages.Remove(image);
         await _context.SaveChangesAsync();
+
+        if (mediaAsset != null)
+        {
+            var stillUsedInTours = await _context.TourImages
+                .AnyAsync(x => x.MediaAssetId == mediaAsset.Id);
+
+            if (!stillUsedInTours)
+            {
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(mediaAsset.FileUrl) && mediaAsset.FileUrl.StartsWith("/"))
+                    {
+                        var wwwPath = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                        var relativePath = mediaAsset.FileUrl.TrimStart('/');
+                        var fullPath = Path.Combine(wwwPath, relativePath);
+
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            System.IO.File.Delete(fullPath);
+                        }
+                    }
+                }
+                catch (IOException)
+                {
+                }
+
+                _context.MediaAssets.Remove(mediaAsset);
+                await _context.SaveChangesAsync();
+            }
+        }
 
         return Ok(new { message = "Xóa ảnh thành công" });
     }

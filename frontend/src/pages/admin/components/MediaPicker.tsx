@@ -4,7 +4,13 @@ import { Check, ImagePlus, Loader2, Search, Upload, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const API = 'http://localhost:5091/api';
+const API_BASE = 'http://localhost:5091';
 
+const getFullUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 interface MediaItem {
   id: number;
   fileName: string;
@@ -65,10 +71,6 @@ const MediaPicker = ({
     fetchMedia();
   }, []);
 
-  useEffect(() => {
-    setSelectedUrls(values);
-  }, [values]);
-
   const handleUpload = async (file?: File) => {
     if (!file) return;
 
@@ -90,8 +92,7 @@ const MediaPicker = ({
       await fetchMedia();
 
       if (multiple) {
-        const next = [...selectedUrls, res.data.fileUrl];
-        setSelectedUrls(next);
+        setSelectedUrls((prev) => [...prev, res.data.fileUrl]);
       } else {
         onSelect(res.data.fileUrl);
         onClose();
@@ -125,7 +126,9 @@ const MediaPicker = ({
     }
 
     setSelectedUrls((prev) =>
-      prev.includes(url) ? prev.filter((x) => x !== url) : [...prev, url]
+      prev.includes(url)
+        ? prev.filter((x) => x !== url)
+        : [...prev, url]
     );
   };
 
@@ -208,9 +211,9 @@ const MediaPicker = ({
           ) : filteredItems.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {filteredItems.map((item) => {
-                const active = multiple
-                  ? selectedUrls.includes(item.fileUrl)
-                  : value === item.fileUrl;
+                  const active = multiple
+                    ? selectedUrls.includes(item.fileUrl)
+                    : value === item.fileUrl;
 
                 return (
                   <button
@@ -230,7 +233,11 @@ const MediaPicker = ({
                     )}
 
                     <div className="aspect-[4/3] overflow-hidden bg-slate-900">
-                      <img src={item.fileUrl} alt={item.altText || item.fileName} className="h-full w-full object-cover" />
+                      <img
+                        src={getFullUrl(item.fileUrl)}
+                        alt={item.altText || item.fileName}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
                     <div className="space-y-2 p-4">
