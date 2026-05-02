@@ -26,6 +26,10 @@ public class User
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+    public string? ResetPasswordToken { get; set; }
+
+    public DateTime? ResetPasswordTokenExpiry { get; set; }
+
     [JsonIgnore]
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
