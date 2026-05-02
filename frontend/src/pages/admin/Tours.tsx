@@ -14,8 +14,8 @@ import {
   Search,
   Images,
 } from 'lucide-react';
-import AdminSchedules from './AdminSchedules';
-import MediaPicker from './components/MediaPicker';
+import AdminSchedules from './Schedules';
+import MediaPicker from '../../components/ui/MediaPicker';
 
 import {
   Card,

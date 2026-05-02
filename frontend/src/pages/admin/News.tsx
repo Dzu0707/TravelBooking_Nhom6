@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Newspaper, FolderKanban, Tags } from 'lucide-react';
-import AdminNewsPosts from './news/AdminNewsPosts';
-import AdminNewsCategories from './news/AdminNewsCategories';
-import AdminNewsTags from './news/AdminNewsTags';
+import AdminNewsPosts from './news/NewsPosts';
+import AdminNewsCategories from './news/NewsCategories';
+import AdminNewsTags from './news/NewsTags';
 
 type NewsView = 'posts' | 'categories' | 'tags';
 
