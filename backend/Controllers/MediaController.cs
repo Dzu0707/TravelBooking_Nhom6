@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using TravelTour.API.Data;
 using TravelTour.API.Models;
+using TravelTour.API.Models.Requests;
 
 namespace TravelTour.API.Controllers;
 
@@ -42,16 +43,14 @@ public class MediaController : ControllerBase
     }
 
     [HttpPost("upload")]
-    public async Task<IActionResult> Upload(
-        [FromForm] IFormFile file,
-        [FromForm] string? altText,
-        [FromForm] string? customName)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> Upload([FromForm] UploadMediaRequest request)
     {
-        if (file == null || file.Length == 0)
+        if (request.File == null || request.File.Length == 0)
             return BadRequest(new { message = "File không hợp lệ!" });
 
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var extension = Path.GetExtension(request.File.FileName).ToLowerInvariant();
 
         if (!allowedExtensions.Contains(extension))
             return BadRequest(new { message = "Chỉ chấp nhận jpg, jpeg, png, webp!" });
@@ -62,9 +61,9 @@ public class MediaController : ControllerBase
         if (!Directory.Exists(uploadsRoot))
             Directory.CreateDirectory(uploadsRoot);
 
-        var rawName = string.IsNullOrWhiteSpace(customName)
-            ? Path.GetFileNameWithoutExtension(file.FileName)
-            : customName.Trim();
+        var rawName = string.IsNullOrWhiteSpace(request.CustomName)
+            ? Path.GetFileNameWithoutExtension(request.File.FileName)
+            : request.CustomName.Trim();
 
         var safeName = string.Concat(rawName.ToLowerInvariant().Select(c => char.IsLetterOrDigit(c) ? c : '-')).Trim('-');
         while (safeName.Contains("--"))
@@ -73,16 +72,14 @@ public class MediaController : ControllerBase
         }
 
         if (string.IsNullOrWhiteSpace(safeName))
-        {
             safeName = "media";
-        }
 
         var fileName = $"{safeName}-{DateTime.Now:yyyyMMddHHmmss}{extension}";
         var filePath = Path.Combine(uploadsRoot, fileName);
 
         await using (var stream = new FileStream(filePath, FileMode.Create))
         {
-            await file.CopyToAsync(stream);
+            await request.File.CopyToAsync(stream);
         }
 
         var fileUrl = $"/uploads/media/{fileName}";
@@ -92,7 +89,7 @@ public class MediaController : ControllerBase
         {
             FileName = fileName,
             FileUrl = fileUrl,
-            AltText = altText ?? safeName,
+            AltText = request.AltText ?? safeName,
             UploadedById = uploadedById,
             CreatedAt = DateTime.Now
         };
@@ -136,9 +133,7 @@ public class MediaController : ControllerBase
         }
 
         if (addedCount > 0)
-        {
             await _context.SaveChangesAsync();
-        }
 
         return Ok(new { message = $"Đã đồng bộ {addedCount} ảnh mới từ thư mục vào hệ thống." });
     }
@@ -148,15 +143,11 @@ public class MediaController : ControllerBase
     {
         var media = await _context.MediaAssets.FindAsync(id);
         if (media == null)
-        {
             return NotFound(new { message = "Không tìm thấy ảnh!" });
-        }
 
         var isUsedByTour = await _context.TourImages.AnyAsync(x => x.MediaAssetId == id);
         if (isUsedByTour)
-        {
             return BadRequest(new { message = "Ảnh đang được gắn vào tour, không thể xóa." });
-        }
 
         var webRoot = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
@@ -166,9 +157,7 @@ public class MediaController : ControllerBase
             var filePath = Path.Combine(webRoot, relativePath);
 
             if (System.IO.File.Exists(filePath))
-            {
                 System.IO.File.Delete(filePath);
-            }
         }
 
         _context.MediaAssets.Remove(media);
@@ -181,18 +170,13 @@ public class MediaController : ControllerBase
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (int.TryParse(userIdClaim, out var userId))
-        {
             return userId;
-        }
 
         var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
         if (!string.IsNullOrWhiteSpace(userEmail))
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == userEmail);
-            if (user != null)
-            {
-                return user.Id;
-            }
+            if (user != null) return user.Id;
         }
 
         return 10;

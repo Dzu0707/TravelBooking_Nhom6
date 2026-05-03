@@ -6,6 +6,11 @@ using TravelTour.API.Data;
 
 namespace TravelTour.API.Controllers;
 
+public class UploadUserImageRequest
+{
+    public IFormFile File { get; set; } = default!;
+}
+
 [Route("api/[controller]")]
 [ApiController]
 public class UsersController : ControllerBase
@@ -16,18 +21,21 @@ public class UsersController : ControllerBase
     {
         _context = context;
     }
+
     [HttpPost("me/avatar")]
     [Authorize]
-    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadAvatar([FromForm] UploadUserImageRequest request)
     {
-        return await UploadProfileImage(file, true);
+        return await UploadProfileImage(request.File, true);
     }
 
     [HttpPost("me/cover")]
     [Authorize]
-    public async Task<IActionResult> UploadCover([FromForm] IFormFile file)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadCover([FromForm] UploadUserImageRequest request)
     {
-        return await UploadProfileImage(file, false);
+        return await UploadProfileImage(request.File, false);
     }
 
     [HttpDelete("me/avatar")]

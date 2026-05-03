@@ -346,24 +346,26 @@ const AdminDashboard = () => {
         <div className="mb-4 flex items-center gap-2">
           <BarChart3 size={16} className="text-cyan-300" />
           <h3 className="text-xs font-black uppercase tracking-[0.16em] text-slate-200">
-            Hiệu suất theo ngày (từ dữ liệu bảng)
+            Hiệu suất theo ngày
           </h3>
         </div>
 
         {chartData.length > 0 ? (
-          <AreaChart
-            className="h-72 [&_.recharts-cartesian-grid_line]:stroke-slate-700 [&_.recharts-text]:fill-slate-300"
-            data={chartData}
-            index="date"
-            categories={['Doanh thu']}
-            colors={['cyan']}
-            valueFormatter={(v: number) => `${Number(v || 0).toLocaleString('vi-VN')} đ`}
-            showLegend={true}
-            showGridLines={true}
-            showYAxis={true}
-            curveType="linear"
-            connectNulls={false}
-          />
+        <AreaChart
+          className="h-72 [&_.recharts-cartesian-grid_line]:stroke-slate-700 [&_.recharts-text]:fill-slate-300"
+          data={chartData}
+          index="date"
+          categories={['Doanh thu']}
+          colors={['cyan']}
+          // Tăng độ rộng của trục Y (mặc định thường là 56, hãy thử 80 hoặc 100)
+          yAxisWidth={100} 
+          valueFormatter={(v: number) => `${Number(v || 0).toLocaleString('vi-VN')} đ`}
+          showLegend={true}
+          showGridLines={true}
+          showYAxis={true}
+          curveType="linear"
+          connectNulls={false}
+        />
         ) : (
           <div className="h-72 flex items-center justify-center text-slate-500 text-sm">
             Không có dữ liệu để hiển thị biểu đồ
