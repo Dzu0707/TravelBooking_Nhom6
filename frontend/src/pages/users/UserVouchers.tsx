@@ -1,60 +1,68 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { 
-  Ticket, 
-  Clock, 
-  CheckCircle2, 
-  Copy, 
-  Tag, 
-  Zap, 
-  Info 
+import { useNavigate } from 'react-router-dom';
+import {
+  Ticket,
+  Clock,
+  CheckCircle2,
+  Copy,
+  Tag,
+  Zap,
+  Info,
+  LogIn
 } from 'lucide-react';
 
 const UserVouchers = () => {
   const [vouchers, setVouchers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const API_BASE_URL = 'http://localhost:5091/api/Vouchers';
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const navigate = useNavigate();
 
-  // Hàm hỗ trợ lấy giá trị không phân biệt chữ hoa/thường từ API
+  const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5091'}/api/Vouchers`;
+
   const getValue = (obj: any, key: string) => {
     if (!obj) return '';
     const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
     return obj[key] !== undefined ? obj[key] : obj[capitalizedKey] || '';
   };
 
-  // Lấy dữ liệu từ API
   const fetchVouchers = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token'); // Lấy token để sửa lỗi 401
+      setIsUnauthorized(false);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsUnauthorized(true);
+        setVouchers([]);
+        return;
+      }
 
       const response = await axios.get(API_BASE_URL, {
-        headers: { 
-          Authorization: `Bearer ${token}` // Gửi token lên server
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = Array.isArray(response.data) ? response.data : [];
-      
-      // Lọc các voucher còn hạn và còn lượt dùng
+
       const activeVouchers = data.filter((v: any) => {
         const expiryDate = getValue(v, 'expiryDate');
-        const quantity = getValue(v, 'quantity');
-        
-        const isExpired = new Date(expiryDate) < new Date();
-        const isOutOfStock = Number(quantity) <= 0;
-        
+        const quantity = Number(getValue(v, 'quantity') || 0);
+
+        const isExpired = expiryDate ? new Date(expiryDate) < new Date() : true;
+        const isOutOfStock = quantity <= 0;
+
         return !isExpired && !isOutOfStock;
       });
 
       setVouchers(activeVouchers);
     } catch (error: any) {
-      console.error('Lỗi lấy dữ liệu:', error);
+      console.error('Lỗi lấy dữ liệu vouchers:', error);
       if (error.response?.status === 401) {
-        toast.error('Vui lòng đăng nhập để xem ưu đãi');
+        setIsUnauthorized(true);
+        setVouchers([]);
       } else {
-        toast.error('Không thể kết nối đến máy chủ API');
+        toast.error('Không thể tải danh sách ưu đãi');
       }
     } finally {
       setLoading(false);
@@ -68,39 +76,49 @@ const UserVouchers = () => {
   const copyToClipboard = (code: string) => {
     if (!code) return;
     navigator.clipboard.writeText(code);
-    toast.success(`Đã sao chép mã: ${code}`, {
-      icon: '🎁',
-      style: {
-        borderRadius: '10px',
-        background: '#333',
-        color: '#fff',
-      },
-    });
+    toast.success(`Đã sao chép mã: ${code}`);
   };
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-cyan-500 border-t-transparent"></div>
+      <div className="flex min-h-[420px] items-center justify-center bg-[#f8fbff]">
+        <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      {/* Header Section */}
+      {/* Header */}
       <div className="mb-12 text-center">
-        <h2 className="flex items-center justify-center gap-2 text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+        <h2 className="flex items-center justify-center gap-2 text-3xl font-black uppercase tracking-tight text-slate-900">
           <Zap className="fill-yellow-400 text-yellow-400" />
           Kho Ưu Đãi Đặc Biệt
         </h2>
-        <p className="mt-3 text-slate-500 dark:text-slate-400">
-          Săn mã giảm giá ngay để tận hưởng chuyến đi tiết kiệm hơn cùng chúng tôi.
+        <p className="mt-3 text-slate-500">
+          Mã giảm giá cập nhật theo chương trình hiện hành của TravelGo.
         </p>
       </div>
 
-      {vouchers.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-slate-200 p-20 text-center dark:border-slate-800">
+      {/* Chưa đăng nhập */}
+      {isUnauthorized ? (
+        <div className="rounded-3xl border border-blue-100 bg-white p-10 text-center shadow-sm">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <LogIn size={24} />
+          </div>
+          <h3 className="text-xl font-black text-slate-900">Bạn chưa đăng nhập</h3>
+          <p className="mt-2 text-slate-500 max-w-md mx-auto">
+            Đăng nhập để xem mã ưu đãi dành riêng cho tài khoản của bạn.
+          </p>
+          <button
+            onClick={() => navigate('/login')}
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 transition-all"
+          >
+            Đăng nhập ngay
+          </button>
+        </div>
+      ) : vouchers.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 p-20 text-center bg-white">
           <Ticket className="mx-auto mb-4 text-slate-300" size={48} />
           <p className="text-slate-500 font-medium">Hiện tại chưa có chương trình ưu đãi nào.</p>
         </div>
@@ -109,42 +127,41 @@ const UserVouchers = () => {
           {vouchers.map((voucher, index) => {
             const code = getValue(voucher, 'code');
             const type = getValue(voucher, 'discountType');
-            const val = getValue(voucher, 'discountValue');
+            const val = Number(getValue(voucher, 'discountValue') || 0);
             const expiry = getValue(voucher, 'expiryDate');
-            const qty = getValue(voucher, 'quantity');
+            const qty = Number(getValue(voucher, 'quantity') || 0);
 
             return (
-              <div 
+              <div
                 key={getValue(voucher, 'id') || index}
-                className="group relative overflow-hidden rounded-2xl bg-white shadow-sm border border-slate-100 transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-slate-900 dark:border-slate-800"
+                className="group relative overflow-hidden rounded-2xl bg-white shadow-sm border border-blue-100 transition-all hover:-translate-y-1 hover:shadow-xl"
               >
-                {/* Trang trí Ticket Hole */}
-                <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800"></div>
-                <div className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800"></div>
+                <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#f8fbff] border border-blue-100"></div>
+                <div className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#f8fbff] border border-blue-100"></div>
 
                 <div className="p-6">
                   <div className="flex items-start justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 text-cyan-600 dark:bg-cyan-500/10 dark:text-cyan-400">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                       <Tag size={24} />
                     </div>
                     <div className="text-right">
                       <span className="text-2xl font-black text-emerald-500">
-                        {type?.toString().toLowerCase().includes('percent') 
-                          ? `-${val}%` 
-                          : `-${(Number(val)/1000).toLocaleString()}k`}
+                        {type?.toString().toLowerCase().includes('percent')
+                          ? `-${val}%`
+                          : `-${(val / 1000).toLocaleString()}k`}
                       </span>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Giảm trực tiếp</p>
                     </div>
                   </div>
 
                   <div className="mt-6">
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white uppercase tracking-tight">
-                      Mã: <span className="text-cyan-600 dark:text-cyan-400">{code}</span>
+                    <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">
+                      Mã: <span className="text-blue-600">{code}</span>
                     </h3>
                     <div className="mt-3 space-y-2">
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <Clock size={14} className="text-slate-400" />
-                        <span>Hạn: {new Date(expiry).toLocaleDateString('vi-VN')}</span>
+                        <span>Hạn: {expiry ? new Date(expiry).toLocaleDateString('vi-VN') : 'N/A'}</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-500">
                         <CheckCircle2 size={14} className="text-emerald-500" />
@@ -156,19 +173,18 @@ const UserVouchers = () => {
                   <div className="mt-8 flex gap-2 relative z-10">
                     <button
                       onClick={() => copyToClipboard(code)}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 py-3 text-sm font-bold text-white transition-all hover:bg-slate-800 active:scale-95 dark:bg-cyan-600 dark:hover:bg-cyan-700"
+                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white transition-all hover:bg-blue-700 active:scale-95"
                     >
                       <Copy size={16} />
                       Sao chép mã
                     </button>
-                    <button className="flex items-center justify-center rounded-xl border border-slate-200 px-3 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800">
+                    <button className="flex items-center justify-center rounded-xl border border-slate-200 px-3 transition-colors hover:bg-slate-50">
                       <Info size={18} className="text-slate-400" />
                     </button>
                   </div>
                 </div>
 
-                {/* Đường gạch đứt đoạn trang trí */}
-                <div className="absolute top-1/2 left-0 w-full border-t border-dashed border-slate-200 dark:border-slate-800 pointer-events-none"></div>
+                <div className="absolute top-1/2 left-0 w-full border-t border-dashed border-blue-100 pointer-events-none"></div>
               </div>
             );
           })}
@@ -176,13 +192,15 @@ const UserVouchers = () => {
       )}
 
       {/* Footer Info */}
-      <div className="mt-16 rounded-2xl bg-cyan-50/50 border border-cyan-100 p-8 text-center dark:bg-slate-900/50 dark:border-slate-800">
-        <h4 className="font-bold text-cyan-900 dark:text-cyan-400">Lưu ý sử dụng Voucher</h4>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Mỗi mã giảm giá chỉ áp dụng 1 lần cho mỗi giao dịch thành công. Không có giá trị quy đổi thành tiền mặt. 
-          Vui lòng kiểm tra thời hạn sử dụng trước khi áp dụng mã.
-        </p>
-      </div>
+      {!isUnauthorized && (
+        <div className="mt-16 rounded-2xl bg-blue-50 border border-blue-100 p-8 text-center">
+          <h4 className="font-bold text-blue-900">Lưu ý sử dụng Voucher</h4>
+          <p className="mt-2 text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Mỗi mã giảm giá chỉ áp dụng 1 lần cho mỗi giao dịch thành công. Không quy đổi tiền mặt.
+            Vui lòng kiểm tra thời hạn sử dụng trước khi áp dụng.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

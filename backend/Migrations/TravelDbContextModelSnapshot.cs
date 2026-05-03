@@ -92,12 +92,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Confirmed",
                             TotalPassengers = 2,
-                            TotalPrice = 9000000m,
+                            TotalPrice = 1750000m,
                             TourScheduleId = 1,
-                            UserId = 1
+                            UserId = 2
                         },
                         new
                         {
@@ -107,12 +107,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Pending",
-                            TotalPassengers = 2,
-                            TotalPrice = 6000000m,
+                            CreatedAt = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
+                            TotalPassengers = 3,
+                            TotalPrice = 2000000m,
                             TourScheduleId = 2,
-                            UserId = 2
+                            UserId = 3
                         },
                         new
                         {
@@ -122,12 +122,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Cancelled",
-                            TotalPassengers = 2,
-                            TotalPrice = 10400000m,
+                            CreatedAt = new DateTime(2026, 4, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
+                            TotalPassengers = 1,
+                            TotalPrice = 2250000m,
                             TourScheduleId = 3,
-                            UserId = 3
+                            UserId = 4
                         },
                         new
                         {
@@ -137,12 +137,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Cancelled",
                             TotalPassengers = 2,
-                            TotalPrice = 7600000m,
+                            TotalPrice = 2500000m,
                             TourScheduleId = 4,
-                            UserId = 4
+                            UserId = 5
                         },
                         new
                         {
@@ -152,12 +152,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Confirmed",
                             TotalPassengers = 3,
-                            TotalPrice = 2700000m,
+                            TotalPrice = 2750000m,
                             TourScheduleId = 5,
-                            UserId = 5
+                            UserId = 6
                         },
                         new
                         {
@@ -167,12 +167,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Pending",
-                            TotalPassengers = 2,
-                            TotalPrice = 9400000m,
+                            TotalPassengers = 1,
+                            TotalPrice = 3000000m,
                             TourScheduleId = 6,
-                            UserId = 6
+                            UserId = 7
                         },
                         new
                         {
@@ -182,12 +182,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Confirmed",
                             TotalPassengers = 2,
-                            TotalPrice = 6400000m,
+                            TotalPrice = 3250000m,
                             TourScheduleId = 7,
-                            UserId = 7
+                            UserId = 8
                         },
                         new
                         {
@@ -197,12 +197,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Cancelled",
-                            TotalPassengers = 1,
-                            TotalPrice = 3100000m,
+                            TotalPassengers = 3,
+                            TotalPrice = 3500000m,
                             TourScheduleId = 8,
-                            UserId = 8
+                            UserId = 9
                         },
                         new
                         {
@@ -212,12 +212,12 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Confirmed",
-                            TotalPassengers = 2,
-                            TotalPrice = 11000000m,
+                            CreatedAt = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
+                            TotalPassengers = 1,
+                            TotalPrice = 3750000m,
                             TourScheduleId = 9,
-                            UserId = 9
+                            UserId = 1
                         },
                         new
                         {
@@ -227,12 +227,162 @@ namespace backend.Migrations
                             ContactEmail = "",
                             ContactName = "",
                             ContactPhone = "",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Pending",
+                            CreatedAt = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
                             TotalPassengers = 2,
-                            TotalPrice = 1400000m,
+                            TotalPrice = 4000000m,
                             TourScheduleId = 10,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
+                            TotalPassengers = 3,
+                            TotalPrice = 4250000m,
+                            TourScheduleId = 11,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Cancelled",
+                            TotalPassengers = 1,
+                            TotalPrice = 4500000m,
+                            TourScheduleId = 12,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
+                            TotalPassengers = 2,
+                            TotalPrice = 4750000m,
+                            TourScheduleId = 13,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
+                            TotalPassengers = 3,
+                            TotalPrice = 5000000m,
+                            TourScheduleId = 14,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
+                            TotalPassengers = 1,
+                            TotalPrice = 5250000m,
+                            TourScheduleId = 15,
+                            UserId = 7
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Cancelled",
+                            TotalPassengers = 2,
+                            TotalPrice = 5500000m,
+                            TourScheduleId = 16,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
+                            TotalPassengers = 3,
+                            TotalPrice = 5750000m,
+                            TourScheduleId = 17,
+                            UserId = 9
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
+                            TotalPassengers = 1,
+                            TotalPrice = 6000000m,
+                            TourScheduleId = 18,
                             UserId = 1
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Confirmed",
+                            TotalPassengers = 2,
+                            TotalPrice = 6250000m,
+                            TourScheduleId = 19,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 20,
+                            AdultCount = 0,
+                            ChildCount = 0,
+                            ContactEmail = "",
+                            ContactName = "",
+                            ContactPhone = "",
+                            CreatedAt = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Cancelled",
+                            TotalPassengers = 3,
+                            TotalPrice = 6500000m,
+                            TourScheduleId = 20,
+                            UserId = 3
                         });
                 });
 
@@ -269,80 +419,160 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             BookingId = 1,
-                            DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Nguyễn Văn A",
+                            DateOfBirth = new DateTime(1989, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Nguyễn Minh Anh",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 2,
                             BookingId = 2,
-                            DateOfBirth = new DateTime(2001, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Trần Thị B",
+                            DateOfBirth = new DateTime(1990, 3, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Trần Thu Hằng",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 3,
                             BookingId = 3,
-                            DateOfBirth = new DateTime(2002, 3, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Lê Văn C",
+                            DateOfBirth = new DateTime(1991, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Lê Quốc Cường",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 4,
                             BookingId = 4,
-                            DateOfBirth = new DateTime(2003, 4, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Phạm Thị D",
+                            DateOfBirth = new DateTime(1992, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Phạm Ngọc Diễm",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 5,
                             BookingId = 5,
-                            DateOfBirth = new DateTime(2004, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Hoàng Văn E",
+                            DateOfBirth = new DateTime(1993, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Hoàng Gia Bảo",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 6,
                             BookingId = 6,
-                            DateOfBirth = new DateTime(2005, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Đỗ Thị F",
+                            DateOfBirth = new DateTime(1994, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Đỗ Khánh Linh",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 7,
                             BookingId = 7,
-                            DateOfBirth = new DateTime(2000, 7, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Võ Văn G",
+                            DateOfBirth = new DateTime(1995, 8, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Võ Thành Nam",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 8,
                             BookingId = 8,
-                            DateOfBirth = new DateTime(2001, 8, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Bùi Thị H",
+                            DateOfBirth = new DateTime(2016, 8, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Bùi Thanh Mai",
                             Type = "Child"
                         },
                         new
                         {
                             Id = 9,
                             BookingId = 9,
-                            DateOfBirth = new DateTime(2002, 9, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Ngô Văn I",
+                            DateOfBirth = new DateTime(1997, 10, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Ngô Đức Long",
                             Type = "Adult"
                         },
                         new
                         {
                             Id = 10,
                             BookingId = 10,
-                            DateOfBirth = new DateTime(1995, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            FullName = "Admin",
+                            DateOfBirth = new DateTime(1998, 11, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Phan Quang Huy",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            BookingId = 11,
+                            DateOfBirth = new DateTime(1999, 12, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Nguyễn Gia Hân",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            BookingId = 12,
+                            DateOfBirth = new DateTime(1988, 1, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Trần Quốc Việt",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            BookingId = 13,
+                            DateOfBirth = new DateTime(1989, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Lý Hoàng Nam",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            BookingId = 14,
+                            DateOfBirth = new DateTime(1990, 3, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Đặng Bảo Trân",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            BookingId = 15,
+                            DateOfBirth = new DateTime(1991, 4, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Phạm Nhật Long",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            BookingId = 16,
+                            DateOfBirth = new DateTime(1992, 5, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Vũ Khánh Vy",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            BookingId = 17,
+                            DateOfBirth = new DateTime(1993, 6, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Lê Minh Tâm",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            BookingId = 18,
+                            DateOfBirth = new DateTime(1994, 7, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Đỗ Quốc Đạt",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            BookingId = 19,
+                            DateOfBirth = new DateTime(1995, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Nguyễn Hoài Phương",
+                            Type = "Adult"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            BookingId = 20,
+                            DateOfBirth = new DateTime(1996, 9, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FullName = "Hoàng Tuấn Kiệt",
                             Type = "Adult"
                         });
                 });
@@ -372,32 +602,32 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Đắm mình trong làn nước trong xanh...",
-                            Name = "Tour Biển"
+                            Description = "Các tour biển, đảo và nghỉ dưỡng ven biển.",
+                            Name = "Tour Biển - Đảo"
                         },
                         new
                         {
                             Id = 2,
-                            Description = "Hành trình ngược dòng thời gian...",
-                            Name = "Tour Di Sản - Văn Hóa"
+                            Description = "Khám phá núi rừng, cao nguyên và khí hậu mát mẻ.",
+                            Name = "Tour Núi - Cao nguyên"
                         },
                         new
                         {
                             Id = 3,
-                            Description = "Dành cho những tâm hồn đam mê xê dịch...",
-                            Name = "Tour Khám Phá"
+                            Description = "Hành trình di sản, lịch sử và văn hóa bản địa.",
+                            Name = "Tour Di sản - Văn hóa"
                         },
                         new
                         {
                             Id = 4,
-                            Description = "Trải nghiệm nhịp sống bình dị...",
-                            Name = "Tour Miền Tây"
+                            Description = "Trải nghiệm miền Tây, chợ nổi và văn hóa sông nước.",
+                            Name = "Tour Miền Tây - Sông nước"
                         },
                         new
                         {
                             Id = 5,
-                            Description = "Chinh phục những đỉnh cao mây mờ...",
-                            Name = "Tour Núi"
+                            Description = "Hang động, cảnh quan tự nhiên và điểm đến độc đáo.",
+                            Name = "Tour Thiên nhiên - Khám phá"
                         });
                 });
 
@@ -436,7 +666,88 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            AltText = "Côn Đảo",
+                            AltText = "BuonMaThuot",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "BuonMaThuot.webp",
+                            FileUrl = "/uploads/media/BuonMaThuot.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AltText = "BuonMaThuot 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "BuonMaThuot1.webp",
+                            FileUrl = "/uploads/media/BuonMaThuot1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AltText = "BuonMaThuot 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "BuonMaThuot2.webp",
+                            FileUrl = "/uploads/media/BuonMaThuot2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AltText = "CanTho",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "CanTho.webp",
+                            FileUrl = "/uploads/media/CanTho.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AltText = "CanTho 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "CanTho1.webp",
+                            FileUrl = "/uploads/media/CanTho1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AltText = "CanTho 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "CanTho2.webp",
+                            FileUrl = "/uploads/media/CanTho2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AltText = "CaoBang",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "CaoBang.webp",
+                            FileUrl = "/uploads/media/CaoBang.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AltText = "CaoBang 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "CaoBang1.webp",
+                            FileUrl = "/uploads/media/CaoBang1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AltText = "CaoBang 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "CaoBang2.webp",
+                            FileUrl = "/uploads/media/CaoBang2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AltText = "ConDao",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "ConDao.webp",
                             FileUrl = "/uploads/media/ConDao.webp",
@@ -444,8 +755,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 2,
-                            AltText = "Côn Đảo 1",
+                            Id = 11,
+                            AltText = "ConDao 1",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "ConDao1.webp",
                             FileUrl = "/uploads/media/ConDao1.webp",
@@ -453,8 +764,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 3,
-                            AltText = "Côn Đảo 2",
+                            Id = 12,
+                            AltText = "ConDao 2",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "ConDao2.webp",
                             FileUrl = "/uploads/media/ConDao2.webp",
@@ -462,8 +773,62 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 4,
-                            AltText = "Đảo Phú Quý",
+                            Id = 13,
+                            AltText = "DaLat",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "DaLat.webp",
+                            FileUrl = "/uploads/media/DaLat.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AltText = "DaLat 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "DaLat1.webp",
+                            FileUrl = "/uploads/media/DaLat1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AltText = "DaLat 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "DaLat2.webp",
+                            FileUrl = "/uploads/media/DaLat2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AltText = "DaNang",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "DaNang.webp",
+                            FileUrl = "/uploads/media/DaNang.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AltText = "DaNang 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "DaNang1.webp",
+                            FileUrl = "/uploads/media/DaNang1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AltText = "DaNang 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "DaNang2.webp",
+                            FileUrl = "/uploads/media/DaNang2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AltText = "DaoPhuQuy",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "DaoPhuQuy.webp",
                             FileUrl = "/uploads/media/DaoPhuQuy.webp",
@@ -471,8 +836,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 5,
-                            AltText = "Đảo Phú Quý 1",
+                            Id = 20,
+                            AltText = "DaoPhuQuy 1",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "DaoPhuQuy1.webp",
                             FileUrl = "/uploads/media/DaoPhuQuy1.webp",
@@ -480,8 +845,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 6,
-                            AltText = "Đảo Phú Quý 2",
+                            Id = 21,
+                            AltText = "DaoPhuQuy 2",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "DaoPhuQuy2.webp",
                             FileUrl = "/uploads/media/DaoPhuQuy2.webp",
@@ -489,8 +854,89 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 7,
-                            AltText = "Nha Trang",
+                            Id = 22,
+                            AltText = "HaGiang",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "HaGiang.webp",
+                            FileUrl = "/uploads/media/HaGiang.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 23,
+                            AltText = "HaGiang 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "HaGiang1.webp",
+                            FileUrl = "/uploads/media/HaGiang1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 24,
+                            AltText = "HaGiang 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "HaGiang2.webp",
+                            FileUrl = "/uploads/media/HaGiang2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 25,
+                            AltText = "Hue",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "Hue.webp",
+                            FileUrl = "/uploads/media/Hue.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 26,
+                            AltText = "Hue 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "Hue1.webp",
+                            FileUrl = "/uploads/media/Hue1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 27,
+                            AltText = "Hue 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "Hue2.webp",
+                            FileUrl = "/uploads/media/Hue2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 28,
+                            AltText = "MocChau",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "MocChau.webp",
+                            FileUrl = "/uploads/media/MocChau.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 29,
+                            AltText = "MocChau 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "MocChau1.webp",
+                            FileUrl = "/uploads/media/MocChau1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 30,
+                            AltText = "MocChau 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "MocChau2.webp",
+                            FileUrl = "/uploads/media/MocChau2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 31,
+                            AltText = "NhaTrang",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "NhaTrang.webp",
                             FileUrl = "/uploads/media/NhaTrang.webp",
@@ -498,8 +944,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 8,
-                            AltText = "Nha Trang 1",
+                            Id = 32,
+                            AltText = "NhaTrang 1",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "NhaTrang1.webp",
                             FileUrl = "/uploads/media/NhaTrang1.webp",
@@ -507,8 +953,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 9,
-                            AltText = "Nha Trang 2",
+                            Id = 33,
+                            AltText = "NhaTrang 2",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "NhaTrang2.webp",
                             FileUrl = "/uploads/media/NhaTrang2.webp",
@@ -516,8 +962,89 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 10,
-                            AltText = "Phú Quốc",
+                            Id = 34,
+                            AltText = "NinhBinh",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "NinhBinh.webp",
+                            FileUrl = "/uploads/media/NinhBinh.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 35,
+                            AltText = "NinhBinh 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "NinhBinh1.webp",
+                            FileUrl = "/uploads/media/NinhBinh1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 36,
+                            AltText = "NinhBinh 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "NinhBinh2.webp",
+                            FileUrl = "/uploads/media/NinhBinh2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 37,
+                            AltText = "NinhThuan",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "NinhThuan.webp",
+                            FileUrl = "/uploads/media/NinhThuan.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 38,
+                            AltText = "NinhThuan 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "NinhThuan1.webp",
+                            FileUrl = "/uploads/media/NinhThuan1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 39,
+                            AltText = "NinhThuan 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "NinhThuan2.webp",
+                            FileUrl = "/uploads/media/NinhThuan2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 40,
+                            AltText = "PhanThiet",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "PhanThiet.webp",
+                            FileUrl = "/uploads/media/PhanThiet.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 41,
+                            AltText = "PhanThiet 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "PhanThiet1.webp",
+                            FileUrl = "/uploads/media/PhanThiet1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 42,
+                            AltText = "PhanThiet 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "PhanThiet2.webp",
+                            FileUrl = "/uploads/media/PhanThiet2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 43,
+                            AltText = "PhuQuoc",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "PhuQuoc.webp",
                             FileUrl = "/uploads/media/PhuQuoc.webp",
@@ -525,8 +1052,8 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 11,
-                            AltText = "Phú Quốc 1",
+                            Id = 44,
+                            AltText = "PhuQuoc 1",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "PhuQuoc1.webp",
                             FileUrl = "/uploads/media/PhuQuoc1.webp",
@@ -534,11 +1061,173 @@ namespace backend.Migrations
                         },
                         new
                         {
-                            Id = 12,
-                            AltText = "Phú Quốc 2",
+                            Id = 45,
+                            AltText = "PhuQuoc 2",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             FileName = "PhuQuoc2.webp",
                             FileUrl = "/uploads/media/PhuQuoc2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 46,
+                            AltText = "PhuYen",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "PhuYen.webp",
+                            FileUrl = "/uploads/media/PhuYen.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 47,
+                            AltText = "PhuYen 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "PhuYen1.webp",
+                            FileUrl = "/uploads/media/PhuYen1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 48,
+                            AltText = "PhuYen 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "PhuYen2.webp",
+                            FileUrl = "/uploads/media/PhuYen2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 49,
+                            AltText = "QuangBinh",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "QuangBinh.webp",
+                            FileUrl = "/uploads/media/QuangBinh.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 50,
+                            AltText = "QuangBinh 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "QuangBinh1.webp",
+                            FileUrl = "/uploads/media/QuangBinh1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 51,
+                            AltText = "QuangBinh 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "QuangBinh2.webp",
+                            FileUrl = "/uploads/media/QuangBinh2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 52,
+                            AltText = "QuyNhon",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "QuyNhon.webp",
+                            FileUrl = "/uploads/media/QuyNhon.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 53,
+                            AltText = "QuyNhon 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "QuyNhon1.webp",
+                            FileUrl = "/uploads/media/QuyNhon1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 54,
+                            AltText = "QuyNhon 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "QuyNhon2.webp",
+                            FileUrl = "/uploads/media/QuyNhon2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 55,
+                            AltText = "Sapa",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "Sapa.webp",
+                            FileUrl = "/uploads/media/Sapa.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 56,
+                            AltText = "Sapa 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "Sapa1.webp",
+                            FileUrl = "/uploads/media/Sapa1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 57,
+                            AltText = "Sapa 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "Sapa2.webp",
+                            FileUrl = "/uploads/media/Sapa2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 58,
+                            AltText = "TayNinh",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "TayNinh.webp",
+                            FileUrl = "/uploads/media/TayNinh.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 59,
+                            AltText = "TayNinh 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "TayNinh1.webp",
+                            FileUrl = "/uploads/media/TayNinh1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 60,
+                            AltText = "TayNinh 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "TayNinh2.webp",
+                            FileUrl = "/uploads/media/TayNinh2.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 61,
+                            AltText = "VinhHaLongLong",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "VinhHaLongLong.webp",
+                            FileUrl = "/uploads/media/VinhHaLongLong.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 62,
+                            AltText = "VinhHaLongLong 1",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "VinhHaLongLong1.webp",
+                            FileUrl = "/uploads/media/VinhHaLongLong1.webp",
+                            UploadedById = 10
+                        },
+                        new
+                        {
+                            Id = 63,
+                            AltText = "VinhHaLongLong 2",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            FileName = "VinhHaLongLong2.webp",
+                            FileUrl = "/uploads/media/VinhHaLongLong2.webp",
                             UploadedById = 10
                         });
                 });
@@ -732,160 +1421,320 @@ namespace backend.Migrations
                             Id = 1,
                             AuthorId = 1,
                             CategoryId = 1,
-                            Content = "Phú Quốc nổi tiếng với bãi Sao...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Content = "Từ cáp treo Hòn Thơm, lặn ngắm san hô đến sunset thị trấn Hoàng Hôn — Phú Quốc có đủ trải nghiệm nghỉ dưỡng và vui chơi cho cả gia đình.",
+                            CreatedAt = new DateTime(2026, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsFeatured = true,
-                            Slug = "bien-dep-phu-quoc",
+                            Slug = "top-7-trai-nghiem-phu-quoc-mua-he",
                             Status = "Published",
-                            Summary = "Danh sách bãi biển đẹp",
+                            Summary = "Lịch trình 3N2Đ khám phá đảo ngọc với chi phí tối ưu.",
                             ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Top 5 bãi biển đẹp nhất Phú Quốc",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 120
+                            Title = "Top 7 trải nghiệm không thể bỏ lỡ ở Phú Quốc mùa hè",
+                            UpdatedAt = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 2180
                         },
                         new
                         {
                             Id = 2,
                             AuthorId = 2,
                             CategoryId = 3,
-                            Content = "Đà Lạt là điểm đến lý tưởng...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsFeatured = false,
-                            Slug = "kinh-nghiem-da-lat",
+                            Content = "Ngày 1 dạo biển và trung tâm thành phố, ngày 2 đi Bà Nà Hills, ngày 3 kết hợp Hội An là lịch trình hợp lý cho nhóm bạn hoặc gia đình.",
+                            CreatedAt = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "da-nang-3n2d-lich-trinh-goi-y",
                             Status = "Published",
-                            Summary = "Hướng dẫn du lịch Đà Lạt",
-                            ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Kinh nghiệm đi Đà Lạt tự túc",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 90
+                            Summary = "Biển Mỹ Khê, Bà Nà, Hội An trong một hành trình vừa sức.",
+                            ThumbnailUrl = "/uploads/media/DaNang.webp",
+                            Title = "Đà Nẵng 3N2Đ: lịch trình gọn đẹp cho người đi lần đầu",
+                            UpdatedAt = new DateTime(2026, 4, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1960
                         },
                         new
                         {
                             Id = 3,
                             AuthorId = 3,
                             CategoryId = 4,
-                            Content = "Hải sản Nha Trang rất nổi tiếng...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsFeatured = true,
-                            Slug = "am-thuc-nha-trang",
+                            Content = "Nha Trang không chỉ có biển đẹp mà còn nổi tiếng bởi văn hóa ẩm thực đa dạng, giá hợp lý và dễ tìm quanh khu trung tâm.",
+                            CreatedAt = new DateTime(2026, 4, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "an-gi-o-nha-trang-10-mon-nen-thu",
                             Status = "Published",
-                            Summary = "Top món ngon Nha Trang",
-                            ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Ăn gì ở Nha Trang?",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 150
+                            Summary = "Bún sứa, bánh căn, hải sản đêm và quán local chất lượng.",
+                            ThumbnailUrl = "/uploads/media/NhaTrang2.webp",
+                            Title = "Ăn gì ở Nha Trang? 10 món địa phương nên thử",
+                            UpdatedAt = new DateTime(2026, 4, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1510
                         },
                         new
                         {
                             Id = 4,
                             AuthorId = 4,
                             CategoryId = 5,
-                            Content = "Nếu may mắn bạn sẽ thấy tuyết...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Content = "Phú Yên phù hợp cho chuyến đi ngắn 2N1Đ với nhịp độ chậm, cảnh đẹp tự nhiên và nhiều điểm check-in sát biển.",
+                            CreatedAt = new DateTime(2026, 4, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsFeatured = false,
-                            Slug = "checkin-sapa",
-                            Status = "Draft",
-                            Summary = "Sapa mùa đông cực đẹp",
-                            ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Check-in Sapa mùa tuyết",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 30
+                            Slug = "phu-yen-cuoi-tuan-goi-y-diem-den",
+                            Status = "Published",
+                            Summary = "Gành Đá Đĩa, Bãi Xép, cung đường ven biển cực chill.",
+                            ThumbnailUrl = "/uploads/media/PhuYen1.webp",
+                            Title = "Phú Yên cuối tuần: đi đâu để có ảnh đẹp mà không quá đông?",
+                            UpdatedAt = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1320
                         },
                         new
                         {
                             Id = 5,
                             AuthorId = 5,
-                            CategoryId = 2,
-                            Content = "Du lịch Đà Nẵng chưa bao giờ rẻ...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CategoryId = 6,
+                            Content = "Nếu muốn nghỉ ngơi, đi tour trọn gói sẽ tiết kiệm thời gian. Nếu thích chủ động check-in, bạn có thể tự túc kết hợp du thuyền ngày.",
+                            CreatedAt = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsFeatured = true,
-                            Slug = "tour-da-nang-gia-re",
+                            Slug = "vinh-ha-long-tu-tuc-hay-di-tour",
                             Status = "Published",
-                            Summary = "Combo tiết kiệm",
-                            ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Tour Đà Nẵng giá rẻ",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 200
+                            Summary = "So sánh chi phí, trải nghiệm và độ tiện lợi cho từng lựa chọn.",
+                            ThumbnailUrl = "/uploads/media/VinhHaLongLong.webp",
+                            Title = "Vịnh Hạ Long nên đi tự túc hay đi tour?",
+                            UpdatedAt = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1850
                         },
                         new
                         {
                             Id = 6,
                             AuthorId = 6,
-                            CategoryId = 7,
-                            Content = "Hà Giang là cung đường mơ ước...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsFeatured = false,
-                            Slug = "phuot-ha-giang",
+                            CategoryId = 3,
+                            Content = "Đà Lạt có nét đẹp riêng mỗi mùa: đầu năm hoa nở rực rỡ, giữa năm xanh mát, cuối năm thời tiết lạnh và phù hợp săn mây buổi sớm.",
+                            CreatedAt = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "da-lat-thang-nao-dep-nhat",
                             Status = "Published",
-                            Summary = "Checklist phượt",
-                            ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Phượt Hà Giang cần chuẩn bị gì?",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 80
+                            Summary = "Mùa hoa, mùa mưa và thời điểm săn mây lý tưởng.",
+                            ThumbnailUrl = "/uploads/media/DaLat1.webp",
+                            Title = "Đà Lạt tháng nào đẹp nhất? Gợi ý theo từng mùa",
+                            UpdatedAt = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 2100
                         },
                         new
                         {
                             Id = 7,
                             AuthorId = 7,
-                            CategoryId = 6,
-                            Content = "Phú Yên đang nổi lên...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CategoryId = 7,
+                            Content = "Nhiệt độ Sa Pa chênh lệch ngày đêm lớn, nên chuẩn bị áo khoác chống gió, giày bám tốt và kế hoạch di chuyển linh hoạt theo thời tiết.",
+                            CreatedAt = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsFeatured = false,
-                            Slug = "review-resort-phu-yen",
+                            Slug = "sapa-mua-may-checklist-can-mang",
                             Status = "Published",
-                            Summary = "Resort view biển",
-                            ThumbnailUrl = "/uploads/media/PhuQuoc.webp",
-                            Title = "Review resort Phú Yên",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 60
+                            Summary = "Trang phục, thuốc cơ bản, giày trekking và mẹo giữ ấm.",
+                            ThumbnailUrl = "/uploads/media/Sapa.webp",
+                            Title = "Sa Pa mùa mây: checklist đồ cần mang theo",
+                            UpdatedAt = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1240
                         },
                         new
                         {
                             Id = 8,
                             AuthorId = 8,
-                            CategoryId = 9,
-                            Content = "Các địa điểm phù hợp gia đình...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CategoryId = 7,
+                            Content = "Không chạy đêm, kiểm tra phanh/lốp trước khi đi, luôn mang giấy tờ và theo dõi dự báo thời tiết là các nguyên tắc quan trọng nhất.",
+                            CreatedAt = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsFeatured = true,
-                            Slug = "du-lich-gia-dinh",
+                            Slug = "ha-giang-8-luu-y-an-toan-xe-may",
                             Status = "Published",
-                            Summary = "Gợi ý địa điểm",
-                            ThumbnailUrl = "/uploads/media/ConDao1.webp",
-                            Title = "Du lịch gia đình nên đi đâu?",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 140
+                            Summary = "Kinh nghiệm thực tế cho người mới đi cung đèo.",
+                            ThumbnailUrl = "/uploads/media/HaGiang1.webp",
+                            Title = "Hà Giang an toàn hơn khi đi xe máy: 8 lưu ý bắt buộc",
+                            UpdatedAt = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1730
                         },
                         new
                         {
                             Id = 9,
                             AuthorId = 9,
-                            CategoryId = 2,
-                            Content = "Côn Đảo là điểm đến tâm linh...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CategoryId = 3,
+                            Content = "Mộc Châu đẹp nhất khi hoa nở trắng đồi. Bạn có thể kết hợp đồi chè trái tim, rừng thông và các bản làng văn hóa.",
+                            CreatedAt = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsFeatured = false,
-                            Slug = "combo-con-dao",
-                            Status = "Draft",
-                            Summary = "Ưu đãi hot",
-                            ThumbnailUrl = "/uploads/media/ConDao1.webp",
-                            Title = "Combo Côn Đảo tiết kiệm",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 20
+                            Slug = "moc-chau-mua-hoa-man-kinh-nghiem",
+                            Status = "Published",
+                            Summary = "Combo điểm đến + homestay + món ngon địa phương.",
+                            ThumbnailUrl = "/uploads/media/MocChau.webp",
+                            Title = "Mộc Châu mùa hoa mận: đi đâu, ăn gì, ở đâu?",
+                            UpdatedAt = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 980
                         },
                         new
                         {
                             Id = 10,
                             AuthorId = 1,
-                            CategoryId = 10,
-                            Content = "Bạn có thể đi Nhà thờ Đức Bà...",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsFeatured = true,
-                            Slug = "sai-gon-1-ngay",
+                            CategoryId = 6,
+                            Content = "Khám phá làng cà phê, bảo tàng thế giới cà phê và các điểm thác nổi bật quanh thành phố là lựa chọn rất đáng thử.",
+                            CreatedAt = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "buon-ma-thuot-2n1d-goi-y",
                             Status = "Published",
-                            Summary = "City tour HCM",
-                            ThumbnailUrl = "/uploads/media/ConDao2.webp",
-                            Title = "Khám phá Sài Gòn 1 ngày",
-                            UpdatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ViewCount = 300
+                            Summary = "Hành trình ngắn gọn nhưng đủ trải nghiệm đặc trưng.",
+                            ThumbnailUrl = "/uploads/media/BuonMaThuot.webp",
+                            Title = "Buôn Ma Thuột 2N1Đ: cà phê, thác nước và văn hóa Tây Nguyên",
+                            UpdatedAt = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 860
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AuthorId = 2,
+                            CategoryId = 5,
+                            Content = "Cao Bằng phù hợp với ai thích thiên nhiên hùng vĩ. Bạn nên lên kế hoạch sớm để có lịch trình hợp lý và tiết kiệm thời gian di chuyển.",
+                            CreatedAt = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "cao-bang-ban-gioc-kinh-nghiem-tu-tuc",
+                            Status = "Published",
+                            Summary = "Kinh nghiệm di chuyển xa, đặt phòng và ăn uống vùng cao.",
+                            ThumbnailUrl = "/uploads/media/CaoBang.webp",
+                            Title = "Cao Bằng và thác Bản Giốc: đi tự túc cần chuẩn bị gì?",
+                            UpdatedAt = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 910
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AuthorId = 3,
+                            CategoryId = 1,
+                            Content = "Ngoài Đại Nội, Huế còn hấp dẫn bởi lăng tẩm, phố cổ, ẩm thực cung đình và không gian đậm chất văn hóa miền Trung.",
+                            CreatedAt = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "hue-6-trai-nghiem-nen-thu",
+                            Status = "Published",
+                            Summary = "Ẩm thực, di sản, nhịp sống chậm đầy chiều sâu.",
+                            ThumbnailUrl = "/uploads/media/Hue.webp",
+                            Title = "Huế không chỉ có Đại Nội: 6 trải nghiệm nên thử",
+                            UpdatedAt = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1420
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AuthorId = 4,
+                            CategoryId = 5,
+                            Content = "Bạn có thể đi sớm, tham quan Tràng An buổi sáng, chiều lên Hang Múa săn hoàng hôn và kết thúc bằng ẩm thực dê núi đặc trưng.",
+                            CreatedAt = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "ninh-binh-1-ngay-lich-trinh",
+                            Status = "Published",
+                            Summary = "Lịch trình tối ưu cho chuyến đi ngắn từ Hà Nội.",
+                            ThumbnailUrl = "/uploads/media/NinhBinh1.webp",
+                            Title = "Ninh Bình 1 ngày: Tràng An - Hang Múa - Hoa Lư",
+                            UpdatedAt = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1670
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AuthorId = 5,
+                            CategoryId = 5,
+                            Content = "Ninh Thuận là điểm đến tuyệt vời cho team yêu nắng gió, ảnh đẹp và các hoạt động ngoài trời như trekking nhẹ, tắm biển, check-in đồi cát.",
+                            CreatedAt = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "ninh-thuan-cung-duong-bien-cuc-chill",
+                            Status = "Published",
+                            Summary = "Vĩnh Hy, Hang Rái, đồi cát và vườn nho trong một hành trình.",
+                            ThumbnailUrl = "/uploads/media/NinhThuan.webp",
+                            Title = "Ninh Thuận mùa nắng đẹp: cung đường biển cực chill",
+                            UpdatedAt = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1560
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AuthorId = 6,
+                            CategoryId = 9,
+                            Content = "Ưu tiên resort gần biển, kết hợp tham quan đồi cát, làng chài và các điểm vui chơi dễ di chuyển.",
+                            CreatedAt = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "phan-thiet-mui-ne-gia-dinh-3n2d",
+                            Status = "Draft",
+                            Summary = "Gợi ý lịch nhẹ nhàng cho gia đình có trẻ nhỏ.",
+                            ThumbnailUrl = "/uploads/media/PhanThiet1.webp",
+                            Title = "Phan Thiết - Mũi Né: lịch trình gia đình 3 ngày 2 đêm",
+                            UpdatedAt = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 720
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AuthorId = 7,
+                            CategoryId = 4,
+                            Content = "Nên đi từ sớm để cảm nhận trọn không khí giao thương trên sông. Bún riêu, hủ tiếu và trái cây tại thuyền là trải nghiệm rất đáng nhớ.",
+                            CreatedAt = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "can-tho-di-cho-noi-kinh-nghiem",
+                            Status = "Published",
+                            Summary = "Khung giờ đẹp, cách thuê thuyền và món ăn nên thử.",
+                            ThumbnailUrl = "/uploads/media/CanTho.webp",
+                            Title = "Cần Thơ buổi sớm: đi chợ nổi thế nào cho trọn vẹn?",
+                            UpdatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1340
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AuthorId = 8,
+                            CategoryId = 10,
+                            Content = "Bạn có thể đi cáp treo lên núi, tham quan chùa và thưởng thức bánh tráng phơi sương, muối tôm — đặc sản nổi tiếng của Tây Ninh.",
+                            CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "tay-ninh-trong-ngay-nui-ba-den",
+                            Status = "Published",
+                            Summary = "Trip ngắn cho cuối tuần từ TP.HCM.",
+                            ThumbnailUrl = "/uploads/media/TayNinh1.webp",
+                            Title = "Tây Ninh trong ngày: Núi Bà Đen và đặc sản địa phương",
+                            UpdatedAt = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 990
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AuthorId = 9,
+                            CategoryId = 8,
+                            Content = "Phú Quý phù hợp cho người thích biển hoang sơ. Chi phí vừa phải, trải nghiệm địa phương chân thực và nhiều góc ảnh đẹp tự nhiên.",
+                            CreatedAt = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "dao-phu-quy-cap-nhat-chi-phi",
+                            Status = "Published",
+                            Summary = "Tổng hợp chi phí tàu, lưu trú, ăn uống và thuê xe.",
+                            ThumbnailUrl = "/uploads/media/DaoPhuQuy.webp",
+                            Title = "Đảo Phú Quý có gì hay? Cập nhật chi phí mới nhất",
+                            UpdatedAt = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1440
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AuthorId = 1,
+                            CategoryId = 3,
+                            Content = "Nếu đi lần đầu, bạn nên ưu tiên động Thiên Đường buổi sáng và Phong Nha buổi chiều để giảm đông, thuận tiện chụp ảnh và di chuyển.",
+                            CreatedAt = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = false,
+                            Slug = "quang-binh-2n1d-phong-nha-hay-thien-duong",
+                            Status = "Published",
+                            Summary = "So sánh thời gian, trải nghiệm và lịch tối ưu.",
+                            ThumbnailUrl = "/uploads/media/QuangBinh2.webp",
+                            Title = "Quảng Bình 2N1Đ: đi Phong Nha hay động Thiên Đường trước?",
+                            UpdatedAt = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 1280
+                        },
+                        new
+                        {
+                            Id = 20,
+                            AuthorId = 2,
+                            CategoryId = 2,
+                            Content = "Các tuyến Đà Nẵng, Nha Trang, Phú Quốc và Quy Nhơn đang có mức giá tốt theo khung khởi hành cố định. Đặt sớm để giữ chỗ đẹp.",
+                            CreatedAt = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsFeatured = true,
+                            Slug = "khuyen-mai-thang-5-2026-san-tour-bien",
+                            Status = "Published",
+                            Summary = "Nhiều tuyến biển giảm giá, áp dụng số lượng có hạn.",
+                            ThumbnailUrl = "/uploads/media/QuyNhon.webp",
+                            Title = "Khuyến mãi tháng 5/2026: săn tour biển giá tốt",
+                            UpdatedAt = new DateTime(2026, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ViewCount = 2210
                         });
                 });
 
@@ -1026,32 +1875,82 @@ namespace backend.Migrations
                         new
                         {
                             NewsPostId = 5,
-                            NewsTagId = 10
+                            NewsTagId = 6
                         },
                         new
                         {
                             NewsPostId = 6,
-                            NewsTagId = 7
+                            NewsTagId = 4
                         },
                         new
                         {
                             NewsPostId = 7,
-                            NewsTagId = 8
+                            NewsTagId = 2
                         },
                         new
                         {
                             NewsPostId = 8,
-                            NewsTagId = 9
+                            NewsTagId = 7
                         },
                         new
                         {
                             NewsPostId = 9,
-                            NewsTagId = 10
+                            NewsTagId = 2
                         },
                         new
                         {
                             NewsPostId = 10,
+                            NewsTagId = 6
+                        },
+                        new
+                        {
+                            NewsPostId = 11,
+                            NewsTagId = 4
+                        },
+                        new
+                        {
+                            NewsPostId = 12,
+                            NewsTagId = 6
+                        },
+                        new
+                        {
+                            NewsPostId = 13,
                             NewsTagId = 5
+                        },
+                        new
+                        {
+                            NewsPostId = 14,
+                            NewsTagId = 5
+                        },
+                        new
+                        {
+                            NewsPostId = 15,
+                            NewsTagId = 9
+                        },
+                        new
+                        {
+                            NewsPostId = 16,
+                            NewsTagId = 3
+                        },
+                        new
+                        {
+                            NewsPostId = 17,
+                            NewsTagId = 4
+                        },
+                        new
+                        {
+                            NewsPostId = 18,
+                            NewsTagId = 1
+                        },
+                        new
+                        {
+                            NewsPostId = 19,
+                            NewsTagId = 7
+                        },
+                        new
+                        {
+                            NewsPostId = 20,
+                            NewsTagId = 10
                         });
                 });
 
@@ -1092,92 +1991,182 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            Comment = "Tour rất tuyệt!",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Comment = "Tour Côn Đảo rất chỉn chu, lịch trình vừa sức và HDV hỗ trợ nhiệt tình.",
+                            CreatedAt = new DateTime(2026, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Rating = 5,
                             TourId = 1,
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Comment = "Khá ổn",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 4,
-                            TourId = 2,
                             UserId = 2
                         },
                         new
                         {
-                            Id = 3,
-                            Comment = "Bình thường",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 3,
-                            TourId = 3,
+                            Id = 2,
+                            Comment = "Phú Quốc đẹp, resort sạch, bữa sáng ổn. Điểm trừ nhỏ là chờ check-in hơi lâu.",
+                            CreatedAt = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 2,
                             UserId = 3
                         },
                         new
                         {
-                            Id = 4,
-                            Comment = "Rất đáng tiền",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = 3,
+                            Comment = "Nha Trang biển đẹp, xe đưa đón đúng giờ, gia đình mình rất hài lòng.",
+                            CreatedAt = new DateTime(2026, 4, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Rating = 5,
-                            TourId = 4,
+                            TourId = 3,
                             UserId = 4
                         },
                         new
                         {
-                            Id = 5,
-                            Comment = "Không như mong đợi",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 2,
-                            TourId = 1,
+                            Id = 4,
+                            Comment = "Phú Yên yên bình, cảnh đẹp tự nhiên, phù hợp nghỉ ngắn ngày cuối tuần.",
+                            CreatedAt = new DateTime(2026, 4, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 4,
                             UserId = 5
                         },
                         new
                         {
-                            Id = 6,
-                            Comment = "Dịch vụ tốt",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 4,
-                            TourId = 2,
+                            Id = 5,
+                            Comment = "Du thuyền Hạ Long đáng tiền, đồ ăn ngon, hướng dẫn viên chuyên nghiệp.",
+                            CreatedAt = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 5,
+                            TourId = 5,
                             UserId = 6
                         },
                         new
                         {
-                            Id = 7,
-                            Comment = "Cảnh đẹp",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 5,
-                            TourId = 3,
+                            Id = 6,
+                            Comment = "Đà Nẵng ổn, nhưng thời gian tham quan Bà Nà hơi gấp.",
+                            CreatedAt = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 3,
+                            TourId = 6,
                             UserId = 7
                         },
                         new
                         {
-                            Id = 8,
-                            Comment = "Tạm được",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 3,
-                            TourId = 4,
+                            Id = 7,
+                            Comment = "Quy Nhơn biển trong, khách sạn gần trung tâm nên đi lại thuận tiện.",
+                            CreatedAt = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 7,
                             UserId = 8
                         },
                         new
                         {
-                            Id = 9,
-                            Comment = "Hài lòng",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Id = 8,
+                            Comment = "Ninh Thuận nắng đẹp, lịch trình hợp lý, ảnh chụp lên rất đẹp.",
+                            CreatedAt = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Rating = 4,
-                            TourId = 1,
+                            TourId = 8,
                             UserId = 9
                         },
                         new
                         {
-                            Id = 10,
-                            Comment = "Rất thích",
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Rating = 5,
-                            TourId = 2,
+                            Id = 9,
+                            Comment = "Phan Thiết ổn, nhưng dịch vụ ăn trưa cần cải thiện thêm.",
+                            CreatedAt = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 3,
+                            TourId = 9,
                             UserId = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Comment = "Đà Lạt thời tiết đẹp, lịch nhẹ nhàng, phù hợp gia đình có người lớn tuổi.",
+                            CreatedAt = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 5,
+                            TourId = 10,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Comment = "Mộc Châu mùa hoa rất đáng đi, homestay sạch sẽ và view đẹp.",
+                            CreatedAt = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 11,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Comment = "Sa Pa mây đẹp, xe di chuyển an toàn, HDV rất có tâm.",
+                            CreatedAt = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 5,
+                            TourId = 12,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Comment = "Hà Giang cảnh hùng vĩ, nhưng đường đèo dài nên hơi mệt với người lớn tuổi.",
+                            CreatedAt = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 13,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Comment = "Buôn Ma Thuột thú vị, đặc biệt là bảo tàng cà phê và trải nghiệm địa phương.",
+                            CreatedAt = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 14,
+                            UserId = 6
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Comment = "Cao Bằng đẹp ngoài mong đợi, lịch trình hợp lý và không bị quá dồn.",
+                            CreatedAt = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 5,
+                            TourId = 15,
+                            UserId = 7
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Comment = "Huế trầm lắng, đồ ăn ngon, phù hợp cho chuyến đi thư giãn.",
+                            CreatedAt = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 16,
+                            UserId = 8
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Comment = "Ninh Bình đi 1 ngày rất tiện, cảnh Tràng An đẹp và dễ đi.",
+                            CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 5,
+                            TourId = 17,
+                            UserId = 9
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Comment = "Cần Thơ chợ nổi thú vị, nên đi sớm để trải nghiệm trọn vẹn hơn.",
+                            CreatedAt = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 4,
+                            TourId = 18,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Comment = "Tây Ninh ổn cho chuyến đi ngắn, cần thêm thời gian ở điểm tham quan chính.",
+                            CreatedAt = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 3,
+                            TourId = 19,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Comment = "Đảo Phú Quý biển rất đẹp, chi phí hợp lý, đáng đi lại lần nữa.",
+                            CreatedAt = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Rating = 5,
+                            TourId = 20,
+                            UserId = 3
                         });
                 });
 
@@ -1253,45 +2242,232 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            Code = "CD001",
+                            Code = "TOUR001",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DepartureLocation = "TP.HCM",
-                            Description = "Thiên đường biển hoang sơ",
-                            MinPrice = 4500000m,
+                            Description = "Biển xanh hoang sơ và di tích lịch sử Côn Đảo.",
+                            MinPrice = 4200000m,
                             Name = "Tour Côn Đảo"
                         },
                         new
                         {
                             Id = 2,
-                            CategoryId = 3,
-                            Code = "PQ002",
+                            CategoryId = 1,
+                            Code = "TOUR002",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DepartureLocation = "TP.HCM",
-                            Description = "Trải nghiệm biển đảo yên bình",
-                            MinPrice = 3000000m,
-                            Name = "Tour Đảo Phú Quý"
+                            Description = "Nghỉ dưỡng đảo ngọc với bãi biển trong xanh.",
+                            MinPrice = 3900000m,
+                            Name = "Tour Phú Quốc"
                         },
                         new
                         {
                             Id = 3,
-                            CategoryId = 3,
-                            Code = "NT003",
+                            CategoryId = 1,
+                            Code = "TOUR003",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DepartureLocation = "Hà Nội",
-                            Description = "Biển xanh & vui chơi giải trí",
-                            MinPrice = 5200000m,
+                            Description = "Khám phá thành phố biển sôi động.",
+                            MinPrice = 3600000m,
                             Name = "Tour Nha Trang"
                         },
                         new
                         {
                             Id = 4,
-                            CategoryId = 2,
-                            Code = "PQ004",
+                            CategoryId = 1,
+                            Code = "TOUR004",
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DepartureLocation = "TP.HCM",
-                            Description = "Đảo ngọc nghỉ dưỡng cao cấp",
+                            Description = "Gành Đá Đĩa và vẻ đẹp bình yên xứ Nẫu.",
+                            MinPrice = 3200000m,
+                            Name = "Tour Phú Yên"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CategoryId = 1,
+                            Code = "TOUR005",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Du thuyền và kỳ quan thiên nhiên thế giới.",
+                            MinPrice = 4100000m,
+                            Name = "Tour Vịnh Hạ Long"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CategoryId = 1,
+                            Code = "TOUR006",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Biển Mỹ Khê, Bà Nà và thành phố đáng sống.",
+                            MinPrice = 3700000m,
+                            Name = "Tour Đà Nẵng"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CategoryId = 1,
+                            Code = "TOUR007",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Kỳ Co - Eo Gió và biển xanh trong.",
+                            MinPrice = 3400000m,
+                            Name = "Tour Quy Nhơn"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CategoryId = 1,
+                            Code = "TOUR008",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Vịnh Vĩnh Hy, nho Ninh Thuận.",
+                            MinPrice = 3300000m,
+                            Name = "Tour Ninh Thuận"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CategoryId = 1,
+                            Code = "TOUR009",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Mũi Né, đồi cát và resort biển.",
+                            MinPrice = 2800000m,
+                            Name = "Tour Phan Thiết"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CategoryId = 2,
+                            Code = "TOUR010",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Thành phố ngàn hoa mộng mơ.",
+                            MinPrice = 2900000m,
+                            Name = "Tour Đà Lạt"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CategoryId = 2,
+                            Code = "TOUR011",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Đồi chè, mùa hoa và bản làng.",
+                            MinPrice = 3100000m,
+                            Name = "Tour Mộc Châu"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CategoryId = 2,
+                            Code = "TOUR012",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Fansipan, bản Cát Cát và mây núi.",
+                            MinPrice = 3500000m,
+                            Name = "Tour Sa Pa"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CategoryId = 2,
+                            Code = "TOUR013",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Cao nguyên đá và cung đường đèo hùng vĩ.",
                             MinPrice = 3800000m,
-                            Name = "Tour Phú Quốc"
+                            Name = "Tour Hà Giang"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CategoryId = 2,
+                            Code = "TOUR014",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Thủ phủ cà phê và văn hóa Tây Nguyên.",
+                            MinPrice = 3000000m,
+                            Name = "Tour Buôn Ma Thuột"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CategoryId = 2,
+                            Code = "TOUR015",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Thác Bản Giốc và non nước biên cương.",
+                            MinPrice = 3600000m,
+                            Name = "Tour Cao Bằng"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CategoryId = 3,
+                            Code = "TOUR016",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Đà Nẵng",
+                            Description = "Cố đô Huế và quần thể di tích triều Nguyễn.",
+                            MinPrice = 2700000m,
+                            Name = "Tour Huế"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CategoryId = 3,
+                            Code = "TOUR017",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Hà Nội",
+                            Description = "Tràng An, Hoa Lư và Tam Cốc.",
+                            MinPrice = 2600000m,
+                            Name = "Tour Ninh Bình"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CategoryId = 4,
+                            Code = "TOUR018",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Chợ nổi Cái Răng và miền sông nước.",
+                            MinPrice = 2400000m,
+                            Name = "Tour Cần Thơ"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CategoryId = 4,
+                            Code = "TOUR019",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Núi Bà Đen và văn hóa tín ngưỡng.",
+                            MinPrice = 2200000m,
+                            Name = "Tour Tây Ninh"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CategoryId = 5,
+                            Code = "TOUR020",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "TP.HCM",
+                            Description = "Đảo tiền tiêu yên bình, nước biển trong.",
+                            MinPrice = 3400000m,
+                            Name = "Tour Đảo Phú Quý"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CategoryId = 5,
+                            Code = "TOUR021",
+                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DepartureLocation = "Đà Nẵng",
+                            Description = "Phong Nha - Kẻ Bàng và động Thiên Đường.",
+                            MinPrice = 3600000m,
+                            Name = "Tour Quảng Bình"
                         });
                 });
 
@@ -1328,7 +2504,7 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             IsPrimary = true,
-                            MediaAssetId = 1,
+                            MediaAssetId = 10,
                             SortOrder = 1,
                             TourId = 1
                         },
@@ -1336,7 +2512,7 @@ namespace backend.Migrations
                         {
                             Id = 2,
                             IsPrimary = false,
-                            MediaAssetId = 2,
+                            MediaAssetId = 11,
                             SortOrder = 2,
                             TourId = 1
                         },
@@ -1344,7 +2520,7 @@ namespace backend.Migrations
                         {
                             Id = 3,
                             IsPrimary = false,
-                            MediaAssetId = 3,
+                            MediaAssetId = 12,
                             SortOrder = 3,
                             TourId = 1
                         },
@@ -1352,7 +2528,7 @@ namespace backend.Migrations
                         {
                             Id = 4,
                             IsPrimary = true,
-                            MediaAssetId = 4,
+                            MediaAssetId = 43,
                             SortOrder = 1,
                             TourId = 2
                         },
@@ -1360,7 +2536,7 @@ namespace backend.Migrations
                         {
                             Id = 5,
                             IsPrimary = false,
-                            MediaAssetId = 5,
+                            MediaAssetId = 44,
                             SortOrder = 2,
                             TourId = 2
                         },
@@ -1368,7 +2544,7 @@ namespace backend.Migrations
                         {
                             Id = 6,
                             IsPrimary = false,
-                            MediaAssetId = 6,
+                            MediaAssetId = 45,
                             SortOrder = 3,
                             TourId = 2
                         },
@@ -1376,7 +2552,7 @@ namespace backend.Migrations
                         {
                             Id = 7,
                             IsPrimary = true,
-                            MediaAssetId = 7,
+                            MediaAssetId = 31,
                             SortOrder = 1,
                             TourId = 3
                         },
@@ -1384,7 +2560,7 @@ namespace backend.Migrations
                         {
                             Id = 8,
                             IsPrimary = false,
-                            MediaAssetId = 8,
+                            MediaAssetId = 32,
                             SortOrder = 2,
                             TourId = 3
                         },
@@ -1392,7 +2568,7 @@ namespace backend.Migrations
                         {
                             Id = 9,
                             IsPrimary = false,
-                            MediaAssetId = 9,
+                            MediaAssetId = 33,
                             SortOrder = 3,
                             TourId = 3
                         },
@@ -1400,7 +2576,7 @@ namespace backend.Migrations
                         {
                             Id = 10,
                             IsPrimary = true,
-                            MediaAssetId = 10,
+                            MediaAssetId = 46,
                             SortOrder = 1,
                             TourId = 4
                         },
@@ -1408,7 +2584,7 @@ namespace backend.Migrations
                         {
                             Id = 11,
                             IsPrimary = false,
-                            MediaAssetId = 11,
+                            MediaAssetId = 47,
                             SortOrder = 2,
                             TourId = 4
                         },
@@ -1416,9 +2592,417 @@ namespace backend.Migrations
                         {
                             Id = 12,
                             IsPrimary = false,
-                            MediaAssetId = 12,
+                            MediaAssetId = 48,
                             SortOrder = 3,
                             TourId = 4
+                        },
+                        new
+                        {
+                            Id = 13,
+                            IsPrimary = true,
+                            MediaAssetId = 61,
+                            SortOrder = 1,
+                            TourId = 5
+                        },
+                        new
+                        {
+                            Id = 14,
+                            IsPrimary = false,
+                            MediaAssetId = 62,
+                            SortOrder = 2,
+                            TourId = 5
+                        },
+                        new
+                        {
+                            Id = 15,
+                            IsPrimary = false,
+                            MediaAssetId = 63,
+                            SortOrder = 3,
+                            TourId = 5
+                        },
+                        new
+                        {
+                            Id = 16,
+                            IsPrimary = true,
+                            MediaAssetId = 16,
+                            SortOrder = 1,
+                            TourId = 6
+                        },
+                        new
+                        {
+                            Id = 17,
+                            IsPrimary = false,
+                            MediaAssetId = 17,
+                            SortOrder = 2,
+                            TourId = 6
+                        },
+                        new
+                        {
+                            Id = 18,
+                            IsPrimary = false,
+                            MediaAssetId = 18,
+                            SortOrder = 3,
+                            TourId = 6
+                        },
+                        new
+                        {
+                            Id = 19,
+                            IsPrimary = true,
+                            MediaAssetId = 52,
+                            SortOrder = 1,
+                            TourId = 7
+                        },
+                        new
+                        {
+                            Id = 20,
+                            IsPrimary = false,
+                            MediaAssetId = 53,
+                            SortOrder = 2,
+                            TourId = 7
+                        },
+                        new
+                        {
+                            Id = 21,
+                            IsPrimary = false,
+                            MediaAssetId = 54,
+                            SortOrder = 3,
+                            TourId = 7
+                        },
+                        new
+                        {
+                            Id = 22,
+                            IsPrimary = true,
+                            MediaAssetId = 37,
+                            SortOrder = 1,
+                            TourId = 8
+                        },
+                        new
+                        {
+                            Id = 23,
+                            IsPrimary = false,
+                            MediaAssetId = 38,
+                            SortOrder = 2,
+                            TourId = 8
+                        },
+                        new
+                        {
+                            Id = 24,
+                            IsPrimary = false,
+                            MediaAssetId = 39,
+                            SortOrder = 3,
+                            TourId = 8
+                        },
+                        new
+                        {
+                            Id = 25,
+                            IsPrimary = true,
+                            MediaAssetId = 40,
+                            SortOrder = 1,
+                            TourId = 9
+                        },
+                        new
+                        {
+                            Id = 26,
+                            IsPrimary = false,
+                            MediaAssetId = 41,
+                            SortOrder = 2,
+                            TourId = 9
+                        },
+                        new
+                        {
+                            Id = 27,
+                            IsPrimary = false,
+                            MediaAssetId = 42,
+                            SortOrder = 3,
+                            TourId = 9
+                        },
+                        new
+                        {
+                            Id = 28,
+                            IsPrimary = true,
+                            MediaAssetId = 13,
+                            SortOrder = 1,
+                            TourId = 10
+                        },
+                        new
+                        {
+                            Id = 29,
+                            IsPrimary = false,
+                            MediaAssetId = 14,
+                            SortOrder = 2,
+                            TourId = 10
+                        },
+                        new
+                        {
+                            Id = 30,
+                            IsPrimary = false,
+                            MediaAssetId = 15,
+                            SortOrder = 3,
+                            TourId = 10
+                        },
+                        new
+                        {
+                            Id = 31,
+                            IsPrimary = true,
+                            MediaAssetId = 28,
+                            SortOrder = 1,
+                            TourId = 11
+                        },
+                        new
+                        {
+                            Id = 32,
+                            IsPrimary = false,
+                            MediaAssetId = 29,
+                            SortOrder = 2,
+                            TourId = 11
+                        },
+                        new
+                        {
+                            Id = 33,
+                            IsPrimary = false,
+                            MediaAssetId = 30,
+                            SortOrder = 3,
+                            TourId = 11
+                        },
+                        new
+                        {
+                            Id = 34,
+                            IsPrimary = true,
+                            MediaAssetId = 55,
+                            SortOrder = 1,
+                            TourId = 12
+                        },
+                        new
+                        {
+                            Id = 35,
+                            IsPrimary = false,
+                            MediaAssetId = 56,
+                            SortOrder = 2,
+                            TourId = 12
+                        },
+                        new
+                        {
+                            Id = 36,
+                            IsPrimary = false,
+                            MediaAssetId = 57,
+                            SortOrder = 3,
+                            TourId = 12
+                        },
+                        new
+                        {
+                            Id = 37,
+                            IsPrimary = true,
+                            MediaAssetId = 22,
+                            SortOrder = 1,
+                            TourId = 13
+                        },
+                        new
+                        {
+                            Id = 38,
+                            IsPrimary = false,
+                            MediaAssetId = 23,
+                            SortOrder = 2,
+                            TourId = 13
+                        },
+                        new
+                        {
+                            Id = 39,
+                            IsPrimary = false,
+                            MediaAssetId = 24,
+                            SortOrder = 3,
+                            TourId = 13
+                        },
+                        new
+                        {
+                            Id = 40,
+                            IsPrimary = true,
+                            MediaAssetId = 1,
+                            SortOrder = 1,
+                            TourId = 14
+                        },
+                        new
+                        {
+                            Id = 41,
+                            IsPrimary = false,
+                            MediaAssetId = 2,
+                            SortOrder = 2,
+                            TourId = 14
+                        },
+                        new
+                        {
+                            Id = 42,
+                            IsPrimary = false,
+                            MediaAssetId = 3,
+                            SortOrder = 3,
+                            TourId = 14
+                        },
+                        new
+                        {
+                            Id = 43,
+                            IsPrimary = true,
+                            MediaAssetId = 7,
+                            SortOrder = 1,
+                            TourId = 15
+                        },
+                        new
+                        {
+                            Id = 44,
+                            IsPrimary = false,
+                            MediaAssetId = 8,
+                            SortOrder = 2,
+                            TourId = 15
+                        },
+                        new
+                        {
+                            Id = 45,
+                            IsPrimary = false,
+                            MediaAssetId = 9,
+                            SortOrder = 3,
+                            TourId = 15
+                        },
+                        new
+                        {
+                            Id = 46,
+                            IsPrimary = true,
+                            MediaAssetId = 25,
+                            SortOrder = 1,
+                            TourId = 16
+                        },
+                        new
+                        {
+                            Id = 47,
+                            IsPrimary = false,
+                            MediaAssetId = 26,
+                            SortOrder = 2,
+                            TourId = 16
+                        },
+                        new
+                        {
+                            Id = 48,
+                            IsPrimary = false,
+                            MediaAssetId = 27,
+                            SortOrder = 3,
+                            TourId = 16
+                        },
+                        new
+                        {
+                            Id = 49,
+                            IsPrimary = true,
+                            MediaAssetId = 34,
+                            SortOrder = 1,
+                            TourId = 17
+                        },
+                        new
+                        {
+                            Id = 50,
+                            IsPrimary = false,
+                            MediaAssetId = 35,
+                            SortOrder = 2,
+                            TourId = 17
+                        },
+                        new
+                        {
+                            Id = 51,
+                            IsPrimary = false,
+                            MediaAssetId = 36,
+                            SortOrder = 3,
+                            TourId = 17
+                        },
+                        new
+                        {
+                            Id = 52,
+                            IsPrimary = true,
+                            MediaAssetId = 4,
+                            SortOrder = 1,
+                            TourId = 18
+                        },
+                        new
+                        {
+                            Id = 53,
+                            IsPrimary = false,
+                            MediaAssetId = 5,
+                            SortOrder = 2,
+                            TourId = 18
+                        },
+                        new
+                        {
+                            Id = 54,
+                            IsPrimary = false,
+                            MediaAssetId = 6,
+                            SortOrder = 3,
+                            TourId = 18
+                        },
+                        new
+                        {
+                            Id = 55,
+                            IsPrimary = true,
+                            MediaAssetId = 58,
+                            SortOrder = 1,
+                            TourId = 19
+                        },
+                        new
+                        {
+                            Id = 56,
+                            IsPrimary = false,
+                            MediaAssetId = 59,
+                            SortOrder = 2,
+                            TourId = 19
+                        },
+                        new
+                        {
+                            Id = 57,
+                            IsPrimary = false,
+                            MediaAssetId = 60,
+                            SortOrder = 3,
+                            TourId = 19
+                        },
+                        new
+                        {
+                            Id = 58,
+                            IsPrimary = true,
+                            MediaAssetId = 19,
+                            SortOrder = 1,
+                            TourId = 20
+                        },
+                        new
+                        {
+                            Id = 59,
+                            IsPrimary = false,
+                            MediaAssetId = 20,
+                            SortOrder = 2,
+                            TourId = 20
+                        },
+                        new
+                        {
+                            Id = 60,
+                            IsPrimary = false,
+                            MediaAssetId = 21,
+                            SortOrder = 3,
+                            TourId = 20
+                        },
+                        new
+                        {
+                            Id = 61,
+                            IsPrimary = true,
+                            MediaAssetId = 49,
+                            SortOrder = 1,
+                            TourId = 21
+                        },
+                        new
+                        {
+                            Id = 62,
+                            IsPrimary = false,
+                            MediaAssetId = 50,
+                            SortOrder = 2,
+                            TourId = 21
+                        },
+                        new
+                        {
+                            Id = 63,
+                            IsPrimary = false,
+                            MediaAssetId = 51,
+                            SortOrder = 3,
+                            TourId = 21
                         });
                 });
 
@@ -1465,122 +3049,506 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            AdultPrice = 4500000m,
-                            AvailableSeats = 10,
-                            ChildPrice = 3000000m,
-                            DepartureDate = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AdultPrice = 3550000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2485000.0m,
+                            DepartureDate = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Available",
                             TourId = 1
                         },
                         new
                         {
                             Id = 2,
-                            AdultPrice = 3000000m,
-                            AvailableSeats = 0,
-                            ChildPrice = 2000000m,
-                            DepartureDate = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Full",
-                            TourId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AdultPrice = 5200000m,
-                            AvailableSeats = 5,
-                            ChildPrice = 3500000m,
-                            DepartureDate = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Available",
-                            TourId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AdultPrice = 3800000m,
-                            AvailableSeats = 0,
-                            ChildPrice = 2500000m,
-                            DepartureDate = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Cancelled",
-                            TourId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AdultPrice = 900000m,
+                            AdultPrice = 3570000m,
                             AvailableSeats = 8,
-                            ChildPrice = 600000m,
-                            DepartureDate = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ChildPrice = 2499000.0m,
+                            DepartureDate = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Available",
                             TourId = 1
                         },
                         new
                         {
-                            Id = 6,
-                            AdultPrice = 4700000m,
-                            AvailableSeats = 0,
-                            ChildPrice = 3000000m,
-                            DepartureDate = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Full",
+                            Id = 3,
+                            AdultPrice = 3600000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2520000.0m,
+                            DepartureDate = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
                             TourId = 2
                         },
                         new
                         {
-                            Id = 7,
-                            AdultPrice = 3200000m,
+                            Id = 4,
+                            AdultPrice = 3640000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2548000.0m,
+                            DepartureDate = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AdultPrice = 3650000m,
                             AvailableSeats = 12,
-                            ChildPrice = 2000000m,
-                            DepartureDate = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            ChildPrice = 2555000.0m,
+                            DepartureDate = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Available",
                             TourId = 3
                         },
                         new
                         {
-                            Id = 8,
-                            AdultPrice = 3100000m,
+                            Id = 6,
+                            AdultPrice = 3710000m,
                             AvailableSeats = 0,
-                            ChildPrice = 2000000m,
-                            DepartureDate = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Cancelled",
+                            ChildPrice = 2597000.0m,
+                            DepartureDate = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 3
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AdultPrice = 3700000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2590000.0m,
+                            DepartureDate = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AdultPrice = 3780000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2646000.0m,
+                            DepartureDate = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
                             TourId = 4
                         },
                         new
                         {
                             Id = 9,
-                            AdultPrice = 5500000m,
-                            AvailableSeats = 7,
-                            ChildPrice = 3500000m,
-                            DepartureDate = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
-                            ReturnDate = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AdultPrice = 3750000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2625000.0m,
+                            DepartureDate = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Available",
-                            TourId = 1
+                            TourId = 5
                         },
                         new
                         {
                             Id = 10,
-                            AdultPrice = 700000m,
-                            AvailableSeats = 3,
-                            ChildPrice = 500000m,
-                            DepartureDate = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quota = 20,
+                            AdultPrice = 3850000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2695000.0m,
+                            DepartureDate = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 5
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AdultPrice = 3800000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2660000.0m,
+                            DepartureDate = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 6
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AdultPrice = 3920000m,
+                            AvailableSeats = 0,
+                            ChildPrice = 2744000.0m,
+                            DepartureDate = new DateTime(2026, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 6
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AdultPrice = 3850000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2695000.0m,
+                            DepartureDate = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
                             ReturnDate = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = "Available",
-                            TourId = 2
+                            TourId = 7
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AdultPrice = 3990000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2793000.0m,
+                            DepartureDate = new DateTime(2026, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 7
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AdultPrice = 3900000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2730000.0m,
+                            DepartureDate = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 8
+                        },
+                        new
+                        {
+                            Id = 16,
+                            AdultPrice = 4060000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2842000.0m,
+                            DepartureDate = new DateTime(2026, 5, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 8
+                        },
+                        new
+                        {
+                            Id = 17,
+                            AdultPrice = 3950000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2765000.0m,
+                            DepartureDate = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 9
+                        },
+                        new
+                        {
+                            Id = 18,
+                            AdultPrice = 4130000m,
+                            AvailableSeats = 0,
+                            ChildPrice = 2891000.0m,
+                            DepartureDate = new DateTime(2026, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 9
+                        },
+                        new
+                        {
+                            Id = 19,
+                            AdultPrice = 3800000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2660000.0m,
+                            DepartureDate = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 10
+                        },
+                        new
+                        {
+                            Id = 20,
+                            AdultPrice = 4000000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2800000.0m,
+                            DepartureDate = new DateTime(2026, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 10
+                        },
+                        new
+                        {
+                            Id = 21,
+                            AdultPrice = 3850000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2695000.0m,
+                            DepartureDate = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 11
+                        },
+                        new
+                        {
+                            Id = 22,
+                            AdultPrice = 4070000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2849000.0m,
+                            DepartureDate = new DateTime(2026, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 11
+                        },
+                        new
+                        {
+                            Id = 23,
+                            AdultPrice = 3900000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2730000.0m,
+                            DepartureDate = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 12
+                        },
+                        new
+                        {
+                            Id = 24,
+                            AdultPrice = 4140000m,
+                            AvailableSeats = 0,
+                            ChildPrice = 2898000.0m,
+                            DepartureDate = new DateTime(2026, 5, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 12
+                        },
+                        new
+                        {
+                            Id = 25,
+                            AdultPrice = 3950000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2765000.0m,
+                            DepartureDate = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 13
+                        },
+                        new
+                        {
+                            Id = 26,
+                            AdultPrice = 4210000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2947000.0m,
+                            DepartureDate = new DateTime(2026, 5, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 13
+                        },
+                        new
+                        {
+                            Id = 27,
+                            AdultPrice = 4000000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2800000.0m,
+                            DepartureDate = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 14
+                        },
+                        new
+                        {
+                            Id = 28,
+                            AdultPrice = 4280000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2996000.0m,
+                            DepartureDate = new DateTime(2026, 5, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 14
+                        },
+                        new
+                        {
+                            Id = 29,
+                            AdultPrice = 4050000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2835000.0m,
+                            DepartureDate = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 15
+                        },
+                        new
+                        {
+                            Id = 30,
+                            AdultPrice = 4350000m,
+                            AvailableSeats = 0,
+                            ChildPrice = 3045000.0m,
+                            DepartureDate = new DateTime(2026, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 15
+                        },
+                        new
+                        {
+                            Id = 31,
+                            AdultPrice = 3600000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2520000.0m,
+                            DepartureDate = new DateTime(2026, 5, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 16
+                        },
+                        new
+                        {
+                            Id = 32,
+                            AdultPrice = 3920000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2744000.0m,
+                            DepartureDate = new DateTime(2026, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 16
+                        },
+                        new
+                        {
+                            Id = 33,
+                            AdultPrice = 3650000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2555000.0m,
+                            DepartureDate = new DateTime(2026, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 17
+                        },
+                        new
+                        {
+                            Id = 34,
+                            AdultPrice = 3990000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2793000.0m,
+                            DepartureDate = new DateTime(2026, 5, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 17
+                        },
+                        new
+                        {
+                            Id = 35,
+                            AdultPrice = 3200000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2240000.0m,
+                            DepartureDate = new DateTime(2026, 5, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 18
+                        },
+                        new
+                        {
+                            Id = 36,
+                            AdultPrice = 3560000m,
+                            AvailableSeats = 0,
+                            ChildPrice = 2492000.0m,
+                            DepartureDate = new DateTime(2026, 5, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 18
+                        },
+                        new
+                        {
+                            Id = 37,
+                            AdultPrice = 3250000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 2275000.0m,
+                            DepartureDate = new DateTime(2026, 5, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 19
+                        },
+                        new
+                        {
+                            Id = 38,
+                            AdultPrice = 3630000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 2541000.0m,
+                            DepartureDate = new DateTime(2026, 5, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 19
+                        },
+                        new
+                        {
+                            Id = 39,
+                            AdultPrice = 4600000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 3220000.0m,
+                            DepartureDate = new DateTime(2026, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 18, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 20
+                        },
+                        new
+                        {
+                            Id = 40,
+                            AdultPrice = 5000000m,
+                            AvailableSeats = 8,
+                            ChildPrice = 3500000.0m,
+                            DepartureDate = new DateTime(2026, 5, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 20
+                        },
+                        new
+                        {
+                            Id = 41,
+                            AdultPrice = 4650000m,
+                            AvailableSeats = 12,
+                            ChildPrice = 3255000.0m,
+                            DepartureDate = new DateTime(2026, 5, 16, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 19, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Available",
+                            TourId = 21
+                        },
+                        new
+                        {
+                            Id = 42,
+                            AdultPrice = 5070000m,
+                            AvailableSeats = 0,
+                            ChildPrice = 3549000.0m,
+                            DepartureDate = new DateTime(2026, 5, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quota = 25,
+                            ReturnDate = new DateTime(2026, 5, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Full",
+                            TourId = 21
                         });
                 });
 
@@ -1623,39 +3591,39 @@ namespace backend.Migrations
                         new
                         {
                             Id = 1,
-                            Amount = 9000000m,
+                            Amount = 1750000m,
                             BookingId = 1,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaymentMethod = "VNPay",
+                            CreatedAt = new DateTime(2026, 4, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
                             Status = "Success",
                             TransactionCode = "TRANS001"
                         },
                         new
                         {
                             Id = 2,
-                            Amount = 6000000m,
+                            Amount = 2000000m,
                             BookingId = 2,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaymentMethod = "Momo",
-                            Status = "Pending",
+                            CreatedAt = new DateTime(2026, 4, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Success",
                             TransactionCode = "TRANS002"
                         },
                         new
                         {
                             Id = 3,
-                            Amount = 10400000m,
+                            Amount = 2250000m,
                             BookingId = 3,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaymentMethod = "VNPay",
-                            Status = "Failed",
+                            CreatedAt = new DateTime(2026, 4, 23, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
+                            Status = "Pending",
                             TransactionCode = "TRANS003"
                         },
                         new
                         {
                             Id = 4,
-                            Amount = 7600000m,
+                            Amount = 2500000m,
                             BookingId = 4,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 24, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PaymentMethod = "VNPay",
                             Status = "Failed",
                             TransactionCode = "TRANS004"
@@ -1663,9 +3631,9 @@ namespace backend.Migrations
                         new
                         {
                             Id = 5,
-                            Amount = 2700000m,
+                            Amount = 2750000m,
                             BookingId = 5,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 25, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PaymentMethod = "Momo",
                             Status = "Success",
                             TransactionCode = "TRANS005"
@@ -1673,9 +3641,9 @@ namespace backend.Migrations
                         new
                         {
                             Id = 6,
-                            Amount = 9400000m,
+                            Amount = 3000000m,
                             BookingId = 6,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PaymentMethod = "VNPay",
                             Status = "Pending",
                             TransactionCode = "TRANS006"
@@ -1683,9 +3651,9 @@ namespace backend.Migrations
                         new
                         {
                             Id = 7,
-                            Amount = 6400000m,
+                            Amount = 3250000m,
                             BookingId = 7,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 27, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PaymentMethod = "Momo",
                             Status = "Success",
                             TransactionCode = "TRANS007"
@@ -1693,9 +3661,9 @@ namespace backend.Migrations
                         new
                         {
                             Id = 8,
-                            Amount = 3100000m,
+                            Amount = 3500000m,
                             BookingId = 8,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 28, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PaymentMethod = "VNPay",
                             Status = "Failed",
                             TransactionCode = "TRANS008"
@@ -1703,22 +3671,122 @@ namespace backend.Migrations
                         new
                         {
                             Id = 9,
-                            Amount = 11000000m,
+                            Amount = 3750000m,
                             BookingId = 9,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PaymentMethod = "VNPay",
-                            Status = "Success",
+                            CreatedAt = new DateTime(2026, 4, 29, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
+                            Status = "Pending",
                             TransactionCode = "TRANS009"
                         },
                         new
                         {
                             Id = 10,
-                            Amount = 1400000m,
+                            Amount = 4000000m,
                             BookingId = 10,
-                            CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedAt = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Success",
+                            TransactionCode = "TRANS010"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Amount = 4250000m,
+                            BookingId = 11,
+                            CreatedAt = new DateTime(2026, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
+                            Status = "Success",
+                            TransactionCode = "TRANS011"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Amount = 4500000m,
+                            BookingId = 12,
+                            CreatedAt = new DateTime(2026, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Failed",
+                            TransactionCode = "TRANS012"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Amount = 4750000m,
+                            BookingId = 13,
+                            CreatedAt = new DateTime(2026, 5, 3, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
+                            Status = "Success",
+                            TransactionCode = "TRANS013"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Amount = 5000000m,
+                            BookingId = 14,
+                            CreatedAt = new DateTime(2026, 5, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Success",
+                            TransactionCode = "TRANS014"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Amount = 5250000m,
+                            BookingId = 15,
+                            CreatedAt = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             PaymentMethod = "Momo",
                             Status = "Pending",
-                            TransactionCode = "TRANS010"
+                            TransactionCode = "TRANS015"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Amount = 5500000m,
+                            BookingId = 16,
+                            CreatedAt = new DateTime(2026, 5, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Failed",
+                            TransactionCode = "TRANS016"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Amount = 5750000m,
+                            BookingId = 17,
+                            CreatedAt = new DateTime(2026, 5, 7, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
+                            Status = "Success",
+                            TransactionCode = "TRANS017"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Amount = 6000000m,
+                            BookingId = 18,
+                            CreatedAt = new DateTime(2026, 5, 8, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Pending",
+                            TransactionCode = "TRANS018"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Amount = 6250000m,
+                            BookingId = 19,
+                            CreatedAt = new DateTime(2026, 5, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "Momo",
+                            Status = "Success",
+                            TransactionCode = "TRANS019"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Amount = 6500000m,
+                            BookingId = 20,
+                            CreatedAt = new DateTime(2026, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PaymentMethod = "VNPay",
+                            Status = "Failed",
+                            TransactionCode = "TRANS020"
                         });
                 });
 
@@ -1729,6 +3797,12 @@ namespace backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CoverUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1775,99 +3849,99 @@ namespace backend.Migrations
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "a@gmail.com",
-                            FullName = "Nguyễn Văn A",
+                            Email = "minhanh.nguyen@gmail.com",
+                            FullName = "Nguyễn Minh Anh",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000001",
+                            Phone = "0903123456",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 2,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "b@gmail.com",
-                            FullName = "Trần Thị B",
+                            Email = "thuhang.tran@gmail.com",
+                            FullName = "Trần Thu Hằng",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000002",
+                            Phone = "0912233445",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 3,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "c@gmail.com",
-                            FullName = "Lê Văn C",
+                            Email = "quoccuong.le@gmail.com",
+                            FullName = "Lê Quốc Cường",
                             IsLocked = true,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000003",
+                            Phone = "0987654321",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 4,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "d@gmail.com",
-                            FullName = "Phạm Thị D",
+                            Email = "ngocdiem.pham@gmail.com",
+                            FullName = "Phạm Ngọc Diễm",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000004",
+                            Phone = "0938345678",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 5,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "e@gmail.com",
-                            FullName = "Hoàng Văn E",
+                            Email = "giabao.hoang@gmail.com",
+                            FullName = "Hoàng Gia Bảo",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000005",
+                            Phone = "0977123456",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 6,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "f@gmail.com",
-                            FullName = "Đỗ Thị F",
+                            Email = "khanhlinh.do@gmail.com",
+                            FullName = "Đỗ Khánh Linh",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000006",
+                            Phone = "0909988776",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 7,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "g@gmail.com",
-                            FullName = "Võ Văn G",
+                            Email = "thanhnam.vo@gmail.com",
+                            FullName = "Võ Thành Nam",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000007",
+                            Phone = "0945566778",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 8,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "h@gmail.com",
-                            FullName = "Bùi Thị H",
+                            Email = "haiyen.bui@gmail.com",
+                            FullName = "Bùi Hải Yến",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000008",
+                            Phone = "0923123123",
                             RoleId = 2
                         },
                         new
                         {
                             Id = 9,
                             CreatedAt = new DateTime(2026, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "i@gmail.com",
-                            FullName = "Ngô Văn I",
+                            Email = "duclong.ngo@gmail.com",
+                            FullName = "Ngô Đức Long",
                             IsLocked = false,
                             PasswordHash = "$2a$11$5JCEuIAPe01M9Hz0jahT9.ZfJKi2Vl9iRe6ICMhY10bgnRQ4yA.FW",
-                            Phone = "090000009",
+                            Phone = "0968877665",
                             RoleId = 2
                         },
                         new
@@ -1920,7 +3994,7 @@ namespace backend.Migrations
                             DiscountType = "Percentage",
                             DiscountValue = 10m,
                             ExpiryDate = new DateTime(2026, 7, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 50
+                            Quantity = 120
                         },
                         new
                         {
@@ -1929,7 +4003,7 @@ namespace backend.Migrations
                             DiscountType = "FixedAmount",
                             DiscountValue = 200000m,
                             ExpiryDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 30
+                            Quantity = 80
                         },
                         new
                         {
@@ -1938,7 +4012,7 @@ namespace backend.Migrations
                             DiscountType = "Percentage",
                             DiscountValue = 15m,
                             ExpiryDate = new DateTime(2026, 10, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 100
+                            Quantity = 300
                         },
                         new
                         {
@@ -1947,61 +4021,61 @@ namespace backend.Migrations
                             DiscountType = "FixedAmount",
                             DiscountValue = 500000m,
                             ExpiryDate = new DateTime(2026, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 10
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Code = "HOLIDAY",
-                            DiscountType = "Percentage",
-                            DiscountValue = 20m,
-                            ExpiryDate = new DateTime(2026, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 20
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Code = "FLASH",
-                            DiscountType = "FixedAmount",
-                            DiscountValue = 100000m,
-                            ExpiryDate = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 40
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Code = "WEEKEND",
-                            DiscountType = "Percentage",
-                            DiscountValue = 5m,
-                            ExpiryDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 60
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Code = "TRAVEL50",
-                            DiscountType = "FixedAmount",
-                            DiscountValue = 50000m,
-                            ExpiryDate = new DateTime(2026, 7, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 80
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Code = "FAMILY",
-                            DiscountType = "Percentage",
-                            DiscountValue = 12m,
-                            ExpiryDate = new DateTime(2026, 9, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Quantity = 25
                         },
                         new
                         {
+                            Id = 5,
+                            Code = "HOLIDAY20",
+                            DiscountType = "Percentage",
+                            DiscountValue = 20m,
+                            ExpiryDate = new DateTime(2026, 8, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quantity = 60
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Code = "FLASH100K",
+                            DiscountType = "FixedAmount",
+                            DiscountValue = 100000m,
+                            ExpiryDate = new DateTime(2026, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quantity = 100
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Code = "WEEKEND5",
+                            DiscountType = "Percentage",
+                            DiscountValue = 5m,
+                            ExpiryDate = new DateTime(2026, 6, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quantity = 150
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Code = "TRAVEL50K",
+                            DiscountType = "FixedAmount",
+                            DiscountValue = 50000m,
+                            ExpiryDate = new DateTime(2026, 7, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quantity = 200
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Code = "FAMILY12",
+                            DiscountType = "Percentage",
+                            DiscountValue = 12m,
+                            ExpiryDate = new DateTime(2026, 9, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Quantity = 70
+                        },
+                        new
+                        {
                             Id = 10,
-                            Code = "LASTMIN",
+                            Code = "LASTMIN8",
                             DiscountType = "Percentage",
                             DiscountValue = 8m,
                             ExpiryDate = new DateTime(2026, 4, 30, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Quantity = 15
+                            Quantity = 40
                         });
                 });
 

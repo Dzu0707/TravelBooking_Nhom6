@@ -16,6 +16,113 @@ public class UsersController : ControllerBase
     {
         _context = context;
     }
+    [HttpPost("me/avatar")]
+    [Authorize]
+    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+    {
+        return await UploadProfileImage(file, true);
+    }
+
+    [HttpPost("me/cover")]
+    [Authorize]
+    public async Task<IActionResult> UploadCover([FromForm] IFormFile file)
+    {
+        return await UploadProfileImage(file, false);
+    }
+
+    [HttpDelete("me/avatar")]
+    [Authorize]
+    public async Task<IActionResult> DeleteAvatar()
+    {
+        return await DeleteProfileImage(true);
+    }
+
+    [HttpDelete("me/cover")]
+    [Authorize]
+    public async Task<IActionResult> DeleteCover()
+    {
+        return await DeleteProfileImage(false);
+    }
+
+    private async Task<IActionResult> UploadProfileImage(IFormFile? file, bool isAvatar)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { message = "Vui lòng chọn file ảnh." });
+
+        if (file.Length > 5 * 1024 * 1024)
+            return BadRequest(new { message = "Ảnh phải nhỏ hơn 5MB." });
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        if (!allowed.Contains(ext))
+            return BadRequest(new { message = "Chỉ hỗ trợ ảnh JPG, PNG, WEBP." });
+
+        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(userEmail))
+            return Unauthorized(new { message = "Không xác định được danh tính!" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+        if (user == null)
+            return NotFound(new { message = "Người dùng không tồn tại!" });
+
+        var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var folder = Path.Combine(webRoot, "uploads", "users");
+        Directory.CreateDirectory(folder);
+
+        var oldUrl = isAvatar ? user.AvatarUrl : user.CoverUrl;
+        DeleteFileIfExists(oldUrl);
+
+        var fileName = $"{user.Id}_{(isAvatar ? "avatar" : "cover")}_{Guid.NewGuid():N}{ext}";
+        var fullPath = Path.Combine(folder, fileName);
+
+        await using (var stream = System.IO.File.Create(fullPath))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var relativeUrl = $"/uploads/users/{fileName}";
+        if (isAvatar) user.AvatarUrl = relativeUrl;
+        else user.CoverUrl = relativeUrl;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Tải ảnh thành công!", imageUrl = relativeUrl });
+    }
+
+    private async Task<IActionResult> DeleteProfileImage(bool isAvatar)
+    {
+        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(userEmail))
+            return Unauthorized(new { message = "Không xác định được danh tính!" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+        if (user == null)
+            return NotFound(new { message = "Người dùng không tồn tại!" });
+
+        var oldUrl = isAvatar ? user.AvatarUrl : user.CoverUrl;
+        DeleteFileIfExists(oldUrl);
+
+        if (isAvatar) user.AvatarUrl = null;
+        else user.CoverUrl = null;
+
+        await _context.SaveChangesAsync();
+        return Ok(new { message = "Đã xóa ảnh thành công." });
+    }
+
+    private static void DeleteFileIfExists(string? relativeUrl)
+    {
+        if (string.IsNullOrWhiteSpace(relativeUrl)) return;
+
+        var cleaned = relativeUrl.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString());
+        var fullPath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "wwwroot",
+            cleaned.Replace($"wwwroot{Path.DirectorySeparatorChar}", "")
+        );
+
+        if (System.IO.File.Exists(fullPath))
+            System.IO.File.Delete(fullPath);
+    }
 
     [HttpGet]
     [Authorize(Roles = "Admin")]
@@ -59,6 +166,8 @@ public class UsersController : ControllerBase
             user.Email,
             user.Phone,
             user.CreatedAt,
+            user.AvatarUrl,
+            user.CoverUrl,
             Role = user.Role?.Name
         });
     }

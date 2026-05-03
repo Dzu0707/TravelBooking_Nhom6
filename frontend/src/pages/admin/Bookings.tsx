@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import {
   XCircle,
@@ -18,11 +18,7 @@ import {
   Users,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import {
-  Card,
-  Text,
-  Title,
-} from '@tremor/react';
+import { Card, Text, Title } from '@tremor/react';
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -39,7 +35,7 @@ const AdminBookings = () => {
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const res = await axios.get(API_BASE_URL, config);
-      setBookings(res.data);
+      setBookings(res.data ?? []);
     } catch {
       toast.error('Lỗi tải dữ liệu đơn hàng');
     } finally {
@@ -62,14 +58,10 @@ const AdminBookings = () => {
 
       await axios.put(`${API_BASE_URL}/${id}/confirm-payment`, {}, config);
 
-      setBookings((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, status: 'Confirmed' } : b))
-      );
-
+      setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status: 'Confirmed' } : b)));
       toast.success(`Đã duyệt thanh toán đơn #${id}`);
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.response?.data || 'Lỗi xác thực';
-      toast.error(errorMsg);
+      toast.error(err.response?.data?.message || err.response?.data || 'Lỗi xác thực');
     } finally {
       setActionLoading(null);
     }
@@ -85,14 +77,10 @@ const AdminBookings = () => {
 
       await axios.put(`${API_BASE_URL}/${id}/cancel`, {}, config);
 
-      setBookings((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, status: 'Cancelled' } : b))
-      );
-
+      setBookings((prev) => prev.map((b) => (b.id === id ? { ...b, status: 'Cancelled' } : b)));
       toast.success(`Đã hủy đơn hàng #${id}`);
     } catch (err: any) {
-      const errorMsg = err.response?.data?.message || err.response?.data || 'Lỗi khi hủy đơn';
-      toast.error(errorMsg);
+      toast.error(err.response?.data?.message || err.response?.data || 'Lỗi khi hủy đơn');
     } finally {
       setActionLoading(null);
     }
@@ -107,36 +95,36 @@ const AdminBookings = () => {
     }
   };
 
-  const filteredBookings = bookings.filter((b: any) => {
-    const matchesStatus = filterStatus === 'All' || b.status === filterStatus;
-    const searchStr = searchTerm.toLowerCase().trim();
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((b: any) => {
+      const matchesStatus = filterStatus === 'All' || b.status === filterStatus;
+      const searchStr = searchTerm.toLowerCase().trim();
 
-    const generatedPaymentCode = `PAYTOUR${b.id}NHOM6`.toLowerCase();
-    const customerName = (b.customerName || b.contactName || b.fullName || '').toLowerCase();
-    const customerPhone = (b.contactPhone || '').toLowerCase();
-    const customerEmail = (b.contactEmail || b.customerEmail || '').toLowerCase();
-    const tourName = (b.tourName || '').toLowerCase();
+      const generatedPaymentCode = `PAYTOUR${b.id}NHOM6`.toLowerCase();
+      const customerName = (b.customerName || b.contactName || b.fullName || '').toLowerCase();
+      const customerPhone = (b.contactPhone || '').toLowerCase();
+      const customerEmail = (b.contactEmail || b.customerEmail || '').toLowerCase();
+      const tourName = (b.tourName || '').toLowerCase();
 
-    return (
-      matchesStatus &&
-      (tourName.includes(searchStr) ||
-        customerName.includes(searchStr) ||
-        customerPhone.includes(searchStr) ||
-        customerEmail.includes(searchStr) ||
-        b.id.toString().includes(searchStr) ||
-        generatedPaymentCode.includes(searchStr))
-    );
-  });
+      return (
+        matchesStatus &&
+        (tourName.includes(searchStr) ||
+          customerName.includes(searchStr) ||
+          customerPhone.includes(searchStr) ||
+          customerEmail.includes(searchStr) ||
+          String(b.id).includes(searchStr) ||
+          generatedPaymentCode.includes(searchStr))
+      );
+    });
+  }, [bookings, filterStatus, searchTerm]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="rounded-xl border border-slate-800 bg-slate-900/95 p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(2,6,23,0.45)]">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <section className="rounded-xl border border-slate-800 bg-slate-900/95 p-4 md:p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(2,6,23,0.45)]">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
-              Booking Verification
-            </div>
-            <Title className="mt-2 flex items-center gap-2 text-lg font-black uppercase tracking-tight text-slate-100">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Booking Verification</div>
+            <Title className="mt-2 flex items-center gap-2 text-base md:text-lg font-black uppercase tracking-tight text-slate-100">
               Đối soát giao dịch <ShieldCheck size={20} className="text-cyan-400" />
             </Title>
             <Text className="mt-1 text-sm text-slate-400">
@@ -144,12 +132,9 @@ const AdminBookings = () => {
             </Text>
           </div>
 
-          <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto">
-            <div className="relative flex-1 md:w-80">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
-                size={16}
-              />
+          <div className="flex w-full flex-col gap-3 xl:w-auto xl:flex-row xl:items-center">
+            <div className="relative w-full xl:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
                 type="text"
                 placeholder="Tìm mã, tên khách, sđt, email..."
@@ -159,24 +144,16 @@ const AdminBookings = () => {
               />
             </div>
 
-            <div className="flex rounded-xl border border-slate-800 bg-slate-950 p-1">
+            <div className="flex w-full flex-wrap rounded-xl border border-slate-800 bg-slate-950 p-1 xl:w-auto">
               {['All', 'Pending', 'Confirmed', 'Cancelled'].map((s) => (
                 <button
                   key={s}
                   onClick={() => setFilterStatus(s)}
-                  className={`rounded-lg px-4 py-2 text-[10px] font-bold uppercase tracking-[0.16em] transition-all ${
-                    filterStatus === s
-                      ? 'bg-cyan-500/15 text-cyan-300'
-                      : 'text-slate-500 hover:text-slate-300'
+                  className={`rounded-lg px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] transition-all ${
+                    filterStatus === s ? 'bg-cyan-500/15 text-cyan-300' : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
-                  {s === 'All'
-                    ? 'Tất cả'
-                    : s === 'Pending'
-                      ? 'Chờ tiền'
-                      : s === 'Confirmed'
-                        ? 'Đã duyệt'
-                        : 'Đã hủy'}
+                  {s === 'All' ? 'Tất cả' : s === 'Pending' ? 'Chờ tiền' : s === 'Confirmed' ? 'Đã duyệt' : 'Đã hủy'}
                 </button>
               ))}
             </div>
@@ -185,33 +162,15 @@ const AdminBookings = () => {
       </section>
 
       <Card className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900 p-0 shadow-none">
-        <div className="w-full overflow-hidden">
-          <table className="w-full table-fixed">
-            <colgroup>
-              <col className="w-[25%]" />
-              <col className="w-[21%]" />
-              <col className="w-[16%]" />
-              <col className="w-[16%]" />
-              <col className="w-[22%]" />
-            </colgroup>
-
+        <div className="overflow-x-auto">
+          <table className="min-w-[1200px] w-full">
             <thead className="bg-slate-950/60">
               <tr>
-                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Tour & Khách hàng
-                </th>
-                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Liên hệ & Ghi chú
-                </th>
-                <th className="p-4 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Mã đối soát
-                </th>
-                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Giá trị
-                </th>
-                <th className="p-4 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                  Trạng thái & Thao tác
-                </th>
+                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Tour & Khách hàng</th>
+                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Liên hệ & Ghi chú</th>
+                <th className="p-4 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Mã đối soát</th>
+                <th className="p-4 text-left text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Giá trị</th>
+                <th className="p-4 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">Trạng thái & Thao tác</th>
               </tr>
             </thead>
 
@@ -221,18 +180,14 @@ const AdminBookings = () => {
                   <td colSpan={5} className="p-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <Loader2 className="animate-spin text-cyan-400" size={32} />
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                        Đang truy xuất dữ liệu...
-                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Đang truy xuất dữ liệu...</p>
                     </div>
                   </td>
                 </tr>
               ) : filteredBookings.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-16 text-center">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                      Không có dữ liệu khớp với tìm kiếm
-                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Không có dữ liệu khớp với tìm kiếm</p>
                   </td>
                 </tr>
               ) : (
@@ -240,60 +195,51 @@ const AdminBookings = () => {
                   const displayCode = `PAYTOUR${b.id}NHOM6`;
 
                   return (
-                    <tr
-                      key={b.id}
-                      className="border-b border-slate-800/50 align-top transition-colors hover:bg-slate-800/30"
-                    >
-                      <td className="p-4">
+                    <tr key={b.id} className="border-b border-slate-800/50 align-top transition-colors hover:bg-slate-800/30">
+                      <td className="p-4 min-w-[280px]">
                         <div className="flex gap-3">
                           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 text-cyan-300">
                             <MapPin size={16} />
                           </div>
 
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-bold uppercase tracking-tight text-slate-100">
+                            <p className="text-sm font-bold uppercase tracking-tight text-slate-100 break-words">
                               {b.tourName || 'N/A'}
                             </p>
-                            <p className="mt-1 flex items-center gap-1 truncate text-[11px] font-medium text-slate-400">
+                            <p className="mt-1 flex items-center gap-1 text-[11px] font-medium text-slate-400 break-words">
                               <User size={11} className="shrink-0 text-slate-500" />
-                              {b.customerName || b.contactName || b.fullName}
+                              {b.customerName || b.contactName || b.fullName || 'Khách hàng'}
                             </p>
                             <p className="mt-1 flex items-center gap-1 text-[10px] font-medium uppercase text-slate-500">
                               <CalendarDays size={11} className="shrink-0" />
-                              {b.startDate
-                                ? new Date(b.startDate).toLocaleDateString('vi-VN')
-                                : 'Chưa có lịch'}
+                              {b.startDate ? new Date(b.startDate).toLocaleDateString('vi-VN') : 'Chưa có lịch'}
                             </p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="p-4">
-                        <div className="min-w-0 space-y-2">
-                          <p className="flex items-center gap-2 truncate text-[11px] font-medium text-slate-300">
+                      <td className="p-4 min-w-[250px]">
+                        <div className="space-y-2">
+                          <p className="flex items-center gap-2 text-[11px] font-medium text-slate-300 break-all">
                             <Phone size={12} className="shrink-0 text-slate-500" />
                             {b.contactPhone || 'Chưa có SĐT'}
                           </p>
-                          <p className="flex items-center gap-2 truncate text-[11px] font-medium text-slate-400">
+                          <p className="flex items-center gap-2 text-[11px] font-medium text-slate-400 break-all">
                             <Mail size={12} className="shrink-0 text-slate-500" />
                             {b.contactEmail || b.customerEmail || 'Chưa có email'}
                           </p>
                           <p className="flex items-start gap-2 text-[11px] italic text-amber-300">
                             <MessageSquareMore size={12} className="mt-0.5 shrink-0 text-amber-500" />
-                            <span className="line-clamp-2">
-                              {b.specialRequest || 'Không có yêu cầu'}
-                            </span>
+                            <span className="line-clamp-2 break-words">{b.specialRequest || 'Không có yêu cầu'}</span>
                           </p>
                         </div>
                       </td>
 
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center min-w-[220px]">
                         <div className="flex flex-col items-center gap-2">
-                          <div className="mx-auto inline-flex max-w-full items-center gap-2 rounded-full bg-cyan-500/5 px-3 py-1.5 ring-1 ring-cyan-500/20">
+                          <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-cyan-500/5 px-3 py-1.5 ring-1 ring-cyan-500/20">
                             <Fingerprint size={13} className="shrink-0 text-cyan-400" />
-                            <span className="truncate font-mono text-[10px] font-bold uppercase text-cyan-300">
-                              {displayCode}
-                            </span>
+                            <span className="font-mono text-[10px] font-bold uppercase text-cyan-300">{displayCode}</span>
                           </div>
 
                           <button
@@ -306,24 +252,24 @@ const AdminBookings = () => {
                         </div>
                       </td>
 
-                      <td className="p-4">
-                        <p className="truncate text-[15px] font-bold italic text-emerald-400">
-                          {b.totalPrice?.toLocaleString('vi-VN')} đ
+                      <td className="p-4 min-w-[180px]">
+                        <p className="text-[15px] font-bold italic text-emerald-400">
+                          {Number(b.totalPrice || 0).toLocaleString('vi-VN')} đ
                         </p>
                         <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
                           <Users size={10} className="shrink-0" />
-                          {b.totalPassengers} khách
+                          {b.totalPassengers || 0} khách
                           {typeof b.adultCount === 'number' && typeof b.childCount === 'number'
                             ? ` • ${b.adultCount} NL / ${b.childCount} TE`
                             : ''}
                         </p>
                         <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-slate-500">
                           <CalendarDays size={10} className="shrink-0" />
-                          {new Date(b.createdAt).toLocaleDateString('vi-VN')}
+                          {b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
                         </p>
                       </td>
 
-                      <td className="p-4 text-center">
+                      <td className="p-4 text-center min-w-[220px]">
                         <div className="flex flex-col items-center gap-3">
                           <div className="flex flex-col items-center gap-1.5">
                             <span
@@ -331,15 +277,11 @@ const AdminBookings = () => {
                                 b.status === 'Confirmed'
                                   ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
                                   : b.status === 'Pending'
-                                    ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
-                                    : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
+                                  ? 'border-amber-500/20 bg-amber-500/10 text-amber-400'
+                                  : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
                               }`}
                             >
-                              {b.status === 'Confirmed'
-                                ? 'Đã duyệt'
-                                : b.status === 'Pending'
-                                  ? 'Chờ tiền'
-                                  : 'Đã hủy'}
+                              {b.status === 'Confirmed' ? 'Đã duyệt' : b.status === 'Pending' ? 'Chờ tiền' : 'Đã hủy'}
                             </span>
 
                             {b.status === 'Pending' && (
@@ -387,7 +329,6 @@ const AdminBookings = () => {
           </table>
         </div>
       </Card>
-
     </div>
   );
 };

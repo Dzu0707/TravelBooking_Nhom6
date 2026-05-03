@@ -1,10 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
-import { ImagePlus, Loader2, Trash2, Upload, Image as ImageIcon, Copy } from 'lucide-react';
+import {
+  ImagePlus,
+  Loader2,
+  Trash2,
+  Upload,
+  Image as ImageIcon,
+  Copy,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const API = 'http://localhost:5091/api';
 const BASE_URL = 'http://localhost:5091';
+const PAGE_SIZE = 12;
 
 const resolveUrl = (url?: string) => {
   if (!url) return '';
@@ -45,15 +56,17 @@ const AdminMedia = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [altText, setAltText] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchMedia = async () => {
     setLoading(true);
     try {
       const res = await axios.get(`${API}/Media`, { headers });
-      setItems(res.data);
+      setItems(Array.isArray(res.data) ? res.data : []);
     } catch (err: any) {
       console.error('MEDIA_FETCH_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'MEDIA_FETCH_FAILURE: 500');
+      toast.error(err.response?.data?.message || 'Không tải được kho ảnh');
     } finally {
       setLoading(false);
     }
@@ -70,7 +83,7 @@ const AdminMedia = () => {
     formData.append('file', file);
     formData.append('altText', altText);
 
-    const toastId = toast.loading('MEDIA_UPLOAD_PENDING');
+    const toastId = toast.loading('Đang tải ảnh lên...');
     setUploading(true);
 
     try {
@@ -81,12 +94,13 @@ const AdminMedia = () => {
         },
       });
 
-      toast.success('MEDIA_UPLOAD_SUCCESS: 200', { id: toastId });
+      toast.success('Tải ảnh thành công', { id: toastId });
       setAltText('');
-      fetchMedia();
+      await fetchMedia();
+      setCurrentPage(1);
     } catch (err: any) {
       console.error('MEDIA_UPLOAD_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'MEDIA_UPLOAD_FAILURE: 500', { id: toastId });
+      toast.error(err.response?.data?.message || 'Tải ảnh thất bại', { id: toastId });
     } finally {
       setUploading(false);
     }
@@ -97,25 +111,49 @@ const AdminMedia = () => {
 
     try {
       await axios.delete(`${API}/Media/${id}`, { headers });
-      toast.success('MEDIA_DELETE_SUCCESS: 200');
-      fetchMedia();
+      toast.success('Xóa ảnh thành công');
+      await fetchMedia();
     } catch (err: any) {
       console.error('MEDIA_DELETE_ERROR', err.response?.data || err);
-      toast.error(err.response?.data?.message || 'MEDIA_DELETE_FAILURE: 500');
+      toast.error(err.response?.data?.message || 'Xóa ảnh thất bại');
     }
   };
 
   const copyUrl = async (url: string) => {
     try {
-      await navigator.clipboard.writeText(url);
-      toast.success('MEDIA_URL_COPIED: 200');
+      await navigator.clipboard.writeText(resolveUrl(url));
+      toast.success('Đã sao chép URL');
     } catch {
-      toast.error('MEDIA_URL_COPY_FAILURE: 500');
+      toast.error('Không thể sao chép URL');
     }
   };
 
+  const filteredItems = useMemo(() => {
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return items;
+
+    return items.filter((item) => {
+      const name = (item.fileName || '').toLowerCase();
+      const alt = (item.altText || '').toLowerCase();
+      const uploader = (item.uploadedBy || '').toLowerCase();
+      return name.includes(q) || alt.includes(q) || uploader.includes(q);
+    });
+  }, [items, searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+
+  const paginatedItems = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredItems.slice(start, start + PAGE_SIZE);
+  }, [filteredItems, currentPage]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages, currentPage]);
+
   return (
     <div className="space-y-5 animate-in fade-in duration-500">
+      {/* Header */}
       <section className="rounded-2xl border border-slate-800 bg-slate-900/95 p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_20px_60px_rgba(2,6,23,0.45)]">
         <div className="flex items-start gap-4">
           <div className="flex size-12 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-300">
@@ -125,72 +163,72 @@ const AdminMedia = () => {
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">Media Library</div>
             <h1 className="mt-2 text-lg font-black uppercase tracking-tight text-slate-100">Kho ảnh dùng chung</h1>
             <p className="mt-1 text-sm text-slate-400">
-              Lưu trữ và tái sử dụng ảnh cho tin tức, tour và các module vận hành khác.
+              Lưu trữ, tìm kiếm và tái sử dụng ảnh cho tour, tin tức và các module vận hành.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[360px_1fr]">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <div className="mb-4 flex items-center gap-3">
-            <Upload size={18} className="text-cyan-400" />
-            <h2 className="text-sm font-black uppercase text-slate-100">Tải ảnh lên</h2>
-          </div>
-
-          <div className="space-y-4">
+      {/* Toolbar ngang gọn */}
+      <section className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+        <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_auto]">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={15} />
             <input
-              value={altText}
-              onChange={(e) => setAltText(e.target.value)}
-              placeholder="Alt text / mô tả ảnh"
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-cyan-500/50"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Tìm theo tên ảnh, mô tả, người tải..."
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 pl-9 pr-3 text-sm text-white outline-none focus:border-cyan-500/50"
             />
-
-            <label className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-950 p-6 text-center transition-all hover:border-cyan-500/40 hover:bg-slate-900">
-              <Upload size={28} className="mb-3 text-cyan-400" />
-              <div className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">
-                Chọn ảnh từ máy
-              </div>
-              <div className="mt-2 text-xs text-slate-500">
-                JPG, JPEG, PNG, WEBP
-              </div>
-
-              <input
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp"
-                className="hidden"
-                onChange={(e) => handleUpload(e.target.files?.[0])}
-              />
-            </label>
-
-            {uploading && (
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <Loader2 size={14} className="animate-spin text-cyan-400" />
-                Đang tải ảnh lên hệ thống...
-              </div>
-            )}
           </div>
+
+          {/* Alt text */}
+          <input
+            value={altText}
+            onChange={(e) => setAltText(e.target.value)}
+            placeholder="Alt text / mô tả ảnh"
+            className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2.5 px-3 text-sm text-white outline-none focus:border-cyan-500/50"
+          />
+
+          {/* Upload button */}
+          <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-300 hover:bg-cyan-500/15">
+            {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+            {uploading ? 'Đang tải...' : 'Tải ảnh'}
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              className="hidden"
+              onChange={(e) => handleUpload(e.target.files?.[0])}
+              disabled={uploading}
+            />
+          </label>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <div className="mb-4">
-            <h3 className="text-sm font-black uppercase text-slate-100">Toàn bộ tài nguyên</h3>
-            <p className="mt-1 text-xs text-slate-500">{items.length} ảnh đang lưu trữ</p>
-          </div>
+        <div className="mt-3 text-xs text-slate-500">
+          {filteredItems.length} ảnh {searchTerm ? `(lọc từ ${items.length} ảnh)` : ''}
+        </div>
+      </section>
 
-          {loading ? (
-            <div className="flex items-center justify-center p-16">
-              <Loader2 className="animate-spin text-cyan-400" />
-            </div>
-          ) : items.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {items.map((item) => (
+      {/* Grid ảnh */}
+      <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+        {loading ? (
+          <div className="flex items-center justify-center p-16">
+            <Loader2 className="animate-spin text-cyan-400" />
+          </div>
+        ) : paginatedItems.length > 0 ? (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+              {paginatedItems.map((item) => (
                 <div key={item.id} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
                   <div className="aspect-[4/3] overflow-hidden bg-slate-900">
-                   <img 
-                      src={resolveUrl(item.fileUrl)} 
-                      alt={item.altText || item.fileName} 
-                      className="h-full w-full object-cover" 
+                    <img
+                      src={resolveUrl(item.fileUrl)}
+                      alt={item.altText || item.fileName}
+                      className="h-full w-full object-cover"
                     />
                   </div>
 
@@ -232,14 +270,41 @@ const AdminMedia = () => {
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="rounded-2xl border border-dashed border-slate-800 p-12 text-center">
-              <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                Chưa có ảnh nào trong kho
+
+            {/* Pagination */}
+            <div className="mt-5 flex items-center justify-between border-t border-slate-800 pt-4">
+              <div className="text-xs text-slate-500">
+                Trang {currentPage} / {totalPages}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-300 disabled:opacity-40"
+                >
+                  <ChevronLeft size={14} />
+                  Trước
+                </button>
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-300 disabled:opacity-40"
+                >
+                  Sau
+                  <ChevronRight size={14} />
+                </button>
               </div>
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-800 p-12 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+              {searchTerm ? 'Không tìm thấy ảnh phù hợp' : 'Chưa có ảnh nào trong kho'}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

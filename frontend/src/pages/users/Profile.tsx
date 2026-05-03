@@ -11,33 +11,71 @@ import {
   Loader2,
   PencilLine,
   LockKeyhole,
+  ImagePlus,
+  Trash2,
 } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:5091';
 
+type UserState = {
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  joinDate: string;
+  avatarLetter: string;
+  avatarUrl: string;
+  coverUrl: string;
+};
+
+type FormDataState = {
+  fullName: string;
+  phone: string;
+  email: string;
+};
+
+type PasswordFormState = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
 const Profile = () => {
-  const [user, setUser] = useState({
+  const [user, setUser] = useState<UserState>({
     name: '',
     role: '',
     email: '',
     phone: '',
     joinDate: '',
     avatarLetter: 'A',
+    avatarUrl: localStorage.getItem('avatarUrl') || '',
+    coverUrl: localStorage.getItem('coverUrl') || '',
   });
+
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [formData, setFormData] = useState({ fullName: '', phone: '', email: '' });
-  const [passwordForm, setPasswordForm] = useState({
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
+
+  const [formData, setFormData] = useState<FormDataState>({
+    fullName: '',
+    phone: '',
+    email: '',
+  });
+
+  const [passwordForm, setPasswordForm] = useState<PasswordFormState>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: '',
   });
 
+  const getAuthToken = () => localStorage.getItem('token');
+
   const fetchProfile = async () => {
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
 
     if (!token) {
       toast.error('Vui lòng đăng nhập để xem hồ sơ');
@@ -51,7 +89,6 @@ const Profile = () => {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
-          'Content-Type': 'application/json',
         },
       });
 
@@ -60,21 +97,31 @@ const Profile = () => {
 
         const date = data.createdAt
           ? new Date(data.createdAt).toLocaleDateString('vi-VN', {
-            month: 'long',
-            year: 'numeric',
-          })
+              month: 'long',
+              year: 'numeric',
+            })
           : new Date().toLocaleDateString('vi-VN', {
-            month: 'long',
-            year: 'numeric',
-          });
+              month: 'long',
+              year: 'numeric',
+            });
 
-        const userData = {
+        const avatarFromApi = data.avatarUrl
+          ? `${API_BASE_URL}${data.avatarUrl}`
+          : localStorage.getItem('avatarUrl') || '';
+
+        const coverFromApi = data.coverUrl
+          ? `${API_BASE_URL}${data.coverUrl}`
+          : localStorage.getItem('coverUrl') || '';
+
+        const userData: UserState = {
           name: data.fullName || 'Người dùng',
           role: data.role === 'Admin' ? 'Quản trị viên' : 'Khách hàng',
-          email: data.email,
+          email: data.email || '',
           phone: data.phone || 'Chưa cập nhật',
           joinDate: date,
           avatarLetter: data.fullName?.trim().charAt(0).toUpperCase() || 'A',
+          avatarUrl: avatarFromApi,
+          coverUrl: coverFromApi,
         };
 
         setUser(userData);
@@ -83,6 +130,12 @@ const Profile = () => {
           phone: data.phone || '',
           email: data.email || '',
         });
+
+        if (avatarFromApi) localStorage.setItem('avatarUrl', avatarFromApi);
+        else localStorage.removeItem('avatarUrl');
+
+        if (coverFromApi) localStorage.setItem('coverUrl', coverFromApi);
+        else localStorage.removeItem('coverUrl');
       } else if (response.status === 401) {
         localStorage.removeItem('token');
         toast.error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
@@ -111,13 +164,19 @@ const Profile = () => {
 
   const handleSave = async (e?: React.FormEvent) => {
     e?.preventDefault();
+
     if (!formData.fullName.trim()) {
       toast.error('Họ tên không được để trống');
       return;
     }
 
+    const token = getAuthToken();
+    if (!token) {
+      toast.error('Bạn chưa đăng nhập');
+      return;
+    }
+
     setIsSaving(true);
-    const token = localStorage.getItem('token');
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/update-profile`, {
@@ -162,10 +221,15 @@ const Profile = () => {
       return;
     }
 
-    const token = localStorage.getItem('token');
+    const token = getAuthToken();
+    if (!token) {
+      toast.error('Bạn chưa đăng nhập');
+      return;
+    }
 
     try {
       setIsChangingPassword(true);
+
       const response = await fetch(`${API_BASE_URL}/api/users/change-password`, {
         method: 'PUT',
         headers: {
@@ -195,6 +259,107 @@ const Profile = () => {
     }
   };
 
+  const uploadImage = async (file: File, type: 'avatar' | 'cover') => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error('Bạn chưa đăng nhập');
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Vui lòng chọn file ảnh hợp lệ');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('Ảnh phải nhỏ hơn 5MB');
+      return;
+    }
+
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
+
+    if (type === 'avatar') setIsUploadingAvatar(true);
+    else setIsUploadingCover(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/me/${type}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataUpload,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.message || 'Upload ảnh thất bại');
+        return;
+      }
+
+      const fullUrl = `${API_BASE_URL}${result.imageUrl}`;
+
+      if (type === 'avatar') {
+        setUser((prev) => ({ ...prev, avatarUrl: fullUrl }));
+        localStorage.setItem('avatarUrl', fullUrl);
+      } else {
+        setUser((prev) => ({ ...prev, coverUrl: fullUrl }));
+        localStorage.setItem('coverUrl', fullUrl);
+      }
+
+      toast.success(type === 'avatar' ? 'Cập nhật avatar thành công!' : 'Cập nhật ảnh bìa thành công!');
+    } catch {
+      toast.error('Có lỗi xảy ra khi tải ảnh lên');
+    } finally {
+      if (type === 'avatar') setIsUploadingAvatar(false);
+      else setIsUploadingCover(false);
+    }
+  };
+
+  const deleteImage = async (type: 'avatar' | 'cover') => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error('Bạn chưa đăng nhập');
+      return;
+    }
+
+    if (type === 'avatar') setIsUploadingAvatar(true);
+    else setIsUploadingCover(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/me/${type}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        toast.error(result.message || 'Không thể xóa ảnh');
+        return;
+      }
+
+      if (type === 'avatar') {
+        setUser((prev) => ({ ...prev, avatarUrl: '' }));
+        localStorage.removeItem('avatarUrl');
+      } else {
+        setUser((prev) => ({ ...prev, coverUrl: '' }));
+        localStorage.removeItem('coverUrl');
+      }
+
+      toast.success(type === 'avatar' ? 'Đã xóa avatar' : 'Đã xóa ảnh bìa');
+    } catch {
+      toast.error('Có lỗi xảy ra khi xóa ảnh');
+    } finally {
+      if (type === 'avatar') setIsUploadingAvatar(false);
+      else setIsUploadingCover(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -210,11 +375,50 @@ const Profile = () => {
     <div className="min-h-screen bg-slate-50 px-4 py-8 md:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-          <div className="h-28 md:h-32 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%),linear-gradient(135deg,#2563eb_0%,#0ea5e9_52%,#22d3ee_100%)]" />
+          <div className="relative h-28 md:h-32 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_35%),linear-gradient(135deg,#2563eb_0%,#0ea5e9_52%,#22d3ee_100%)]">
+            {user.coverUrl && (
+              <img src={user.coverUrl} alt="cover" className="h-full w-full object-cover" />
+            )}
+
+            <div className="absolute right-3 top-3 flex items-center gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-xs font-bold text-slate-700 shadow">
+                {isUploadingCover ? <Loader2 className="animate-spin" size={14} /> : <ImagePlus size={14} />}
+                Đổi ảnh bìa
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={isUploadingCover}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadImage(file, 'cover');
+                    e.currentTarget.value = '';
+                  }}
+                />
+              </label>
+
+              {user.coverUrl && (
+                <button
+                  type="button"
+                  onClick={() => deleteImage('cover')}
+                  disabled={isUploadingCover}
+                  className="inline-flex items-center gap-1 rounded-full bg-red-500/90 px-3 py-2 text-xs font-bold text-white shadow hover:bg-red-600 disabled:opacity-60"
+                >
+                  <Trash2 size={14} />
+                  Xóa
+                </button>
+              )}
+            </div>
+          </div>
+
           <div className="-mt-12 flex flex-col gap-6 px-6 pb-8 md:px-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
-              <div className="flex h-24 w-24 items-center justify-center rounded-[1.75rem] border-4 border-white bg-white text-4xl font-black uppercase text-blue-600 shadow-xl shadow-slate-200/70 md:h-28 md:w-28 md:text-5xl">
-                {user.avatarLetter}
+              <div className="relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-[1.75rem] border-4 border-white bg-white text-4xl font-black uppercase text-blue-600 shadow-xl shadow-slate-200/70 md:h-28 md:w-28 md:text-5xl">
+                {user.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="avatar" className="h-full w-full object-cover" />
+                ) : (
+                  user.avatarLetter
+                )}
               </div>
 
               <div className="pb-1">
@@ -227,6 +431,36 @@ const Profile = () => {
                 <p className="mt-2 max-w-xl text-sm leading-7 text-slate-500 md:text-base">
                   Quản lý hồ sơ cá nhân, cập nhật thông tin liên hệ và bảo mật tài khoản.
                 </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800">
+                    {isUploadingAvatar ? <Loader2 className="animate-spin" size={14} /> : <ImagePlus size={14} />}
+                    Đổi avatar
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={isUploadingAvatar}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadImage(file, 'avatar');
+                        e.currentTarget.value = '';
+                      }}
+                    />
+                  </label>
+
+                  {user.avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={() => deleteImage('avatar')}
+                      disabled={isUploadingAvatar}
+                      className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-100 disabled:opacity-60"
+                    >
+                      <Trash2 size={14} />
+                      Xóa avatar
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -322,9 +556,7 @@ const Profile = () => {
                   >
                     <div>
                       <p className="text-base font-semibold text-slate-900">Đổi mật khẩu</p>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Cập nhật mật khẩu để bảo vệ tài khoản
-                      </p>
+                      <p className="mt-1 text-sm text-slate-500">Cập nhật mật khẩu để bảo vệ tài khoản</p>
                     </div>
                     <span className="rounded-full bg-blue-600 px-4 py-2 text-xs font-bold text-white">
                       {showPasswordForm ? 'Đóng' : 'Mở'}
@@ -341,9 +573,7 @@ const Profile = () => {
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-slate-900">Đổi mật khẩu</h3>
-                      <p className="text-sm text-slate-500">
-                        Nhập mật khẩu hiện tại và mật khẩu mới của bạn
-                      </p>
+                      <p className="text-sm text-slate-500">Nhập mật khẩu hiện tại và mật khẩu mới của bạn</p>
                     </div>
                   </div>
 
@@ -426,9 +656,7 @@ const Profile = () => {
               <div className="relative z-10">
                 <div className="mb-3 flex items-center gap-2 text-cyan-300">
                   <Package size={18} />
-                  <span className="text-xs font-bold uppercase tracking-[0.18em]">
-                    Đơn hàng của tôi
-                  </span>
+                  <span className="text-xs font-bold uppercase tracking-[0.18em]">Đơn hàng của tôi</span>
                 </div>
                 <p className="text-5xl font-black tracking-tight">12</p>
                 <p className="mt-2 text-sm text-slate-300">Đơn đặt tour đã được ghi nhận</p>
@@ -441,7 +669,15 @@ const Profile = () => {
   );
 };
 
-const EditableField = ({ icon, label, value, isEditing, onChange }: any) => (
+type EditableFieldProps = {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  isEditing: boolean;
+  onChange: (value: string) => void;
+};
+
+const EditableField = ({ icon, label, value, isEditing, onChange }: EditableFieldProps) => (
   <div className="space-y-2">
     <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
       <span className="text-slate-500">{icon}</span>
@@ -462,7 +698,13 @@ const EditableField = ({ icon, label, value, isEditing, onChange }: any) => (
   </div>
 );
 
-const PasswordField = ({ label, value, onChange }: any) => (
+type PasswordFieldProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+const PasswordField = ({ label, value, onChange }: PasswordFieldProps) => (
   <div className="space-y-2">
     <label className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">{label}</label>
     <input
@@ -474,7 +716,14 @@ const PasswordField = ({ label, value, onChange }: any) => (
   </div>
 );
 
-const StatCard = ({ icon, label, value, color = 'text-slate-900' }: any) => (
+type StatCardProps = {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  color?: string;
+};
+
+const StatCard = ({ icon, label, value, color = 'text-slate-900' }: StatCardProps) => (
   <div className="flex items-center gap-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
     <div className="rounded-2xl bg-slate-100 p-3 text-blue-600">{icon}</div>
     <div>
